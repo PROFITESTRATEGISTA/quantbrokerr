@@ -27,7 +27,14 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
     ? [...baseMenuItems, { id: 'admin', label: 'Admin', icon: TrendingUp, path: '/admin' }]
     : baseMenuItems;
 
-  const handleNavigation = (path: string) => {
+  const handleNavigation = (path: string, requiresLogin: boolean = false) => {
+    // Se a rota requer login e o usuário não está logado, abrir modal de login
+    if (requiresLogin && !isLoggedIn) {
+      onLogin();
+      setIsMenuOpen(false);
+      return;
+    }
+    
     navigate(path);
     setIsMenuOpen(false);
   };
@@ -55,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
             {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => handleNavigation(item.path)}
+                onClick={() => handleNavigation(item.path, item.id === 'results' || item.id === 'admin')}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   location.pathname === item.path
                     ? 'bg-blue-600 text-white'
@@ -122,7 +129,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
                 <button
                   key={item.id}
                   onClick={() => {
-                    handleNavigation(item.path);
+                    handleNavigation(item.path, item.id === 'results' || item.id === 'admin');
                   }}
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     location.pathname === item.path
