@@ -1,34 +1,45 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, TrendingUp, User, LogIn, MessageCircle } from 'lucide-react';
 
 interface HeaderProps {
   currentView: string;
-  onViewChange: (view: string) => void;
   isLoggedIn: boolean;
   isAdmin?: boolean;
   onLogin: () => void;
   onLogout: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isLoggedIn, isAdmin = false, onLogin, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = false, onLogin, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const baseMenuItems = [
-    { id: 'home', label: 'Home', icon: TrendingUp },
-    { id: 'plans', label: 'Planos', icon: TrendingUp },
-    { id: 'results', label: 'Resultados', icon: TrendingUp },
-    { id: 'faq', label: 'FAQ', icon: TrendingUp },
+    { id: 'home', label: 'Home', icon: TrendingUp, path: '/' },
+    { id: 'plans', label: 'Planos', icon: TrendingUp, path: '/planos' },
+    { id: 'results', label: 'Resultados', icon: TrendingUp, path: '/resultados' },
+    { id: 'faq', label: 'FAQ', icon: TrendingUp, path: '/faq' },
   ];
 
   // Add admin menu only for admin users
   const menuItems = isAdmin 
-    ? [...baseMenuItems, { id: 'admin', label: 'Admin', icon: TrendingUp }]
+    ? [...baseMenuItems, { id: 'admin', label: 'Admin', icon: TrendingUp, path: '/admin' }]
     : baseMenuItems;
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-3">
+          <div 
+            className="flex items-center space-x-3 cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <img 
               src="https://i.postimg.cc/GhnKd5J5/Chat-GPT-Image-13-de-jul-de-2025-18-07-15.png" 
               alt="Quant Broker Logo" 
@@ -44,9 +55,9 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isLoggedIn, 
             {menuItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onViewChange(item.id)}
+                onClick={() => handleNavigation(item.path)}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currentView === item.id
+                  location.pathname === item.path
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
@@ -68,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isLoggedIn, 
             {isLoggedIn ? (
               <>
                 <button
-                  onClick={() => onViewChange('dashboard')}
+                  onClick={() => navigate('/dashboard')}
                   className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   <User className="h-4 w-4" />
@@ -111,11 +122,10 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isLoggedIn, 
                 <button
                   key={item.id}
                   onClick={() => {
-                    onViewChange(item.id);
-                    setIsMenuOpen(false);
+                    handleNavigation(item.path);
                   }}
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    currentView === item.id
+                    location.pathname === item.path
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`}
@@ -137,8 +147,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isLoggedIn, 
                   <>
                     <button
                       onClick={() => {
-                        onViewChange('dashboard');
-                        setIsMenuOpen(false);
+                        handleNavigation('/dashboard');
                       }}
                       className="block w-full text-left px-3 py-2 bg-blue-600 text-white rounded-md mb-2"
                     >

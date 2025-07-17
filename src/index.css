@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Prevent flickering during route transitions */
+.route-transition {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.route-transition-enter {
+  opacity: 0;
+}
+
+.route-transition-enter-active {
+  opacity: 1;
+}
+
+.route-transition-exit {
+  opacity: 1;
+}
+
+.route-transition-exit-active {
+  opacity: 0;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent layout shift */
+* {
+  box-sizing: border-box;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
