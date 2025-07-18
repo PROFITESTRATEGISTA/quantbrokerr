@@ -394,7 +394,7 @@ const AdminPanel: React.FC = () => {
       if (error) throw error;
 
       setSuccess('Usuário excluído com sucesso!');
-      fetchUsers();
+      await fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
       setError(error?.message || 'Erro ao excluir usuário');
