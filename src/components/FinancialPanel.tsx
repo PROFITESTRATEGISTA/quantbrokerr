@@ -145,6 +145,10 @@ const FinancialPanel: React.FC = () => {
     }
   };
 
+  const handleSaveContract = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setError(null);
 
       if (editingContract) {
         const { error } = await supabase
