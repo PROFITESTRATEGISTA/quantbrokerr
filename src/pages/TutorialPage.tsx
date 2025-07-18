@@ -5,9 +5,7 @@ import Tutorial from '../components/Tutorial';
 const TutorialPage: React.FC = () => {
   return (
     <Layout>
-      <div className="pt-20">
-        <Tutorial />
-      </div>
+      <Tutorial />
     </Layout>
   );
 };

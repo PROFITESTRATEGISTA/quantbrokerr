@@ -5,9 +5,7 @@ import ResultsCalendar from '../components/ResultsCalendar';
 const ResultadosPage: React.FC = () => {
   return (
     <Layout>
-      <div className="pt-20">
-        <ResultsCalendar />
-      </div>
+      <ResultsCalendar />
     </Layout>
   );
 };

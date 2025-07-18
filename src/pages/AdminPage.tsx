@@ -5,9 +5,7 @@ import AdminPanel from '../components/AdminPanel';
 const AdminPage: React.FC = () => {
   return (
     <Layout>
-      <div className="pt-20">
-        <AdminPanel />
-      </div>
+      <AdminPanel />
     </Layout>
   );
 };

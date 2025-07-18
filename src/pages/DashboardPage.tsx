@@ -5,9 +5,7 @@ import Dashboard from '../components/Dashboard';
 const DashboardPage: React.FC = () => {
   return (
     <Layout>
-      <div className="pt-20">
-        <Dashboard onNavigateToTutorial={() => window.location.href = '/tutorial'} />
-      </div>
+      <Dashboard onNavigateToTutorial={() => window.location.href = '/tutorial'} />
     </Layout>
   );
 };
