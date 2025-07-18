@@ -429,6 +429,22 @@ const AdminPanel: React.FC = () => {
       setError(null);
       console.log('Updating leverage for user:', userId, 'to:', newLeverage);
 
+      console.log('🔧 Updating leverage for user:', { userId, newLeverage });
+      
+      // Verificar se o usuário existe antes de atualizar
+      const { data: existingUser, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('id, leverage_multiplier, email')
+        .eq('id', userId)
+        .single();
+        
+      if (checkError) {
+        console.error('❌ Error checking user:', checkError);
+        throw new Error('Usuário não encontrado');
+      }
+      
+      console.log('👤 User found:', existingUser);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
@@ -442,13 +458,16 @@ const AdminPanel: React.FC = () => {
 
       console.log('Leverage updated successfully');
       
+        console.error('❌ Error updating leverage:', error);
       // Recarregar dados dos usuários após atualização
       await fetchUsers();
+      
+      console.log('✅ Leverage updated successfully');
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating leverage:', error);
-      setError(String(error?.message || error || 'Erro ao atualizar alavancagem'));
+      setError(error.message || 'Erro ao atualizar alavancagem');
     }
   };
 

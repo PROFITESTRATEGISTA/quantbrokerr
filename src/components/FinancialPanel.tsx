@@ -75,6 +75,7 @@ const FinancialPanel: React.FC = () => {
 
   const fetchContracts = async () => {
     try {
+      console.log('🔍 Fetching contracts...');
       const { data, error } = await supabase
         .from('client_contracts')
         .select(`
@@ -84,20 +85,23 @@ const FinancialPanel: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching contracts:', error);
+        console.error('❌ Error fetching contracts:', error);
         setContracts([]);
         return;
       }
 
+      console.log('✅ Raw contracts data:', data);
+      
       const formattedContracts = (data || []).map(contract => ({
         ...contract,
         user_name: contract.user_profiles?.full_name || 'Nome não informado',
         user_email: contract.user_profiles?.email || 'Email não informado'
       }));
 
+      console.log('✅ Formatted contracts:', formattedContracts);
       setContracts(formattedContracts);
     } catch (error) {
-      console.error('Error fetching contracts:', error);
+      console.error('❌ Catch error fetching contracts:', error);
       setContracts([]);
     }
   };
@@ -145,29 +149,41 @@ const FinancialPanel: React.FC = () => {
     e.preventDefault();
     try {
       setError(null);
+      console.log('💾 Saving contract...', { editingContract, contractForm });
 
       if (editingContract) {
+        console.log('📝 Updating existing contract:', editingContract.id);
         const { error } = await supabase
           .from('client_contracts')
           .update(contractForm)
           .eq('id', editingContract.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Error updating contract:', error);
+          throw error;
+        }
+        console.log('✅ Contract updated successfully');
         setSuccess('Contrato atualizado com sucesso!');
       } else {
+        console.log('➕ Creating new contract:', contractForm);
         const { error } = await supabase
           .from('client_contracts')
           .insert([contractForm]);
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Error creating contract:', error);
+          throw error;
+        }
+        console.log('✅ Contract created successfully');
         setSuccess('Contrato criado com sucesso!');
       }
 
       setShowContractModal(false);
       setEditingContract(null);
       resetContractForm();
-      fetchContracts();
+      await fetchContracts();
     } catch (error: any) {
+      console.error('❌ Contract save error:', error);
       setError(error.message);
     }
   };
@@ -207,15 +223,21 @@ const FinancialPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este contrato?')) return;
 
     try {
+      console.log('🗑️ Deleting contract:', id);
       const { error } = await supabase
         .from('client_contracts')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error deleting contract:', error);
+        throw error;
+      }
+      console.log('✅ Contract deleted successfully');
       setSuccess('Contrato excluído com sucesso!');
-      fetchContracts();
+      await fetchContracts();
     } catch (error: any) {
+      console.error('❌ Contract delete error:', error);
       setError(error.message);
     }
   };
@@ -603,13 +625,13 @@ const FinancialPanel: React.FC = () => {
                     <select
                       value={contractForm.user_id}
                       onChange={(e) => setContractForm({...contractForm, user_id: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                       required
                     >
                       <option value="">Selecione um cliente</option>
                       {users.map(user => (
                         <option key={user.id} value={user.id}>
-                          {user.full_name || 'Nome não informado'} - {user.email}
+                          {user.full_name || user.email || 'Usuário sem nome'} ({user.email})
                         </option>
                       ))}
                     </select>
@@ -649,12 +671,16 @@ const FinancialPanel: React.FC = () => {
                     <input
                       type="number"
                       step="0.01"
+                      min="0.01"
                       value={contractForm.monthly_value}
                       onChange={(e) => setContractForm({...contractForm, monthly_value: parseFloat(e.target.value) || 0})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0.00"
                       required
                     />
+                    {contractForm.monthly_value <= 0 && (
+                      <p className="text-red-600 text-sm mt-1">Valor deve ser maior que zero</p>
+                    )}
                   </div>
 
                   <div>
@@ -664,6 +690,7 @@ const FinancialPanel: React.FC = () => {
                       value={contractForm.contract_start}
                       onChange={(e) => setContractForm({...contractForm, contract_start: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      min={new Date().toISOString().split('T')[0]}
                       required
                     />
                   </div>
@@ -675,8 +702,13 @@ const FinancialPanel: React.FC = () => {
                       value={contractForm.contract_end}
                       onChange={(e) => setContractForm({...contractForm, contract_end: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      min={contractForm.contract_start || new Date().toISOString().split('T')[0]}
                       required
                     />
+                    {contractForm.contract_end && contractForm.contract_start && 
+                     new Date(contractForm.contract_end) <= new Date(contractForm.contract_start) && (
+                      <p className="text-red-600 text-sm mt-1">Data de fim deve ser posterior ao início</p>
+                    )}
                   </div>
                 </div>
 
