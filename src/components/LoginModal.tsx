@@ -19,6 +19,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
@@ -72,9 +73,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
             window.RdIntegration.post({
               token_rdstation: '57e7abbb49395ca58551fe103433f9da',
               identificador: 'registro-usuario',
+              nome: fullName,
               email: email,
               telefone: phone,
-              nome: email.split('@')[0], // Use email prefix as name fallback
               tags: ['registro', 'usuario-novo', 'quant-broker']
             });
           }
@@ -84,7 +85,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         }
 
         // Registration - requires email, phone, and password
-        if (!email || !phone || !password) {
+        if (!fullName || !email || !phone || !password) {
           throw new Error('Todos os campos são obrigatórios para registro');
         }
 
@@ -100,6 +101,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           password,
           options: {
             data: {
+              full_name: fullName,
               email: email,
               phone: formattedPhone
             }
@@ -188,6 +190,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   };
 
   const resetForm = () => {
+    setFullName('');
     setEmail('');
     setPassword('');
     setPhone('');
@@ -313,6 +316,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           {isRegister ? (
             // Registration form - requires email, phone, and password
             <>
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nome Completo *
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="nome"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Seu nome completo"
+                  required
+                />
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   <Mail className="h-4 w-4 inline mr-1" />
