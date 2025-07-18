@@ -441,6 +441,9 @@ const AdminPanel: React.FC = () => {
       }
 
       console.log('Leverage updated successfully');
+      
+      // Recarregar dados dos usuários após atualização
+      await fetchUsers();
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
     } catch (error: any) {
