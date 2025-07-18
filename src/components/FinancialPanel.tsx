@@ -75,6 +75,10 @@ const FinancialPanel: React.FC = () => {
 
   const fetchContracts = async () => {
     try {
+      // Temporariamente desabilitado até a tabela ser criada no Supabase
+      setContracts([]);
+      return;
+      
       const { data, error } = await supabase
         .from('client_contracts')
         .select(`
