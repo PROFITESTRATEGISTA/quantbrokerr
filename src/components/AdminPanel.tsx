@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { Plus, Edit3, Save, X, DollarSign } from 'lucide-react';
 import { 
   Plus, Edit3, Save, X, AlertCircle, CheckCircle, Filter, Search, 
   Trash2, Lock, UserPlus, Users, TrendingUp, Calendar, Minus,
@@ -29,6 +29,7 @@ interface ColumnFilter {
 const AdminPanel: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'users' | 'financial'>('users');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -688,6 +689,40 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'users'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Gestão de Usuários
+              </button>
+              <button
+                onClick={() => setActiveTab('financial')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                  activeTab === 'financial'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <DollarSign className="h-4 w-4" />
+                Painel Financeiro
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Render active tab content */}
+        {activeTab === 'financial' ? (
+          <FinancialPanel />
+        ) : (
+          <>
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center mb-4">
@@ -1471,6 +1506,8 @@ const AdminPanel: React.FC = () => {
               </form>
             </div>
           </div>
+        )}
+      </div>
         )}
       </div>
     </div>
