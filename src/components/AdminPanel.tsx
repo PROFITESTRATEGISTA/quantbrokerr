@@ -343,6 +343,8 @@ const AdminPanel: React.FC = () => {
 
     try {
       setError(null);
+      setError(null);
+      console.log('Updating user:', editingUser.id, 'with data:', formData);
       setLoading(true);
       const { error } = await supabase
         .from('user_profiles')
@@ -356,6 +358,8 @@ const AdminPanel: React.FC = () => {
         })
         .eq('id', editingUser.id);
 
+      console.log('Update user result:', { error });
+
       if (error) throw error;
 
       setSuccess('Usuário atualizado com sucesso!');
@@ -365,7 +369,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating user:', error);
-      setError(error.message || 'Erro ao atualizar usuário');
+      setError(error?.message || 'Erro ao atualizar usuário');
     } finally {
       setLoading(false);
     }
@@ -376,11 +380,14 @@ const AdminPanel: React.FC = () => {
 
     try {
       setError(null);
+      console.log('Deleting user:', userId);
       
       const { error } = await supabase
         .from('user_profiles')
         .delete()
         .eq('id', userId);
+
+      console.log('Delete user result:', { error });
 
       if (error) throw error;
 
@@ -396,10 +403,15 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       
+      setError(null);
+      console.log('Updating status for user:', userId, 'to:', newStatus);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
         .eq('id', userId);
+
+      console.log('Update status result:', { error });
 
       if (error) throw error;
 
@@ -407,7 +419,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating user status:', error);
-      setError(error.message || 'Erro ao atualizar status do usuário');
+      setError(error?.message || 'Erro ao atualizar status do usuário');
     }
   };
 
@@ -415,10 +427,15 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       
+      setError(null);
+      console.log('Updating leverage for user:', userId, 'to:', newLeverage);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
         .eq('id', userId);
+
+      console.log('Update leverage result:', { error });
 
       if (error) throw error;
 
@@ -426,12 +443,15 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating leverage:', error);
-      setError(error.message || 'Erro ao atualizar alavancagem');
+      setError(error?.message || 'Erro ao atualizar alavancagem');
     }
   };
 
   const updateUserPlan = async (userId: string, newPlan: string) => {
     try {
+      setError(null);
+      console.log('Updating plan for user:', userId, 'to:', newPlan);
+      
       setError(null);
       
       const { error } = await supabase
@@ -439,13 +459,15 @@ const AdminPanel: React.FC = () => {
         .update({ contracted_plan: newPlan })
         .eq('id', userId);
 
+      console.log('Update plan result:', { error });
+
       if (error) throw error;
 
       setSuccess(`Plano atualizado para ${getPlanDisplayName(newPlan)} com sucesso!`);
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating plan:', error);
-      setError(error.message || 'Erro ao atualizar plano');
+      setError(error?.message || 'Erro ao atualizar plano');
     }
   };
 
