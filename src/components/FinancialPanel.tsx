@@ -242,18 +242,13 @@ const FinancialPanel: React.FC = () => {
   };
 
   const resetContractForm = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const endDate = nextMonth.toISOString().split('T')[0];
-    
     setContractForm({
       user_id: '',
       plan_type: 'mini-indice',
       billing_period: 'monthly',
       monthly_value: 0,
-      contract_start: today,
-      contract_end: endDate,
+      contract_start: '',
+      contract_end: '',
       is_active: true
     });
   };
@@ -844,5 +839,3 @@ const FinancialPanel: React.FC = () => {
 };
 
 export default FinancialPanel;
-
-export default FinancialPanel
