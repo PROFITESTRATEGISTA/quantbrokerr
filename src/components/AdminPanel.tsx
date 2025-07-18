@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Save, X, DollarSign } from 'lucide-react';
-import { 
   Plus, Edit3, Save, X, AlertCircle, CheckCircle, Filter, Search, 
-  Trash2, Lock, UserPlus, Users, TrendingUp, Calendar, Minus,
+  Plus, Edit3, Save, X, DollarSign, AlertCircle, CheckCircle, Filter, Search,
   ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 
