@@ -106,7 +106,7 @@ const FinancialPanel: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('financial_costs')
-        .select('*')
+        .select('id, description, category, amount, cost_date, is_recurring')
         .order('cost_date', { ascending: false });
 
       if (error) {
