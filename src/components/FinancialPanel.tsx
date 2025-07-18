@@ -74,44 +74,71 @@ const FinancialPanel: React.FC = () => {
   };
 
   const fetchContracts = async () => {
-    const { data, error } = await supabase
-      .from('client_contracts')
-      .select(`
-        *,
-        user_profiles!inner(full_name, email)
-      `)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('client_contracts')
+        .select(`
+          *,
+          user_profiles(full_name, email)
+        `)
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
+      if (error) {
+        console.error('Error fetching contracts:', error);
+        setContracts([]);
+        return;
+      }
 
-    const formattedContracts = data.map(contract => ({
-      ...contract,
-      user_name: contract.user_profiles.full_name || 'Nome não informado',
-      user_email: contract.user_profiles.email
-    }));
+      const formattedContracts = (data || []).map(contract => ({
+        ...contract,
+        user_name: contract.user_profiles?.full_name || 'Nome não informado',
+        user_email: contract.user_profiles?.email || 'Email não informado'
+      }));
 
-    setContracts(formattedContracts);
+      setContracts(formattedContracts);
+    } catch (error) {
+      console.error('Error fetching contracts:', error);
+      setContracts([]);
+    }
   };
 
   const fetchCosts = async () => {
-    const { data, error } = await supabase
-      .from('financial_costs')
-      .select('*')
-      .order('cost_date', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('financial_costs')
+        .select('*')
+        .order('cost_date', { ascending: false });
 
-    if (error) throw error;
-    setCosts(data || []);
+      if (error) {
+        console.error('Error fetching costs:', error);
+        setCosts([]);
+        return;
+      }
+      setCosts(data || []);
+    } catch (error) {
+      console.error('Error fetching costs:', error);
+      setCosts([]);
+    }
   };
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('id, full_name, email')
-      .eq('is_active', true)
-      .order('full_name');
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, full_name, email')
+        .eq('is_active', true)
+        .order('full_name');
 
-    if (error) throw error;
-    setUsers(data || []);
+      if (error) {
+        console.error('Error fetching users:', error);
+        setUsers([]);
+        return;
+      }
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setUsers([]);
+    }
   };
 
   const handleSaveContract = async (e: React.FormEvent) => {
