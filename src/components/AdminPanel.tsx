@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit3, Save, X, DollarSign } from 'lucide-react';
 import {
-  Plus, Edit3, Save, X, AlertCircle, CheckCircle, Filter, Search, 
   Plus, Edit3, Save, X, DollarSign, AlertCircle, CheckCircle, Filter, Search,
+  Trash2, Lock, UserPlus, Users, TrendingUp, Calendar, Minus,
   ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown,
-  Users, TrendingUp, Calendar, UserPlus, Lock, Trash2, Minus, Eye, EyeOff
+  Eye, EyeOff
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import FinancialPanel from './FinancialPanel';
