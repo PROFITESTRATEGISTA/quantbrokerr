@@ -41,6 +41,8 @@ const AdminPanel: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [bulkPlan, setBulkPlan] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'asc' | 'desc' | null;
@@ -372,10 +374,6 @@ const AdminPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
     try {
-      setLoading(true);
-      setError(null);
-
-      // First delete from user_profiles table
       const { error } = await supabase
         .from('user_profiles')
         .delete()
@@ -383,21 +381,11 @@ const AdminPanel: React.FC = () => {
 
       if (error) throw error;
 
-      // Then delete from auth.users table (admin only)
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      
-      if (authError) {
-        console.warn('Could not delete from auth.users:', authError);
-        // Continue anyway as the profile was deleted
-      }
-
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
       setError('Erro ao excluir usuário');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -689,6 +677,63 @@ const AdminPanel: React.FC = () => {
     );
   };
 
+  const handleBulkPlanUpdate = async () => {
+    if (!bulkPlan || selectedUsers.length === 0) return;
+    
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ contracted_plan: bulkPlan })
+        .in('id', selectedUsers);
+
+      if (error) throw error;
+
+      setSuccess(`Plano ${getPlanDisplayName(bulkPlan)} aplicado a ${selectedUsers.length} usuários!`);
+      setSelectedUsers([]);
+      setBulkPlan('');
+      setShowBulkActions(false);
+      fetchUsers();
+    } catch (error: any) {
+      setError('Erro ao atualizar planos em lote');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkDeleteLeads = async () => {
+    const leadsToDelete = filteredUsers.filter(user => 
+      selectedUsers.includes(user.id) && user.contracted_plan === 'none'
+    );
+    
+    if (leadsToDelete.length === 0) {
+      setError('Nenhum lead selecionado para exclusão');
+      return;
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir ${leadsToDelete.length} leads (usuários sem plano)?`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .in('id', leadsToDelete.map(user => user.id));
+
+      if (error) throw error;
+
+      setSuccess(`${leadsToDelete.length} leads excluídos com sucesso!`);
+      setSelectedUsers([]);
+      fetchUsers();
+    } catch (error: any) {
+      setError('Erro ao excluir leads');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
       case 'bitcoin': return 'Bitcoin';
@@ -892,6 +937,51 @@ const AdminPanel: React.FC = () => {
           </div>
         </div>
 
+        {/* Bulk Actions Panel */}
+        {showBulkActions && selectedUsers.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+            <h3 className="font-semibold text-blue-900 mb-3">
+              Ações em Lote ({selectedUsers.length} usuários selecionados)
+            </h3>
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-blue-800">Alterar Plano:</label>
+                <select
+                  value={bulkPlan}
+                  onChange={(e) => setBulkPlan(e.target.value)}
+                  className="border border-blue-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="">Selecione um plano</option>
+                  <option value="none">Nenhum</option>
+                  <option value="bitcoin">Bitcoin</option>
+                  <option value="mini-indice">Mini Índice</option>
+                  <option value="mini-dolar">Mini Dólar</option>
+                  <option value="portfolio-completo">Portfólio Completo</option>
+                </select>
+                <button
+                  onClick={handleBulkPlanUpdate}
+                  disabled={!bulkPlan || loading}
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                >
+                  Aplicar
+                </button>
+              </div>
+              <div className="border-l border-blue-300 pl-4">
+                <button
+                  onClick={handleBulkDeleteLeads}
+                  disabled={loading}
+                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+                >
+                  Excluir Leads Selecionados
+                </button>
+                <p className="text-xs text-red-700 mt-1">
+                  Remove apenas usuários sem plano contratado
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -917,6 +1007,12 @@ const AdminPanel: React.FC = () => {
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   {selectedUsers.length === filteredUsers.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                </button>
+                <button
+                  onClick={() => setShowBulkActions(!showBulkActions)}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                >
+                  Ações em Lote
                 </button>
               </div>
             </div>
@@ -1196,9 +1292,11 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
-                        {getPlanDisplayName(user.contracted_plan)}
-                      </span>
+                      <div className="flex items-center gap-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
+                          {getPlanDisplayName(user.contracted_plan)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-3 py-3 text-xs text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('pt-BR')}
