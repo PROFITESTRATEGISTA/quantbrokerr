@@ -457,8 +457,6 @@ const AdminPanel: React.FC = () => {
     } catch (error: any) {
       console.error('Error updating leverage:', error);
       setError(error?.message || 'Erro ao atualizar alavancagem');
-    } finally {
-      setLoading(false);
     }
   };
 
