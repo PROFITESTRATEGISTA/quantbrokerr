@@ -375,15 +375,6 @@ const AdminPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
     try {
-      setError(null);
-      
-      const { error } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
-
-      if (error) throw error;
-
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error: any) {
@@ -394,8 +385,6 @@ const AdminPanel: React.FC = () => {
 
   const handleToggleUserStatus = async (userId: string, newStatus: boolean) => {
     try {
-      setError(null);
-      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
@@ -405,16 +394,14 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating user status:', error);
-      setError(error.message || 'Erro ao atualizar status do usuário');
+      setError('Erro ao atualizar status do usuário');
     }
   };
 
   const handleUpdateLeverage = async (userId: string, newLeverage: number) => {
     try {
-      setError(null);
-      
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
@@ -424,16 +411,14 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating leverage:', error);
-      setError(error.message || 'Erro ao atualizar alavancagem');
+      setError('Erro ao atualizar alavancagem');
     }
   };
 
   const updateUserPlan = async (userId: string, newPlan: string) => {
     try {
-      setError(null);
-      
       const { error } = await supabase
         .from('user_profiles')
         .update({ contracted_plan: newPlan })
@@ -445,7 +430,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating plan:', error);
-      setError(error.message || 'Erro ao atualizar plano');
+      setError('Erro ao atualizar plano');
     }
   };
 
