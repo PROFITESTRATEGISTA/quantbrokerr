@@ -396,10 +396,15 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       
+      setError(null);
+      console.log('Updating status for user:', userId, 'to:', newStatus);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
         .eq('id', userId);
+
+      console.log('Update result:', { error });
 
       if (error) throw error;
 
@@ -407,7 +412,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating user status:', error);
-      setError(error.message || 'Erro ao atualizar status do usuário');
+      setError(`Erro ao atualizar status: ${error?.message || 'Erro desconhecido'}`);
     }
   };
 
