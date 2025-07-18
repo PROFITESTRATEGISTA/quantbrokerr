@@ -184,10 +184,6 @@ const FinancialPanel: React.FC = () => {
     e.preventDefault();
     try {
       setError(null);
-      
-      // Temporariamente desabilitado até a tabela ser criada no Supabase
-      setError('Funcionalidade temporariamente indisponível. A tabela financial_costs precisa ser criada no Supabase.');
-      return;
 
       if (editingCost) {
         const { error } = await supabase
