@@ -375,6 +375,15 @@ const AdminPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
     try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error: any) {
@@ -385,6 +394,8 @@ const AdminPanel: React.FC = () => {
 
   const handleToggleUserStatus = async (userId: string, newStatus: boolean) => {
     try {
+      setError(null);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
@@ -394,9 +405,9 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user status:', error);
-      setError('Erro ao atualizar status do usuário');
+      setError(error.message || 'Erro ao atualizar status do usuário');
     }
   };
 
