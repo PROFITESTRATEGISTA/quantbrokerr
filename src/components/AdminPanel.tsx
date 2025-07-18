@@ -372,6 +372,10 @@ const AdminPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
     try {
+      setLoading(true);
+      setError(null);
+
+      // First delete from user_profiles table
       const { error } = await supabase
         .from('user_profiles')
         .delete()
@@ -379,11 +383,21 @@ const AdminPanel: React.FC = () => {
 
       if (error) throw error;
 
+      // Then delete from auth.users table (admin only)
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (authError) {
+        console.warn('Could not delete from auth.users:', authError);
+        // Continue anyway as the profile was deleted
+      }
+
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
       setError('Erro ao excluir usuário');
+    } finally {
+      setLoading(false);
     }
   };
 
