@@ -104,10 +104,6 @@ const FinancialPanel: React.FC = () => {
 
   const fetchCosts = async () => {
     try {
-      // Temporariamente desabilitado até a tabela ser criada no Supabase
-      setCosts([]);
-      return;
-      
       const { data, error } = await supabase
         .from('financial_costs')
         .select('id, description, category, amount, cost_date, is_recurring')
@@ -180,10 +176,6 @@ const FinancialPanel: React.FC = () => {
     e.preventDefault();
     try {
       setError(null);
-      
-      // Temporariamente desabilitado até a tabela financial_costs ser criada
-      setError('Funcionalidade temporariamente indisponível. A tabela financial_costs precisa ser criada no Supabase.');
-      return;
 
       if (editingCost) {
         const { error } = await supabase
