@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Save, X, DollarSign } from 'lucide-react';
+import {
   Plus, Edit3, Save, X, AlertCircle, CheckCircle, Filter, Search, 
   Plus, Edit3, Save, X, DollarSign, AlertCircle, CheckCircle, Filter, Search,
-  ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown
+  ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown,
+  Users, TrendingUp, Calendar, UserPlus, Lock, Trash2, Minus, Eye, EyeOff
 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import FinancialPanel from './FinancialPanel';
 
 interface User {
   id: string;
@@ -1302,7 +1306,7 @@ const AdminPanel: React.FC = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        {showPassword ? <G className="h-5 w-5" /> : <H className="h-5 w-5" />}
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
                     {formErrors.password && <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>}
@@ -1506,7 +1510,7 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
+          </>
         )}
       </div>
     </div>
