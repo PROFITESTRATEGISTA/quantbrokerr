@@ -342,6 +342,7 @@ const AdminPanel: React.FC = () => {
     }
 
     try {
+      setError(null);
       setLoading(true);
       const { error } = await supabase
         .from('user_profiles')
@@ -373,24 +374,18 @@ const AdminPanel: React.FC = () => {
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
-    try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
-
-      if (error) throw error;
-
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      setError('Erro ao excluir usuário');
+      setError(error.message || 'Erro ao excluir usuário');
     }
   };
 
   const handleToggleUserStatus = async (userId: string, newStatus: boolean) => {
     try {
+      setError(null);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
@@ -402,12 +397,14 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
-      setError('Erro ao atualizar status do usuário');
+      setError(error.message || 'Erro ao atualizar status do usuário');
     }
   };
 
   const handleUpdateLeverage = async (userId: string, newLeverage: number) => {
     try {
+      setError(null);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
@@ -419,12 +416,14 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error updating leverage:', error);
-      setError('Erro ao atualizar alavancagem');
+      setError(error.message || 'Erro ao atualizar alavancagem');
     }
   };
 
   const updateUserPlan = async (userId: string, newPlan: string) => {
     try {
+      setError(null);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ contracted_plan: newPlan })
@@ -436,7 +435,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating plan:', error);
-      setError('Erro ao atualizar plano');
+      setError(error.message || 'Erro ao atualizar plano');
     }
   };
 
