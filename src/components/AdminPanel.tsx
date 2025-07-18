@@ -421,6 +421,23 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const updateUserPlan = async (userId: string, newPlan: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ contracted_plan: newPlan })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setSuccess(`Plano atualizado para ${getPlanDisplayName(newPlan)} com sucesso!`);
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating plan:', error);
+      setError('Erro ao atualizar plano');
+    }
+  };
+
   const handleResetPassword = async (userId: string, email: string) => {
     try {
       setSuccess(`Email de redefinição de senha enviado para ${email}`);
