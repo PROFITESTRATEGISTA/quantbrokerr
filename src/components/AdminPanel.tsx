@@ -374,11 +374,21 @@ const AdminPanel: React.FC = () => {
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
-      setError(error?.message || 'Erro ao excluir usuário');
+      setError(error.message || 'Erro ao excluir usuário');
     }
   };
 
@@ -395,7 +405,7 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user status:', error);
       setError(error.message || 'Erro ao atualizar status do usuário');
     }
@@ -414,7 +424,7 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating leverage:', error);
       setError(error.message || 'Erro ao atualizar alavancagem');
     }
