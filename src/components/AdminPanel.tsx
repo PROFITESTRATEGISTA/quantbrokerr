@@ -413,10 +413,15 @@ const AdminPanel: React.FC = () => {
 
   const handleUpdateLeverage = async (userId: string, newLeverage: number) => {
     try {
+      setError(null);
+      console.log('Updating leverage for user:', userId, 'to:', newLeverage);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
         .eq('id', userId);
+
+      console.log('Update result:', { error });
 
       if (error) throw error;
 
@@ -424,16 +429,21 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error) {
       console.error('Error updating leverage:', error);
-      setError('Erro ao atualizar alavancagem');
+      setError(`Erro ao atualizar alavancagem: ${error?.message || 'Erro desconhecido'}`);
     }
   };
 
   const updateUserPlan = async (userId: string, newPlan: string) => {
     try {
+      setError(null);
+      console.log('Updating plan for user:', userId, 'to:', newPlan);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ contracted_plan: newPlan })
         .eq('id', userId);
+
+      console.log('Update result:', { error });
 
       if (error) throw error;
 
@@ -441,7 +451,7 @@ const AdminPanel: React.FC = () => {
       fetchUsers();
     } catch (error: any) {
       console.error('Error updating plan:', error);
-      setError('Erro ao atualizar plano');
+      setError(`Erro ao atualizar plano: ${error?.message || 'Erro desconhecido'}`);
     }
   };
 
