@@ -108,10 +108,6 @@ const FinancialPanel: React.FC = () => {
 
   const fetchCosts = async () => {
     try {
-      // Temporariamente desabilitado até a tabela ser criada no Supabase
-      setCosts([]);
-      return;
-      
       const { data, error } = await supabase
         .from('financial_costs')
         .select('id, description, category, amount, cost_date, is_recurring')
