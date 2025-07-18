@@ -673,6 +673,10 @@ const AdminPanel: React.FC = () => {
     setSelectedUsers(
       selectedUsers.length === filteredUsers.length 
         ? [] 
+        : filteredUsers.map(user => user.id)
+    );
+  };
+
   const handleBulkPlanUpdate = async () => {
     if (!bulkPlan || selectedUsers.length === 0) return;
     
