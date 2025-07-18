@@ -734,10 +734,6 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-        : filteredUsers.map(user => user.id)
-    );
-  };
-
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
       case 'bitcoin': return 'Bitcoin';
@@ -941,6 +937,51 @@ const AdminPanel: React.FC = () => {
           </div>
         </div>
 
+        {/* Bulk Actions Panel */}
+        {showBulkActions && selectedUsers.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+            <h3 className="font-semibold text-blue-900 mb-3">
+              Ações em Lote ({selectedUsers.length} usuários selecionados)
+            </h3>
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-blue-800">Alterar Plano:</label>
+                <select
+                  value={bulkPlan}
+                  onChange={(e) => setBulkPlan(e.target.value)}
+                  className="border border-blue-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value="">Selecione um plano</option>
+                  <option value="none">Nenhum</option>
+                  <option value="bitcoin">Bitcoin</option>
+                  <option value="mini-indice">Mini Índice</option>
+                  <option value="mini-dolar">Mini Dólar</option>
+                  <option value="portfolio-completo">Portfólio Completo</option>
+                </select>
+                <button
+                  onClick={handleBulkPlanUpdate}
+                  disabled={!bulkPlan || loading}
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                >
+                  Aplicar
+                </button>
+              </div>
+              <div className="border-l border-blue-300 pl-4">
+                <button
+                  onClick={handleBulkDeleteLeads}
+                  disabled={loading}
+                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+                >
+                  Excluir Leads Selecionados
+                </button>
+                <p className="text-xs text-red-700 mt-1">
+                  Remove apenas usuários sem plano contratado
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -966,6 +1007,12 @@ const AdminPanel: React.FC = () => {
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   {selectedUsers.length === filteredUsers.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                </button>
+                <button
+                  onClick={() => setShowBulkActions(!showBulkActions)}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                >
+                  Ações em Lote
                 </button>
               </div>
             </div>
@@ -1244,10 +1291,12 @@ const AdminPanel: React.FC = () => {
                         </button>
                       </div>
                     </td>
-                    <div className="flex items-center gap-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
-                        {getPlanDisplayName(user.contracted_plan)}
-                      </span>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
+                          {getPlanDisplayName(user.contracted_plan)}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-3 py-3 text-xs text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('pt-BR')}
@@ -1387,12 +1436,6 @@ const AdminPanel: React.FC = () => {
                       >
                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
-                      <button
-                        onClick={() => setShowBulkActions(!showBulkActions)}
-                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-                      >
-                        Ações em Lote
-                      </button>
                     </div>
                     {formErrors.password && <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>}
                   </div>
@@ -1406,50 +1449,6 @@ const AdminPanel: React.FC = () => {
                     >
                       <option value={1}>1x</option>
                       <option value={2}>2x</option>
-          {/* Bulk Actions Panel */}
-          {showBulkActions && selectedUsers.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
-              <h3 className="font-semibold text-blue-900 mb-3">
-                Ações em Lote ({selectedUsers.length} usuários selecionados)
-              </h3>
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-blue-800">Alterar Plano:</label>
-                  <select
-                    value={bulkPlan}
-                    onChange={(e) => setBulkPlan(e.target.value)}
-                    className="border border-blue-300 rounded px-2 py-1 text-sm"
-                  >
-                    <option value="">Selecione um plano</option>
-                    <option value="none">Nenhum</option>
-                    <option value="bitcoin">Bitcoin</option>
-                    <option value="mini-indice">Mini Índice</option>
-                    <option value="mini-dolar">Mini Dólar</option>
-                    <option value="portfolio-completo">Portfólio Completo</option>
-                  </select>
-                  <button
-                    onClick={handleBulkPlanUpdate}
-                    disabled={!bulkPlan || loading}
-                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
-                  >
-                    Aplicar
-                  </button>
-                </div>
-                <div className="border-l border-blue-300 pl-4">
-                  <button
-                    onClick={handleBulkDeleteLeads}
-                    disabled={loading}
-                    className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
-                  >
-                    Excluir Leads Selecionados
-                  </button>
-                  <p className="text-xs text-red-700 mt-1">
-                    Remove apenas usuários sem plano contratado
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
                       <option value={3}>3x</option>
                       <option value={4}>4x</option>
                       <option value={5}>5x</option>
