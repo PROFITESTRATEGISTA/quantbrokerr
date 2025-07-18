@@ -344,13 +344,14 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       setError(null);
+      setFormErrors({});
+      console.log('Updating user:', editingUser.id, 'with data:', formData);
       console.log('Updating user:', editingUser.id, 'with data:', formData);
       setLoading(true);
       const { error } = await supabase
         .from('user_profiles')
         .update({
           full_name: formData.full_name,
-          email: formData.email,
           phone: formData.phone,
           leverage_multiplier: formData.leverage_multiplier,
           is_active: formData.is_active,
@@ -359,9 +360,11 @@ const AdminPanel: React.FC = () => {
         .eq('id', editingUser.id);
 
       console.log('Update user result:', { error });
+        console.error('Supabase update error:', error);
 
       if (error) throw error;
 
+      console.log('User updated successfully');
       setSuccess('Usuário atualizado com sucesso!');
       setShowEditForm(false);
       setEditingUser(null);
@@ -406,15 +409,20 @@ const AdminPanel: React.FC = () => {
       setError(null);
       console.log('Updating status for user:', userId, 'to:', newStatus);
       
+      setError(null);
+      console.log('Toggling status for user:', userId, 'to:', newStatus);
+
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
         .eq('id', userId);
 
       console.log('Update status result:', { error });
+        console.error('Status update error:', error);
 
       if (error) throw error;
 
+      console.log('Status updated successfully');
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
     } catch (error: any) {
@@ -430,15 +438,20 @@ const AdminPanel: React.FC = () => {
       setError(null);
       console.log('Updating leverage for user:', userId, 'to:', newLeverage);
       
+      setError(null);
+      console.log('Updating leverage for user:', userId, 'to:', newLeverage);
+
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
         .eq('id', userId);
 
       console.log('Update leverage result:', { error });
+        console.error('Leverage update error:', error);
 
       if (error) throw error;
 
+      console.log('Leverage updated successfully');
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
     } catch (error: any) {
@@ -451,6 +464,9 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       console.log('Updating plan for user:', userId, 'to:', newPlan);
+
+      setError(null);
+      console.log('Updating plan for user:', userId, 'to:', newPlan);
       
       setError(null);
       
@@ -460,9 +476,11 @@ const AdminPanel: React.FC = () => {
         .eq('id', userId);
 
       console.log('Update plan result:', { error });
+        console.error('Plan update error:', error);
 
       if (error) throw error;
 
+      console.log('Plan updated successfully');
       setSuccess(`Plano atualizado para ${getPlanDisplayName(newPlan)} com sucesso!`);
       fetchUsers();
     } catch (error: any) {
