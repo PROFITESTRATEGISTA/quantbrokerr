@@ -403,21 +403,19 @@ const AdminPanel: React.FC = () => {
 
   const handleToggleUserStatus = async (userId: string, newStatus: boolean) => {
     try {
+      console.log('Toggling user status:', { userId, newStatus });
       setError(null);
-      console.log('Toggling status for user:', userId, 'to:', newStatus);
-
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_active: newStatus })
         .eq('id', userId);
 
-      console.log('Update status result:', { error });
       if (error) {
-        console.error('Status update error:', error);
+        console.error('Supabase status error:', error);
         throw error;
       }
 
-      console.log('Status updated successfully');
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
     } catch (error: any) {
@@ -428,24 +426,26 @@ const AdminPanel: React.FC = () => {
 
   const handleUpdateLeverage = async (userId: string, newLeverage: number) => {
     try {
-      console.log('Updating leverage:', { userId, newLeverage });
       setError(null);
-      
+      console.log('Updating leverage for user:', userId, 'to:', newLeverage);
+
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
         .eq('id', userId);
 
+      console.log('Update leverage result:', { error });
       if (error) {
-        console.error('Supabase leverage error:', error);
+        console.error('Leverage update error:', error);
         throw error;
       }
 
+      console.log('Leverage updated successfully');
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
     } catch (error: any) {
-      console.error('Leverage update error:', error);
-      setError(error?.message || 'Erro ao atualizar alavancagem');
+      console.error('Error updating leverage:', error);
+      setError(String(error?.message || error || 'Erro ao atualizar alavancagem'));
     }
   };
 
