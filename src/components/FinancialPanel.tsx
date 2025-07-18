@@ -79,27 +79,27 @@ const FinancialPanel: React.FC = () => {
       setContracts([]);
       return;
       
-      const { data, error } = await supabase
-        .from('client_contracts')
-        .select(`
-          *,
-          user_profiles(full_name, email)
-        `)
-        .order('created_at', { ascending: false });
+      // const { data, error } = await supabase
+      //   .from('client_contracts')
+      //   .select(`
+      //     *,
+      //     user_profiles(full_name, email)
+      //   `)
+      //   .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching contracts:', error);
-        setContracts([]);
-        return;
-      }
+      // if (error) {
+      //   console.error('Error fetching contracts:', error);
+      //   setContracts([]);
+      //   return;
+      // }
 
-      const formattedContracts = (data || []).map(contract => ({
-        ...contract,
-        user_name: contract.user_profiles?.full_name || 'Nome não informado',
-        user_email: contract.user_profiles?.email || 'Email não informado'
-      }));
+      // const formattedContracts = (data || []).map(contract => ({
+      //   ...contract,
+      //   user_name: contract.user_profiles?.full_name || 'Nome não informado',
+      //   user_email: contract.user_profiles?.email || 'Email não informado'
+      // }));
 
-      setContracts(formattedContracts);
+      // setContracts(formattedContracts);
     } catch (error) {
       console.error('Error fetching contracts:', error);
       setContracts([]);
