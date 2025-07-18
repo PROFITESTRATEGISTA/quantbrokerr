@@ -1597,12 +1597,11 @@ const AdminPanel: React.FC = () => {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        formErrors.email ? 'border-red-300' : 'border-gray-300'
-                      }`}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-100"
                       placeholder="email@exemplo.com"
+                      disabled={true}
                     />
-                    {formErrors.email && <p className="text-red-600 text-sm mt-1">{formErrors.email}</p>}
+                    <p className="text-xs text-gray-500 mt-1">Email não pode ser alterado após criação</p>
                   </div>
 
                   <div>
