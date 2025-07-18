@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { 
   Plus, Edit3, Save, X, AlertCircle, CheckCircle, Filter, Search, 
   Trash2, Lock, UserPlus, Users, TrendingUp, Calendar, Minus,
-  ChevronDown, ChevronUp, MessageCircle, ExternalLink
+  ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 
 interface User {
@@ -38,6 +38,10 @@ const AdminPanel: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: 'asc' | 'desc' | null;
+  }>({ key: '', direction: null });
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -76,6 +80,19 @@ const AdminPanel: React.FC = () => {
       return `+${country} (${area}) ${first}-${second}`;
     }
     return phone;
+  };
+
+  const formatDateTime = (dateString: string | null) => {
+    if (!dateString) return 'Nunca';
+    
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -506,8 +523,38 @@ const AdminPanel: React.FC = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' | null = 'asc';
+    
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === 'asc') {
+        direction = 'desc';
+      } else if (sortConfig.direction === 'desc') {
+        direction = null;
+      } else {
+        direction = 'asc';
+      }
+    }
+    
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey: string) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    
+    if (sortConfig.direction === 'asc') {
+      return <ArrowUp className="h-4 w-4 text-blue-600" />;
+    } else if (sortConfig.direction === 'desc') {
+      return <ArrowDown className="h-4 w-4 text-blue-600" />;
+    } else {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
   // Apply all filters
-  const filteredUsers = users.filter(user => {
+  let filteredUsers = users.filter(user => {
     // Search filter
     const searchMatch = user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -538,6 +585,59 @@ const AdminPanel: React.FC = () => {
 
     return searchMatch && statusMatch && dateMatch && statusFilterMatch && planFilterMatch && leverageFilterMatch;
   });
+
+  // Apply sorting
+  if (sortConfig.direction) {
+    filteredUsers = [...filteredUsers].sort((a, b) => {
+      let aValue: any = '';
+      let bValue: any = '';
+      
+      switch (sortConfig.key) {
+        case 'full_name':
+          aValue = a.full_name || '';
+          bValue = b.full_name || '';
+          break;
+        case 'email':
+          aValue = a.email || '';
+          bValue = b.email || '';
+          break;
+        case 'phone':
+          aValue = a.phone || '';
+          bValue = b.phone || '';
+          break;
+        case 'is_active':
+          aValue = a.is_active ? 1 : 0;
+          bValue = b.is_active ? 1 : 0;
+          break;
+        case 'leverage_multiplier':
+          aValue = a.leverage_multiplier;
+          bValue = b.leverage_multiplier;
+          break;
+        case 'contracted_plan':
+          aValue = a.contracted_plan || '';
+          bValue = b.contracted_plan || '';
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at);
+          bValue = new Date(b.created_at);
+          break;
+        case 'last_sign_in_at':
+          aValue = a.last_sign_in_at ? new Date(a.last_sign_in_at) : new Date(0);
+          bValue = b.last_sign_in_at ? new Date(b.last_sign_in_at) : new Date(0);
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
 
   const toggleUserSelection = (userId: string) => {
     setSelectedUsers(prev => 
@@ -767,17 +867,41 @@ const AdminPanel: React.FC = () => {
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nome Completo
+                    <button
+                      onClick={() => handleSort('full_name')}
+                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    >
+                      <span>Nome Completo</span>
+                      {getSortIcon('full_name')}
+                    </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Telefone
+                    <button
+                      onClick={() => handleSort('phone')}
+                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    >
+                      <span>Telefone</span>
+                      {getSortIcon('phone')}
+                    </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                    <button
+                      onClick={() => handleSort('email')}
+                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    >
+                      <span>Email</span>
+                      {getSortIcon('email')}
+                    </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
-                      Status
+                      <button
+                        onClick={() => handleSort('is_active')}
+                        className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                      >
+                        <span>Status</span>
+                        {getSortIcon('is_active')}
+                      </button>
                       <div className="relative">
                         <button
                           onClick={() => toggleColumnFilter('status')}
@@ -816,7 +940,13 @@ const AdminPanel: React.FC = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
-                      Alavancagem
+                      <button
+                        onClick={() => handleSort('leverage_multiplier')}
+                        className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                      >
+                        <span>Alavancagem</span>
+                        {getSortIcon('leverage_multiplier')}
+                      </button>
                       <div className="relative">
                         <button
                           onClick={() => toggleColumnFilter('leverage')}
@@ -855,7 +985,13 @@ const AdminPanel: React.FC = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
-                      Plano
+                      <button
+                        onClick={() => handleSort('contracted_plan')}
+                        className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                      >
+                        <span>Plano</span>
+                        {getSortIcon('contracted_plan')}
+                      </button>
                       <div className="relative">
                         <button
                           onClick={() => toggleColumnFilter('plan')}
@@ -893,10 +1029,22 @@ const AdminPanel: React.FC = () => {
                     </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cadastro
+                    <button
+                      onClick={() => handleSort('created_at')}
+                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    >
+                      <span>Cadastro</span>
+                      {getSortIcon('created_at')}
+                    </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Último Login
+                    <button
+                      onClick={() => handleSort('last_sign_in_at')}
+                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    >
+                      <span>Último Login</span>
+                      {getSortIcon('last_sign_in_at')}
+                    </button>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ações
@@ -1000,7 +1148,7 @@ const AdminPanel: React.FC = () => {
                       {new Date(user.created_at).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pt-BR') : 'Nunca'}
+                      {formatDateTime(user.last_sign_in_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
