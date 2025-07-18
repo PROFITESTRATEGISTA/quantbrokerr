@@ -844,5 +844,3 @@ const FinancialPanel: React.FC = () => {
 };
 
 export default FinancialPanel;
-
-export default FinancialPanel
