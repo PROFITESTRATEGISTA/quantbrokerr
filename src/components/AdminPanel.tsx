@@ -866,16 +866,16 @@ const AdminPanel: React.FC = () => {
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
                     <button
                       onClick={() => handleSort('full_name')}
                       className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
                     >
-                      <span>Nome Completo</span>
+                      <span>Nome / Email</span>
                       {getSortIcon('full_name')}
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                     <button
                       onClick={() => handleSort('phone')}
                       className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
@@ -884,16 +884,7 @@ const AdminPanel: React.FC = () => {
                       {getSortIcon('phone')}
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <button
-                      onClick={() => handleSort('email')}
-                      className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
-                    >
-                      <span>Email</span>
-                      {getSortIcon('email')}
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleSort('is_active')}
@@ -938,7 +929,7 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleSort('leverage_multiplier')}
@@ -983,7 +974,7 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleSort('contracted_plan')}
@@ -1028,7 +1019,7 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                     <button
                       onClick={() => handleSort('created_at')}
                       className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
@@ -1037,7 +1028,7 @@ const AdminPanel: React.FC = () => {
                       {getSortIcon('created_at')}
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                     <button
                       onClick={() => handleSort('last_sign_in_at')}
                       className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
@@ -1046,7 +1037,7 @@ const AdminPanel: React.FC = () => {
                       {getSortIcon('last_sign_in_at')}
                     </button>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                     Ações
                   </th>
                 </tr>
@@ -1062,52 +1053,49 @@ const AdminPanel: React.FC = () => {
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                           {(user.full_name || user.email).charAt(0).toUpperCase()}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 max-w-[180px] truncate">
                             {user.full_name || 'Nome não informado'}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs text-gray-500 max-w-[180px] truncate">
+                            {user.email}
+                          </div>
+                          <div className="text-xs text-gray-400 flex items-center mt-1">
                             {user.email_confirmed_at ? (
-                              <span className="flex items-center">
-                                <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
-                                Email verificado
-                              </span>
+                              <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
                             ) : (
-                              <span className="flex items-center">
-                                <AlertCircle className="w-3 h-3 text-yellow-500 mr-1" />
-                                Email não verificado
-                              </span>
+                              <AlertCircle className="w-3 h-3 text-yellow-500 mr-1" />
                             )}
+                            {user.email_confirmed_at ? 'Verificado' : 'Não verificado'}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{formatPhoneNumber(user.phone || '')}</div>
+                    <td className="px-3 py-3">
+                      <div className="text-xs text-gray-900">
+                        {formatPhoneNumber(user.phone || '')}
+                      </div>
                       {user.phone_confirmed_at ? (
-                        <div className="text-xs text-green-600 flex items-center">
+                        <div className="text-xs text-green-600 flex items-center mt-1">
                           <CheckCircle className="w-3 h-3 mr-1" />
-                          Verificado
+                          ✓
                         </div>
                       ) : user.phone ? (
-                        <div className="text-xs text-yellow-600 flex items-center">
+                        <div className="text-xs text-yellow-600 flex items-center mt-1">
                           <AlertCircle className="w-3 h-3 mr-1" />
-                          Não verificado
+                          !
                         </div>
                       ) : null}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3">
                       <button
                         onClick={() => handleToggleUserStatus(user.id, !user.is_active)}
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           user.is_active 
                             ? 'bg-green-100 text-green-800 hover:bg-green-200' 
                             : 'bg-red-100 text-red-800 hover:bg-red-200'
@@ -1116,7 +1104,7 @@ const AdminPanel: React.FC = () => {
                         {user.is_active ? 'Ativo' : 'Inativo'}
                       </button>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3">
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleUpdateLeverage(user.id, Math.max(1, user.leverage_multiplier - 1))}
@@ -1126,7 +1114,7 @@ const AdminPanel: React.FC = () => {
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="text-sm font-medium text-gray-900 min-w-[3rem] text-center">
+                        <span className="text-xs font-medium text-gray-900 min-w-[2rem] text-center">
                           {user.leverage_multiplier}x
                         </span>
                         <button
@@ -1139,18 +1127,18 @@ const AdminPanel: React.FC = () => {
                         </button>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
                         {getPlanDisplayName(user.contracted_plan)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-3 text-xs text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('pt-BR')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-3 text-xs text-gray-500">
                       {formatDateTime(user.last_sign_in_at)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-3">
                       <div className="flex items-center space-x-2">
                         {user.phone && (
                           <button
