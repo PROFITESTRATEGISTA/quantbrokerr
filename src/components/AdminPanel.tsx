@@ -429,40 +429,41 @@ const AdminPanel: React.FC = () => {
       setError(null);
       console.log('Updating leverage for user:', userId, 'to:', newLeverage);
 
-      console.log('🔧 Updating leverage for user:', { userId, newLeverage });
+      console.log('🔧 Iniciando atualização de alavancagem:', { userId: userId, newLeverage: newLeverage });
       
-      // Verificar se o usuário existe antes de atualizar
-      const { data: existingUser, error: checkError } = await supabase
+      // Primeiro, verificar se o usuário existe
+      const { data: userData, error: userError } = await supabase
         .from('user_profiles')
         .select('id, leverage_multiplier, email')
-        .eq('id', userId)
-        .single();
-        
-      if (checkError) {
-        console.error('❌ Error checking user:', checkError);
+        .eq('id', userId);
+
+      if (userError) {
+        console.error('❌ Error checking user:', userError);
+        throw new Error('Erro ao verificar usuário: ' + userError.message);
+      }
+
+      if (!userData || userData.length === 0) {
+        console.error('❌ User not found:', userId);
         throw new Error('Usuário não encontrado');
       }
-      
-      console.log('👤 User found:', existingUser);
+
+      console.log('👤 User found:', userData[0]);
       
       const { error } = await supabase
         .from('user_profiles')
         .update({ leverage_multiplier: newLeverage })
         .eq('id', userId);
 
-      console.log('Update leverage result:', { error });
       if (error) {
-        console.error('Leverage update error:', error);
+        console.error('❌ Error updating leverage:', error);
         throw error;
       }
-
-      console.log('Leverage updated successfully');
       
-        console.error('❌ Error updating leverage:', error);
+      console.log('✅ Leverage updated successfully');
+      
       // Recarregar dados dos usuários após atualização
       await fetchUsers();
       
-      console.log('✅ Leverage updated successfully');
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
       fetchUsers();
     } catch (error: any) {
