@@ -618,26 +618,31 @@ const ResultsCalendar: React.FC = () => {
                   </div>
                   <div className="text-2xl font-bold text-green-400">
                     {metrics.winRate.toFixed(1)}%
-            <ResultTypeTag
-              isBacktest={isBacktest}
-              isAdmin={isAdmin}
-              month={month}
-              year={calendarYear}
-              currentResultType={monthData?.resultType || 'live'}
-              onEdit={(month, year, resultType) => {
-                setEditingMonth(`${month}-${year}-tag`);
-                setEditResultType(resultType);
-              }}
-              onUpdate={handleUpdateResultType}
-              isEditing={editingMonth === `${month}-${calendarYear}-tag`}
-              editingResultType={editResultType}
-              onCancel={() => {
-                setEditingMonth(null);
-                setEditResultType('live');
-              }}
-            />
-          )}
-        </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 w-5 text-yellow-400" />
+                  <span className="text-sm text-gray-400">Melhor Mês</span>
+                </div>
+                <div className="text-2xl font-bold text-yellow-400">
+                  +{metrics.bestMonth.toFixed(1)}%
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingDown className="w-5 h-5 text-red-400" />
+                  <span className="text-sm text-gray-400">Pior Mês</span>
+                </div>
+                <div className="text-2xl font-bold text-red-400">
+                  {metrics.worstMonth.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Add Month Modal */}
