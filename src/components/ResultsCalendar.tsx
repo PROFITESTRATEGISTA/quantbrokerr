@@ -623,10 +623,10 @@ const ResultsCalendar: React.FC = () => {
 
                 <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-green-400" />
+                    <TrendingUp className="w-5 h-5 text-yellow-400" />
                     <span className="text-sm text-gray-400">Melhor Mês</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-400">
+                  <div className="text-2xl font-bold text-yellow-400">
                     +{metrics.bestMonth.toFixed(1)}%
                   </div>
                 </div>
@@ -644,17 +644,17 @@ const ResultsCalendar: React.FC = () => {
             </>
           )}
         </div>
-      </div>
 
-      {/* Add Month Modal */}
-      {showAddForm && isAdmin && (
-        <AddMonthModal
-          onAdd={handleAddMonth}
-          onClose={() => setShowAddForm(false)}
-          months={months}
-          availableYears={availableYears}
-        />
-      )}
+        {/* Add Month Modal */}
+        {showAddForm && isAdmin && (
+          <AddMonthModal
+            onAdd={handleAddMonth}
+            onClose={() => setShowAddForm(false)}
+            months={months}
+            availableYears={availableYears}
+          />
+        )}
+      </div>
     </div>
   );
 };
