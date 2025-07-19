@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import ResultsChart from './ResultsChart';
 import AdminEditButton from './AdminEditButton';
 import AdvancedStatistics from './AdvancedStatistics';
+import ResultTypeTag from './ResultTypeTag';
 
 interface MonthData {
   id?: string;
@@ -433,6 +434,7 @@ const ResultsCalendar: React.FC = () => {
                         if (isAdmin && hasData && editingMonth !== `${month}-${calendarYear}`) {
                           setEditingMonth(`${month}-${calendarYear}`);
                           setEditValue(value?.toString() || '');
+                          setEditResultType(monthData?.resultType || 'live');
                         }
                       }}
                     >
@@ -503,7 +505,20 @@ const ResultsCalendar: React.FC = () => {
                         
                         {editingMonth === `${month}-${calendarYear}` ? (
                           <div className="space-y-3">
-                            <input
+                            <div>
+                              <label className="block text-xs text-slate-400 mb-1">Tipo de Resultado</label>
+                              <select
+                                value={editResultType}
+                                onChange={(e) => setEditResultType(e.target.value as 'backtest' | 'live')}
+                                className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
+                              >
+                                <option value="live">Mercado ao Vivo</option>
+                                <option value="backtest">Backtest</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs text-slate-400 mb-1">Valor (%)</label>
+                              <input
                               type="number"
                               step="0.1"
                               value={editValue}
@@ -520,10 +535,12 @@ const ResultsCalendar: React.FC = () => {
                                 if (e.key === 'Escape') {
                                   setEditingMonth(null);
                                   setEditValue('');
+                                  setEditResultType('live');
                                   setError(null);
                                 }
                               }}
                             />
+                            </div>
                             <div className="flex gap-2 justify-center">
                               <button
                                 onClick={() => handleQuickEdit(month, calendarYear)}
@@ -601,30 +618,24 @@ const ResultsCalendar: React.FC = () => {
                   </div>
                   <div className="text-2xl font-bold text-green-400">
                     {metrics.winRate.toFixed(1)}%
-                  </div>
-                </div>
-
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BarChart3 className="w-5 h-5 text-purple-400" />
-                    <span className="text-sm text-gray-400">Melhor Mês</span>
-                  </div>
-                  <div className="text-2xl font-bold text-green-400">
-                    +{metrics.bestMonth.toFixed(1)}%
-                  </div>
-                </div>
-
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-5 h-5 text-red-400" />
-                    <span className="text-sm text-gray-400">Pior Mês</span>
-                  </div>
-                  <div className="text-2xl font-bold text-red-400">
-                    {metrics.worstMonth.toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-            </>
+            <ResultTypeTag
+              isBacktest={isBacktest}
+              isAdmin={isAdmin}
+              month={month}
+              year={calendarYear}
+              currentResultType={monthData?.resultType || 'live'}
+              onEdit={(month, year, resultType) => {
+                setEditingMonth(`${month}-${year}-tag`);
+                setEditResultType(resultType);
+              }}
+              onUpdate={handleUpdateResultType}
+              isEditing={editingMonth === `${month}-${calendarYear}-tag`}
+              editingResultType={editResultType}
+              onCancel={() => {
+                setEditingMonth(null);
+                setEditResultType('live');
+              }}
+            />
           )}
         </div>
       </div>
