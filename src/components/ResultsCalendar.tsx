@@ -433,6 +433,7 @@ const ResultsCalendar: React.FC = () => {
                         if (isAdmin && hasData && editingMonth !== `${month}-${calendarYear}`) {
                           setEditingMonth(`${month}-${calendarYear}`);
                           setEditValue(value?.toString() || '');
+                          setEditResultType(monthData?.resultType || 'live');
                         }
                       }}
                     >
