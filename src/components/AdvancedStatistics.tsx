@@ -9,6 +9,7 @@ interface MonthData {
   miniIndice: number | null;
   miniDolar: number | null;
   portfolio: number | null;
+  resultType?: 'backtest' | 'live';
 }
 
 interface AdvancedStatisticsProps {

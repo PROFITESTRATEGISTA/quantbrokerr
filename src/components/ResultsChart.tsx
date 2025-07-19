@@ -9,6 +9,7 @@ interface MonthData {
   miniIndice: number | null;
   miniDolar: number | null;
   portfolio: number | null;
+  resultType?: 'backtest' | 'live';
 }
 
 interface ResultsChartProps {
@@ -43,7 +44,8 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
         month: d.month.substring(0, 3), // Abbreviate month names
         monthlyValue: monthlyValue, // Individual monthly result
         cumulativeValue: cumulativeValue, // Cumulative evolution
-        fullMonth: d.month
+        fullMonth: d.month,
+        resultType: d.resultType || 'live'
       };
     });
 
@@ -77,10 +79,20 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
       const isLineChart = chartType === 'line';
       const value = isLineChart ? data.cumulativeValue : data.monthlyValue;
       const title = isLineChart ? 'Evolução Acumulada' : 'Resultado Mensal';
+      const isBacktest = data.resultType === 'backtest';
       
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`${label} ${year}`}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+              isBacktest 
+                ? 'bg-orange-100 text-orange-800' 
+                : 'bg-green-100 text-green-800'
+            }`}>
+              {isBacktest ? 'Backtest' : 'Ao Vivo'}
+            </span>
+          </div>
           <p className="text-sm text-gray-600">{title}</p>
           <p className={`font-bold ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {`${value >= 0 ? '+' : ''}${value.toFixed(1)}%`}

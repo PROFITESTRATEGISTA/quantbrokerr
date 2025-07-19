@@ -13,6 +13,7 @@ interface MonthData {
   miniIndice: number | null;
   miniDolar: number | null;
   portfolio: number | null;
+  resultType: 'backtest' | 'live';
 }
 
 interface PerformanceMetrics {
@@ -128,7 +129,8 @@ const ResultsCalendar: React.FC = () => {
         bitcoin: item.bitcoin,
         miniIndice: item.mini_indice,
         miniDolar: item.mini_dolar,
-        portfolio: item.portfolio
+        portfolio: item.portfolio,
+        resultType: item.result_type || 'live'
       }));
 
       setMonthlyData(formattedData);
@@ -150,7 +152,8 @@ const ResultsCalendar: React.FC = () => {
           bitcoin: monthData.bitcoin,
           mini_indice: monthData.miniIndice,
           mini_dolar: monthData.miniDolar,
-          portfolio: monthData.portfolio
+          portfolio: monthData.portfolio,
+          result_type: monthData.resultType
         });
 
       if (error) throw error;
@@ -387,6 +390,7 @@ const ResultsCalendar: React.FC = () => {
                   const monthData = calendarData.find(d => d.month === month);
                   const value = monthData ? getAssetValue(monthData, calendarAsset) : null;
                   const hasData = value !== null;
+                  const isBacktest = monthData?.resultType === 'backtest';
                   
                   return (
                     <div
@@ -407,6 +411,19 @@ const ResultsCalendar: React.FC = () => {
                         }
                       }}
                     >
+                      {/* Tag de tipo de resultado */}
+                      {hasData && (
+                        <div className="absolute top-2 left-2">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            isBacktest 
+                              ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' 
+                              : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                          }`}>
+                            {isBacktest ? 'Backtest' : 'Ao Vivo'}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Botões de ação para admin */}
                       {isAdmin && editingMonth !== `${month}-${calendarYear}` && (
                         <div className="group">
@@ -595,6 +612,7 @@ interface AddMonthModalProps {
 const AddMonthModal: React.FC<AddMonthModalProps> = ({ onAdd, onClose, months, availableYears }) => {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [resultType, setResultType] = useState<'backtest' | 'live'>('live');
   const [bitcoin, setBitcoin] = useState('');
   const [miniIndice, setMiniIndice] = useState('');
   const [miniDolar, setMiniDolar] = useState('');
@@ -611,6 +629,7 @@ const AddMonthModal: React.FC<AddMonthModalProps> = ({ onAdd, onClose, months, a
     onAdd({
       month: selectedMonth,
       year: selectedYear,
+      resultType: resultType,
       bitcoin: bitcoin ? parseFloat(bitcoin) : null,
       miniIndice: miniIndice ? parseFloat(miniIndice) : null,
       miniDolar: miniDolar ? parseFloat(miniDolar) : null,
@@ -648,6 +667,21 @@ const AddMonthModal: React.FC<AddMonthModalProps> = ({ onAdd, onClose, months, a
               className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Tipo de Resultado</label>
+            <select
+              value={resultType}
+              onChange={(e) => setResultType(e.target.value as 'backtest' | 'live')}
+              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2"
+            >
+              <option value="live">Mercado ao Vivo</option>
+              <option value="backtest">Backtest</option>
+            </select>
+            <p className="text-xs text-slate-400 mt-1">
+              {resultType === 'live' ? 'Resultado de operações reais' : 'Resultado de teste histórico'}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
