@@ -42,6 +42,7 @@ const ResultsCalendar: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMonth, setEditingMonth] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [editResultType, setEditResultType] = useState<'backtest' | 'live'>('live');
   const [selectedAsset, setSelectedAsset] = useState<string>('portfolio');
 
   // Helper functions
@@ -190,6 +191,22 @@ const ResultsCalendar: React.FC = () => {
     }
   };
 
+  const handleUpdateResultType = async (month: string, year: number, resultType: 'backtest' | 'live') => {
+    try {
+      const { error } = await supabase
+        .from('monthly_results')
+        .update({ result_type: resultType })
+        .eq('month', month)
+        .eq('year', year);
+
+      if (error) throw error;
+
+      await fetchResults();
+    } catch (error) {
+      console.error('Error updating result type:', error);
+      setError('Erro ao atualizar tipo de resultado');
+    }
+  };
   const handleUpdateStatistics = async (asset: string, year: number, metrics: any) => {
     try {
       // Here you could save custom statistics to a separate table if needed
@@ -213,8 +230,16 @@ const ResultsCalendar: React.FC = () => {
       }
 
       await handleUpdateMonth(month, year, calendarAsset, newValue);
+      
+      // Atualizar tipo de resultado se mudou
+      const currentMonth = calendarData.find(d => d.month === month);
+      if (currentMonth && currentMonth.resultType !== editResultType) {
+        await handleUpdateResultType(month, year, editResultType);
+      }
+      
       setEditingMonth(null);
       setEditValue('');
+      setEditResultType('live');
     } catch (error) {
       console.error('Erro ao editar valor:', error);
       setError('Erro ao salvar alteração');
