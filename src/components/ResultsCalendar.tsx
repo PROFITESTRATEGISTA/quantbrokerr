@@ -438,13 +438,28 @@ const ResultsCalendar: React.FC = () => {
                     >
                       {/* Tag de tipo de resultado */}
                       {hasData && (
-                        <div className="absolute top-2 left-2">
-                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        <div className="absolute top-2 left-2 group/tag">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium cursor-pointer transition-all hover:scale-105 ${
                             isBacktest 
                               ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' 
                               : 'bg-green-500/20 text-green-300 border border-green-500/30'
-                          }`}>
+                          }`}
+                            onClick={(e) => {
+                              if (isAdmin) {
+                                e.stopPropagation();
+                                setEditingMonth(`${month}-${calendarYear}`);
+                                setEditValue(value?.toString() || '');
+                                setEditResultType(monthData?.resultType || 'live');
+                              }
+                            }}
+                            title={isAdmin ? "Clique para editar tipo de resultado" : undefined}
+                          >
                             {isBacktest ? 'Backtest' : 'Ao Vivo'}
+                            {isAdmin && (
+                              <span className="ml-1 opacity-0 group-hover/tag:opacity-100 transition-opacity">
+                                ✏️
+                              </span>
+                            )}
                           </span>
                         </div>
                       )}
