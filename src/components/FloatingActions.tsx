@@ -10,7 +10,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleScheduleMeeting = () => {
-    window.open('LoginForm', '_blank');
+    window.open('LoginModalProps', '_blank');
     setIsExpanded(false);
   };
 
