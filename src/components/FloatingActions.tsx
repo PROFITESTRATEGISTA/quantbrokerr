@@ -10,7 +10,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleScheduleMeeting = () => {
-    window.open('https://quantbroker.com.br/resultados', '_blank');
+    window.open('LoginForm', '_blank');
     setIsExpanded(false);
   };
 
