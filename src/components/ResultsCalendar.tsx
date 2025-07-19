@@ -433,7 +433,6 @@ const ResultsCalendar: React.FC = () => {
                         if (isAdmin && hasData && editingMonth !== `${month}-${calendarYear}`) {
                           setEditingMonth(`${month}-${calendarYear}`);
                           setEditValue(value?.toString() || '');
-                          setEditResultType(monthData?.resultType || 'live');
                         }
                       }}
                     >
@@ -460,6 +459,7 @@ const ResultsCalendar: React.FC = () => {
                                 e.stopPropagation();
                                 setEditingMonth(`${month}-${calendarYear}`);
                                 setEditValue(value?.toString() || '');
+                                setEditResultType(monthData?.resultType || 'live');
                               }}
                               className="absolute top-2 right-2 p-1 bg-slate-700/80 hover:bg-slate-600 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                               title="Editar valor"
