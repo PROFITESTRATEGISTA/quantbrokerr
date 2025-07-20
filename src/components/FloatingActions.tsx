@@ -89,7 +89,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
             className="flex items-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
           >
             <MessageCircle className="h-5 w-5 mr-2" />
-            <span className="font-medium">📱 WhatsApp Suporte BTG</span>
+            <span className="font-medium">WhatsApp Suporte BTG</span>
           </button>
         </div>
       )}
