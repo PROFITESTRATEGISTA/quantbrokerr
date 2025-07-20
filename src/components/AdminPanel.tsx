@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Plus, Edit3, Save, X, DollarSign, AlertCircle, CheckCircle, Filter, Search,
+  Plus, Edit3, X, DollarSign, AlertCircle, CheckCircle, Filter, Search,
   Trash2, Lock, UserPlus, Users, TrendingUp, Calendar, Minus,
-  ChevronDown, ChevronUp, MessageCircle, ExternalLink, ArrowUpDown, ArrowUp, ArrowDown,
+  MessageCircle, ArrowUpDown, ArrowUp, ArrowDown,
   Eye, EyeOff
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -58,7 +58,7 @@ const AdminPanel: React.FC = () => {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
 
   // Column filters state
   const [columnFilters, setColumnFilters] = useState<ColumnFilter[]>([
@@ -144,119 +144,55 @@ const AdminPanel: React.FC = () => {
 
   const checkAdminStatus = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      setIsAdmin(user?.email === 'pedropardal04@gmail.com');
+      await supabase.auth.getUser();
+      // Admin status check - not needed for current functionality
     } catch (error) {
       console.error('Error checking admin status:', error);
-      setIsAdmin(false);
     }
   };
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      let allUsers: User[] = [];
-
-      try {
-        const { data, error } = await supabase.rpc('get_all_users_with_profiles');
-        if (!error && data) {
-          allUsers = data;
-          console.log('Users from function:', allUsers.length);
-        } else {
-          throw error || new Error('Function returned no data');
-        }
-      } catch (err) {
-        console.warn('Custom function failed, falling back to user_profiles:', err);
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        allUsers = data || [];
+      console.log('🔧 Carregando usuários da tabela user_profiles...');
+      
+      // Buscar apenas da tabela user_profiles
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ Erro ao buscar usuários:', error);
+        throw error;
       }
+      
+      const allUsers = data || [];
+      console.log('✅ Usuários encontrados:', allUsers.length);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && user.email === 'pedropardal04@gmail.com' && !allUsers.find(u => u.id === user.id)) {
-        const { error } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            phone: user.phone || null,
-            leverage_multiplier: 5,
-            is_active: true,
-            contracted_plan: 'none'
-          });
-
-        if (!error) {
-          allUsers.unshift({
-            id: user.id,
-            email: user.email,
-            phone: user.phone || null,
-            full_name: user.user_metadata?.full_name || '',
-            created_at: user.created_at,
-            last_sign_in_at: null,
-            email_confirmed_at: user.email_confirmed_at,
-            phone_confirmed_at: user.phone_confirmed_at,
-            leverage_multiplier: 5,
-            is_active: true,
-            contracted_plan: 'none'
-          });
-        }
-      }
-
-      const usersWithoutProfiles = allUsers.filter(user => 
-        !user.leverage_multiplier && (user.email || user.phone)
-      );
-
-      if (usersWithoutProfiles.length > 0) {
-        console.log('Creating profiles for users without them:', usersWithoutProfiles.length);
-        const profiles = usersWithoutProfiles.map(user => ({
-          id: user.id,
-          email: user.email || '',
-          phone: user.phone || '',
-          full_name: user.full_name || '',
-          leverage_multiplier: 1,
-          is_active: true,
-          contracted_plan: 'none'
-        }));
-
-        const { error } = await supabase
-          .from('user_profiles')
-          .insert(profiles);
-
-        if (!error) {
-          usersWithoutProfiles.forEach(user => {
-            user.leverage_multiplier = 1;
-            user.is_active = true;
-            user.contracted_plan = 'none';
-          });
-        }
-      }
-
+      // Formatar usuários para o formato esperado
       const formattedUsers = allUsers.map(user => ({
         id: user.id,
         full_name: user.full_name || '',
         email: user.email || '',
         phone: user.phone || '',
         created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
+        last_sign_in_at: undefined, // Não temos acesso a last_sign_in_at
         leverage_multiplier: user.leverage_multiplier || 1,
         is_active: user.is_active !== false,
         contracted_plan: user.contracted_plan || 'none',
-        email_confirmed_at: user.email_confirmed_at,
-        phone_confirmed_at: user.phone_confirmed_at
+        email_confirmed_at: undefined, // Não temos acesso a email_confirmed_at
+        phone_confirmed_at: undefined // Não temos acesso a phone_confirmed_at
       }));
 
-      console.log('Users found:', formattedUsers.length);
-      console.log('Users with phones:', formattedUsers.filter(u => u.phone).length);
-      console.log('Users with emails:', formattedUsers.filter(u => u.email).length);
+      console.log('✅ Usuários formatados:', formattedUsers.length);
+      console.log('📱 Usuários com telefone:', formattedUsers.filter(u => u.phone).length);
+      console.log('📧 Usuários com email:', formattedUsers.filter(u => u.email).length);
 
       setUsers(formattedUsers);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      setError('Erro ao carregar usuários');
+      console.error('❌ Erro ao carregar usuários:', error);
+      setError('Erro ao carregar usuários: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
     } finally {
       setLoading(false);
     }
@@ -272,12 +208,22 @@ const AdminPanel: React.FC = () => {
 
     try {
       setLoading(true);
+      setError(null);
+      setFormErrors({});
       
-      const { data: existingUser } = await supabase
+      console.log('🔧 Iniciando criação de usuário:', { email: formData.email, full_name: formData.full_name });
+      
+      // Verificar se usuário já existe
+      const { data: existingUser, error: checkError } = await supabase
         .from('user_profiles')
         .select('email, phone')
         .or(`email.eq.${formData.email},phone.eq.${formData.phone}`)
         .maybeSingle();
+
+      if (checkError) {
+        console.error('❌ Erro ao verificar usuário existente:', checkError);
+        throw new Error('Erro ao verificar usuário existente: ' + checkError.message);
+      }
 
       if (existingUser) {
         if (existingUser.email === formData.email) {
@@ -290,6 +236,9 @@ const AdminPanel: React.FC = () => {
         }
       }
 
+      console.log('✅ Usuário não existe, criando no auth...');
+      
+      // Criar usuário no auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -301,9 +250,36 @@ const AdminPanel: React.FC = () => {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('❌ Erro ao criar usuário no auth:', authError);
+        throw new Error('Erro ao criar usuário: ' + authError.message);
+      }
 
-      if (authData.user) {
+      if (!authData.user) {
+        console.error('❌ Usuário não foi criado no auth');
+        throw new Error('Falha ao criar usuário no sistema de autenticação');
+      }
+
+      console.log('✅ Usuário criado no auth com ID:', authData.user.id);
+      
+      // Aguardar um pouco para garantir que o trigger seja executado
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Verificar se o perfil foi criado automaticamente pelo trigger
+      const { data: profileData, error: profileCheckError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileCheckError && profileCheckError.code !== 'PGRST116') {
+        console.error('❌ Erro ao verificar perfil criado:', profileCheckError);
+      }
+
+      if (!profileData) {
+        console.log('⚠️ Perfil não foi criado automaticamente, criando manualmente...');
+        
+        // Criar perfil manualmente se o trigger não funcionou
         const { error: profileError } = await supabase
           .from('user_profiles')
           .insert({
@@ -316,16 +292,47 @@ const AdminPanel: React.FC = () => {
             contracted_plan: formData.contracted_plan
           });
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('❌ Erro ao criar perfil manualmente:', profileError);
+          throw new Error('Erro ao criar perfil do usuário: ' + profileError.message);
+        }
+        
+        console.log('✅ Perfil criado manualmente');
+      } else {
+        console.log('✅ Perfil criado automaticamente pelo trigger');
+        
+        // Atualizar perfil com dados específicos se necessário
+        if (profileData.leverage_multiplier !== formData.leverage_multiplier || 
+            profileData.contracted_plan !== formData.contracted_plan ||
+            profileData.is_active !== formData.is_active) {
+          
+          const { error: updateError } = await supabase
+            .from('user_profiles')
+            .update({
+              leverage_multiplier: formData.leverage_multiplier,
+              is_active: formData.is_active,
+              contracted_plan: formData.contracted_plan
+            })
+            .eq('id', authData.user.id);
 
+          if (updateError) {
+            console.error('❌ Erro ao atualizar perfil:', updateError);
+            throw new Error('Erro ao atualizar perfil: ' + updateError.message);
+          }
+          
+          console.log('✅ Perfil atualizado com dados específicos');
+        }
+      }
+
+      console.log('✅ Usuário criado com sucesso!');
         setSuccess('Usuário criado com sucesso!');
         setShowAddForm(false);
         resetForm();
-        fetchUsers();
-      }
-    } catch (error: any) {
-      console.error('Error adding user:', error);
-      setError(error.message || 'Erro ao criar usuário');
+      await fetchUsers();
+    } catch (error: unknown) {
+      console.error('❌ Erro geral ao criar usuário:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao criar usuário';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -344,34 +351,36 @@ const AdminPanel: React.FC = () => {
     try {
       setError(null);
       setFormErrors({});
-      console.log('Updating user:', editingUser.id, 'with data:', formData);
+      console.log('🔧 Atualizando usuário:', editingUser.id, 'com dados:', formData);
       setLoading(true);
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({
-          full_name: formData.full_name,
-          phone: formData.phone,
-          leverage_multiplier: formData.leverage_multiplier,
-          is_active: formData.is_active,
-          contracted_plan: formData.contracted_plan
-        })
-        .eq('id', editingUser.id);
 
-      console.log('Update user result:', { error });
+      // Usar a função admin para atualizar o perfil
+      const { error } = await supabase.rpc('admin_create_or_update_profile', {
+        user_id: editingUser.id,
+        user_email: formData.email,
+        user_phone: formData.phone || null,
+        user_full_name: formData.full_name,
+        user_leverage: formData.leverage_multiplier,
+        user_active: formData.is_active,
+        user_plan: formData.contracted_plan
+      });
+
+      console.log('✅ Resultado da atualização:', { error });
       if (error) {
-        console.error('Supabase update error:', error);
+        console.error('❌ Erro na atualização:', error);
         throw error;
       }
 
-      console.log('User updated successfully');
+      console.log('✅ Usuário atualizado com sucesso');
       setSuccess('Usuário atualizado com sucesso!');
       setShowEditForm(false);
       setEditingUser(null);
       resetForm();
-      fetchUsers();
-    } catch (error: any) {
-      console.error('Error updating user:', error);
-      setError(error?.message || 'Erro ao atualizar usuário');
+      await fetchUsers();
+    } catch (error: unknown) {
+      console.error('❌ Erro ao atualizar usuário:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao atualizar usuário';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -382,22 +391,23 @@ const AdminPanel: React.FC = () => {
 
     try {
       setError(null);
-      console.log('Deleting user:', userId);
+      console.log('🔧 Excluindo usuário:', userId);
       
-      const { error } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
+      // Usar a função admin para deletar o perfil
+      const { error } = await supabase.rpc('admin_delete_profile', {
+        user_id: userId
+      });
 
-      console.log('Delete user result:', { error });
+      console.log('✅ Resultado da exclusão:', { error });
 
       if (error) throw error;
 
       setSuccess('Usuário excluído com sucesso!');
       await fetchUsers();
-    } catch (error: any) {
-      console.error('Error deleting user:', error);
-      setError(error?.message || 'Erro ao excluir usuário');
+    } catch (error: unknown) {
+      console.error('❌ Erro ao excluir usuário:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao excluir usuário';
+      setError(errorMessage);
     }
   };
 
@@ -418,9 +428,10 @@ const AdminPanel: React.FC = () => {
 
       setSuccess(`Usuário ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating user status:', error);
-      setError(error?.message || 'Erro ao atualizar status do usuário');
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao atualizar status do usuário';
+      setError(errorMessage);
     }
   };
 
@@ -465,35 +476,57 @@ const AdminPanel: React.FC = () => {
       await fetchUsers();
       
       setSuccess(`Alavancagem atualizada para ${newLeverage}x com sucesso!`);
-      fetchUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating leverage:', error);
-      setError(error.message || 'Erro ao atualizar alavancagem');
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao atualizar alavancagem';
+      setError(errorMessage);
     }
   };
 
   const updateUserPlan = async (userId: string, newPlan: string) => {
     try {
       setError(null);
-      console.log('Updating plan for user:', userId, 'to:', newPlan);
+      console.log('🔧 Atualizando plano do usuário:', { userId, newPlan });
+
+      // Verificar se o usuário existe
+      const { data: userData, error: userError } = await supabase
+        .from('user_profiles')
+        .select('id, contracted_plan, email')
+        .eq('id', userId);
+
+      if (userError) {
+        console.error('❌ Error checking user:', userError);
+        throw new Error('Erro ao verificar usuário: ' + userError.message);
+      }
+
+      if (!userData || userData.length === 0) {
+        console.error('❌ User not found:', userId);
+        throw new Error('Usuário não encontrado');
+      }
+
+      console.log('👤 User found:', userData[0]);
       
+      // Atualizar o plano do usuário
       const { error } = await supabase
         .from('user_profiles')
         .update({ contracted_plan: newPlan })
         .eq('id', userId);
 
-      console.log('Update plan result:', { error });
       if (error) {
-        console.error('Plan update error:', error);
+        console.error('❌ Error updating plan:', error);
         throw error;
       }
-
-      console.log('Plan updated successfully');
+      
+      console.log('✅ Plan updated successfully');
+      
+      // Recarregar dados dos usuários após atualização
+      await fetchUsers();
+      
       setSuccess(`Plano atualizado para ${getPlanDisplayName(newPlan)} com sucesso!`);
-      fetchUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating plan:', error);
-      setError(error?.message || 'Erro ao atualizar plano');
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao atualizar plano';
+      setError(errorMessage);
     }
   };
 
@@ -519,18 +552,40 @@ const AdminPanel: React.FC = () => {
     setFormErrors({});
   };
 
-  const handleEditClick = (user: User) => {
-    setEditingUser(user);
-    setFormData({
-      full_name: user.full_name || '',
-      email: user.email,
-      phone: user.phone || '',
-      password: '',
-      is_active: user.is_active,
-      leverage_multiplier: user.leverage_multiplier,
-      contracted_plan: user.contracted_plan
-    });
-    setShowEditForm(true);
+  const handleEditClick = async (user: User) => {
+    try {
+      console.log('🔧 Carregando dados do usuário para edição:', user.id);
+      
+      // Buscar dados completos do usuário
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao carregar dados do usuário:', error);
+        setError('Erro ao carregar dados do usuário: ' + error.message);
+        return;
+      }
+
+      console.log('✅ Dados do usuário carregados:', data);
+
+      setEditingUser(user);
+      setFormData({
+        full_name: data.full_name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        password: '',
+        is_active: data.is_active !== false,
+        leverage_multiplier: data.leverage_multiplier || 1,
+        contracted_plan: data.contracted_plan || 'none'
+      });
+      setShowEditForm(true);
+    } catch (error) {
+      console.error('❌ Erro ao preparar edição:', error);
+      setError('Erro ao preparar edição do usuário');
+    }
   };
 
   // Column filter functions
@@ -668,8 +723,8 @@ const AdminPanel: React.FC = () => {
   // Apply sorting
   if (sortConfig.direction) {
     filteredUsers = [...filteredUsers].sort((a, b) => {
-      let aValue: any = '';
-      let bValue: any = '';
+      let aValue: string | number | Date = '';
+      let bValue: string | number | Date = '';
       
       switch (sortConfig.key) {
         case 'full_name':
@@ -751,8 +806,10 @@ const AdminPanel: React.FC = () => {
       setBulkPlan('');
       setShowBulkActions(false);
       fetchUsers();
-    } catch (error: any) {
-      setError('Erro ao atualizar planos em lote');
+    } catch (error: unknown) {
+      console.error('Error updating bulk plan:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao atualizar planos em lote';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -784,8 +841,10 @@ const AdminPanel: React.FC = () => {
       setSuccess(`${leadsToDelete.length} leads excluídos com sucesso!`);
       setSelectedUsers([]);
       fetchUsers();
-    } catch (error: any) {
-      setError('Erro ao excluir leads');
+    } catch (error: unknown) {
+      console.error('Error deleting bulk leads:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao excluir leads';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -1349,17 +1408,29 @@ const AdminPanel: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPlanBadgeColor(user.contracted_plan)}`}>
                           {getPlanDisplayName(user.contracted_plan)}
                         </span>
+                        <button
+                          onClick={() => {
+                            const plans = ['none', 'bitcoin', 'mini-indice', 'mini-dolar', 'portfolio-completo'];
+                            const currentIndex = plans.indexOf(user.contracted_plan);
+                            const nextPlan = plans[(currentIndex + 1) % plans.length];
+                            updateUserPlan(user.id, nextPlan);
+                          }}
+                          className="p-1 text-blue-600 hover:text-blue-800"
+                          title="Alterar plano"
+                        >
+                          <Edit3 className="h-3 w-3" />
+                        </button>
                       </div>
                     </td>
                     <td className="px-3 py-3 text-xs text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-3 py-3 text-xs text-gray-500">
-                      {formatDateTime(user.last_sign_in_at)}
+                      {formatDateTime(user.last_sign_in_at || null)}
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex items-center space-x-2">
