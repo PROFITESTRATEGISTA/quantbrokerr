@@ -22,6 +22,20 @@ interface User {
   phone_confirmed_at?: string;
 }
 
+interface UserProfileData {
+  id: string;
+  email: string;
+  phone?: string;
+  full_name?: string;
+  created_at: string;
+  last_sign_in_at?: string;
+  email_confirmed_at?: string;
+  phone_confirmed_at?: string;
+  leverage_multiplier: number;
+  is_active: boolean;
+  contracted_plan: string;
+}
+
 interface ColumnFilter {
   column: string;
   values: string[];
@@ -154,40 +168,63 @@ const AdminPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔧 Carregando usuários da tabela user_profiles...');
+      console.log('🔧 Carregando usuários com dados completos...');
       
-      // Buscar apenas da tabela user_profiles
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Tentar usar a função que combina auth.users e user_profiles
+      let allUsers = [];
       
-      if (error) {
-        console.error('❌ Erro ao buscar usuários:', error);
-        throw error;
+      try {
+        const { data, error } = await supabase
+          .rpc('get_all_users_with_profiles');
+        
+        if (error) {
+          console.warn('⚠️ Erro na função customizada, usando fallback:', error);
+          throw error;
+        }
+        
+        if (data && data.length > 0) {
+          allUsers = data;
+          console.log('✅ Usuários carregados via função customizada:', allUsers.length);
+        } else {
+          throw new Error('Function returned no data');
+        }
+      } catch {
+        console.warn('⚠️ Fallback para busca direta na tabela user_profiles');
+        
+        // Fallback: buscar apenas da tabela user_profiles
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('❌ Erro ao buscar usuários:', error);
+          throw error;
+        }
+        
+        allUsers = data || [];
+        console.log('✅ Usuários encontrados via fallback:', allUsers.length);
       }
-      
-      const allUsers = data || [];
-      console.log('✅ Usuários encontrados:', allUsers.length);
 
       // Formatar usuários para o formato esperado
-      const formattedUsers = allUsers.map(user => ({
+      const formattedUsers = allUsers.map((user: UserProfileData) => ({
         id: user.id,
         full_name: user.full_name || '',
         email: user.email || '',
         phone: user.phone || '',
         created_at: user.created_at,
-        last_sign_in_at: undefined, // Não temos acesso a last_sign_in_at
+        last_sign_in_at: user.last_sign_in_at || undefined,
         leverage_multiplier: user.leverage_multiplier || 1,
         is_active: user.is_active !== false,
         contracted_plan: user.contracted_plan || 'none',
-        email_confirmed_at: undefined, // Não temos acesso a email_confirmed_at
-        phone_confirmed_at: undefined // Não temos acesso a phone_confirmed_at
+        email_confirmed_at: user.email_confirmed_at || undefined,
+        phone_confirmed_at: user.phone_confirmed_at || undefined
       }));
 
       console.log('✅ Usuários formatados:', formattedUsers.length);
-      console.log('📱 Usuários com telefone:', formattedUsers.filter(u => u.phone).length);
-      console.log('📧 Usuários com email:', formattedUsers.filter(u => u.email).length);
+      console.log('📱 Usuários com telefone:', formattedUsers.filter((u: User) => u.phone).length);
+      console.log('📧 Usuários com email:', formattedUsers.filter((u: User) => u.email).length);
+      console.log('🕒 Usuários com último login:', formattedUsers.filter((u: User) => u.last_sign_in_at).length);
 
       setUsers(formattedUsers);
     } catch (error) {
@@ -354,16 +391,17 @@ const AdminPanel: React.FC = () => {
       console.log('🔧 Atualizando usuário:', editingUser.id, 'com dados:', formData);
       setLoading(true);
 
-      // Usar a função admin para atualizar o perfil
-      const { error } = await supabase.rpc('admin_create_or_update_profile', {
-        user_id: editingUser.id,
-        user_email: formData.email,
-        user_phone: formData.phone || null,
-        user_full_name: formData.full_name,
-        user_leverage: formData.leverage_multiplier,
-        user_active: formData.is_active,
-        user_plan: formData.contracted_plan
-      });
+      // Atualizar diretamente na tabela user_profiles
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: formData.full_name,
+          phone: formData.phone || null,
+          leverage_multiplier: formData.leverage_multiplier,
+          is_active: formData.is_active,
+          contracted_plan: formData.contracted_plan
+        })
+        .eq('id', editingUser.id);
 
       console.log('✅ Resultado da atualização:', { error });
       if (error) {
@@ -393,10 +431,11 @@ const AdminPanel: React.FC = () => {
       setError(null);
       console.log('🔧 Excluindo usuário:', userId);
       
-      // Usar a função admin para deletar o perfil
-      const { error } = await supabase.rpc('admin_delete_profile', {
-        user_id: userId
-      });
+      // Deletar diretamente da tabela user_profiles
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', userId);
 
       console.log('✅ Resultado da exclusão:', { error });
 
@@ -556,30 +595,18 @@ const AdminPanel: React.FC = () => {
     try {
       console.log('🔧 Carregando dados do usuário para edição:', user.id);
       
-      // Buscar dados completos do usuário
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('❌ Erro ao carregar dados do usuário:', error);
-        setError('Erro ao carregar dados do usuário: ' + error.message);
-        return;
-      }
-
-      console.log('✅ Dados do usuário carregados:', data);
+      // Usar os dados já disponíveis do usuário
+      console.log('✅ Dados do usuário para edição:', user);
 
       setEditingUser(user);
       setFormData({
-        full_name: data.full_name || '',
-        email: data.email || '',
-        phone: data.phone || '',
+        full_name: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
         password: '',
-        is_active: data.is_active !== false,
-        leverage_multiplier: data.leverage_multiplier || 1,
-        contracted_plan: data.contracted_plan || 'none'
+        is_active: user.is_active !== false,
+        leverage_multiplier: user.leverage_multiplier || 1,
+        contracted_plan: user.contracted_plan || 'none'
       });
       setShowEditForm(true);
     } catch (error) {
