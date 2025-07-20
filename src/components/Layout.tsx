@@ -18,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null);
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
 
   const getCurrentView = () => {
     const path = location.pathname;
@@ -33,6 +34,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogin = () => {
     setIsLoginModalOpen(false);
+    
+    // Redirect after login if specified
+    if (redirectAfterLogin) {
+      window.location.href = redirectAfterLogin;
+      setRedirectAfterLogin(null);
+    }
+  };
+
+  const handleOpenLoginForResults = () => {
+    setRedirectAfterLogin('/resultados');
+    setIsLoginModalOpen(true);
   };
 
   const handleQuestionnaireComplete = (recommendation: string) => {
@@ -62,6 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <FloatingActions 
         onOpenQuestionnaire={() => setIsQuestionnaireOpen(true)}
         onNavigateToPlans={() => window.location.href = '/planos'}
+        onOpenLogin={handleOpenLoginForResults}
       />
       
       <LoginModal
