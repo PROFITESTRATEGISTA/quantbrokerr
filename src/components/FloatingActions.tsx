@@ -4,14 +4,20 @@ import { MessageCircle, Calendar, X, Zap, Bell, HelpCircle } from 'lucide-react'
 interface FloatingActionsProps {
   onOpenQuestionnaire: () => void;
   onNavigateToPlans: () => void;
+  onOpenLogin?: () => void;
 }
 
-const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, onNavigateToPlans }) => {
+const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, onNavigateToPlans, onOpenLogin }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleScheduleMeeting = () => {
-    window.open('d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"', '_blank');
-    setIsExpanded(false);
+    console.log('🔐 Botão de Login clicado!');
+    if (onOpenLogin) {
+      onOpenLogin();
+      setIsExpanded(false);
+    } else {
+      console.error('❌ onOpenLogin não está definido!');
+    }
   };
 
   const handleQuestionnaireClick = () => {
@@ -66,7 +72,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
             <Zap className="h-5 w-5 mr-2" />
             <span className="font-medium">Ver Todos os Planos</span>
           </button>
-           
+          
           <button
             onClick={handleScheduleMeeting}
             className="flex items-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
@@ -76,11 +82,14 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
           </button>
           
           <button
-            onClick={() => window.open('https://wa.me/555195483140?text=Olá%20William%2C%20quero%20abrir%20minha%20conta%20para%20operar%20Copy%20Trade%20com%20BTG%20via%20Profit%20Estrategista.%20Pode%20me%20orientar%20no%20processo%3F', '_blank')}
+            onClick={() => {
+              console.log('📱 Botão WhatsApp clicado!');
+              window.open('https://wa.me/555195483140?text=Olá%20William%2C%20quero%20abrir%20minha%20conta%20para%20operar%20Copy%20Trade%20com%20BTG%20via%20Profit%20Estrategista.%20Pode%20me%20orientar%20no%20processo%3F', '_blank');
+            }}
             className="flex items-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
           >
             <MessageCircle className="h-5 w-5 mr-2" />
-            <span className="font-medium">Suporte BTG Mosaico</span>
+            <span className="font-medium">📱 WhatsApp Suporte BTG</span>
           </button>
         </div>
       )}
