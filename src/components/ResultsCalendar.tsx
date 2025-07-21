@@ -524,9 +524,6 @@ const ResultsCalendar: React.FC = () => {
                         <h3 className="text-lg font-semibold mb-1">{month}</h3>
                         <p className="text-sm text-gray-400 mb-3">{calendarYear}</p>
                         
-                        <h3 className="text-lg font-semibold mb-1">{month}</h3>
-                        <p className="text-sm text-gray-400 mb-3">{calendarYear}</p>
-                        
                         {editingMonth === `${month}-${calendarYear}` ? (
                           <div className="space-y-3">
                             <div>
@@ -591,6 +588,10 @@ const ResultsCalendar: React.FC = () => {
                                 {error}
                               </div>
                             )}
+                          </div>
+                        ) : hasData ? (
+                          <>
+                            <div className="group">
                             <div className={`text-2xl font-bold transition-colors ${
                               value >= 0 ? 'text-green-400' : 'text-red-400'
                             } ${isAdmin ? 'group-hover:text-blue-400' : ''}`}>
@@ -601,6 +602,11 @@ const ResultsCalendar: React.FC = () => {
                                 Clique para editar
                               </div>
                             )}
+                          </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-gray-500 text-lg group">
                             <div>Sem dados</div>
                             {isAdmin && (
                               <div className="text-xs text-slate-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -608,6 +614,7 @@ const ResultsCalendar: React.FC = () => {
                               </div>
                             )}
                           </div>
+                          </>
                         )}
                       </div>
                     </div>
