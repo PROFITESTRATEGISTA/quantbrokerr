@@ -95,24 +95,30 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
         const formattedPhone = formatPhoneNumber(phone);
         
-        // Register with phone authentication
+        // Register with email authentication (more reliable)
         const { data, error } = await supabase.auth.signUp({
-          phone: formattedPhone,
-          password,
+          email: email,
+          password: password,
           options: {
             data: {
               full_name: fullName,
-              email: email,
-              phone: formattedPhone
+              phone: formattedPhone,
+              email: email
             }
           }
         });
         
         if (error) throw error;
         
-        if (data.user) {
-          setPendingVerification(true);
-          setIsVerifying(true);
+        if (data.user && !data.session) {
+          // Email confirmation required
+          setError('Verifique seu email para confirmar o cadastro e depois faça login.');
+          setIsRegister(false); // Switch to login mode
+        } else if (data.session) {
+          // User logged in immediately
+          onLogin();
+          onClose();
+          resetForm();
         }
       } else {
         // Login - can use either email or phone
@@ -138,8 +144,19 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           
           const formattedPhone = formatPhoneNumber(phone);
           
+          // Try to find user by phone in user_profiles and then login with email
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('email')
+            .eq('phone', formattedPhone)
+            .single();
+          
+          if (!profile) {
+            throw new Error('Usuário não encontrado com este telefone');
+          }
+          
           loginData = await supabase.auth.signInWithPassword({
-            phone: formattedPhone,
+            email: profile.email,
             password,
           });
         }
@@ -154,36 +171,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      setError(error.message || 'Erro ao processar solicitação');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleVerifyCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const formattedPhone = formatPhoneNumber(phone);
+      let errorMessage = error.message || 'Erro ao processar solicitação';
       
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: verificationCode,
-        type: 'sms'
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        onLogin();
-        onClose();
-        resetForm();
+      // Handle specific database errors
+      if (errorMessage.includes('duplicate key value violates unique constraint')) {
+        if (errorMessage.includes('email')) {
+          errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+        } else if (errorMessage.includes('phone')) {
+          errorMessage = 'Este telefone já está cadastrado. Tente fazer login.';
+        }
+      } else if (errorMessage.includes('invalid phone number')) {
+        errorMessage = 'Número de telefone inválido. Use o formato (11) 99999-9999';
+      } else if (errorMessage.includes('Email not confirmed')) {
+        errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
+      } else if (errorMessage.includes('Invalid login credentials')) {
+        errorMessage = 'Email ou senha incorretos.';
       }
-    } catch (error: any) {
-      console.error('Verification error:', error);
-      setError(error.message || 'Código de verificação inválido');
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -194,10 +199,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
     setEmail('');
     setPassword('');
     setPhone('');
-    setVerificationCode('');
     setError('');
-    setIsVerifying(false);
-    setPendingVerification(false);
     setLoginMethod('email');
   };
 
@@ -208,81 +210,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
   if (!isOpen) return null;
 
-  // Verification screen
-  if (isVerifying && pendingVerification) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-          <div className="flex justify-between items-center p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Verificar Telefone
-            </h2>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-
-          <form onSubmit={handleVerifyCode} className="p-6 space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <div className="text-center">
-              <Phone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">
-                Enviamos um código de verificação para:
-              </p>
-              <p className="font-semibold text-gray-900 mb-6">
-                {formatPhoneNumber(phone)}
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700 mb-2">
-                Código de Verificação
-              </label>
-              <input
-                type="text"
-                id="verificationCode"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-center text-lg tracking-widest"
-                placeholder="000000"
-                maxLength={6}
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading || verificationCode.length !== 6}
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Verificando...' : 'Verificar Código'}
-            </button>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsVerifying(false);
-                  setPendingVerification(false);
-                }}
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                Voltar
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -401,7 +328,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <p className="text-xs text-blue-800">
-                  <strong>Autenticação por SMS:</strong> Você receberá um código de verificação no seu telefone para confirmar o cadastro.
+                  <strong>Confirmação por Email:</strong> Você receberá um email de confirmação para ativar sua conta.
                 </p>
               </div>
             </>
