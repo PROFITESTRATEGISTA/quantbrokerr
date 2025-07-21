@@ -223,19 +223,38 @@ const ResultsCalendar: React.FC = () => {
   const handleQuickEdit = async (month: string, year: number) => {
     try {
       setError(null);
-      const newValue = editValue === '' ? null : parseFloat(editValue);
       
-      if (editValue !== '' && (isNaN(newValue!) || !isFinite(newValue!))) {
-        setError('Valor inválido. Use números decimais (ex: 12.5)');
-        return;
-      }
+      // Se não há dados para este mês, criar novo registro
+      const existingMonth = calendarData.find(d => d.month === month);
+      
+      if (!existingMonth) {
+        // Criar novo mês com todos os valores zerados exceto o ativo selecionado
+        const newMonthData = {
+          month: month,
+          year: year,
+          bitcoin: calendarAsset === 'bitcoin' ? (editValue === '' ? null : parseFloat(editValue)) : null,
+          miniIndice: calendarAsset === 'miniIndice' ? (editValue === '' ? null : parseFloat(editValue)) : null,
+          miniDolar: calendarAsset === 'miniDolar' ? (editValue === '' ? null : parseFloat(editValue)) : null,
+          portfolio: calendarAsset === 'portfolio' ? (editValue === '' ? null : parseFloat(editValue)) : null,
+          resultType: editResultType
+        };
+        
+        await handleAddMonth(newMonthData);
+      } else {
+        // Atualizar valor existente
+        const newValue = editValue === '' ? null : parseFloat(editValue);
+        
+        if (editValue !== '' && (isNaN(newValue!) || !isFinite(newValue!))) {
+          setError('Valor inválido. Use números decimais (ex: 12.5)');
+          return;
+        }
 
-      await handleUpdateMonth(month, year, calendarAsset, newValue);
-      
-      // Atualizar tipo de resultado se mudou
-      const currentMonth = calendarData.find(d => d.month === month);
-      if (currentMonth && currentMonth.resultType !== editResultType) {
-        await handleUpdateResultType(month, year, editResultType);
+        await handleUpdateMonth(month, year, calendarAsset, newValue);
+        
+        // Atualizar tipo de resultado se mudou
+        if (existingMonth.resultType !== editResultType) {
+          await handleUpdateResultType(month, year, editResultType);
+        }
       }
       
       setEditingMonth(null);
@@ -431,7 +450,7 @@ const ResultsCalendar: React.FC = () => {
                           : 'bg-gradient-to-br from-red-900/30 to-red-800/20 border-red-500/30'
                       }`}
                       onClick={() => {
-                        if (isAdmin && hasData && editingMonth !== `${month}-${calendarYear}`) {
+                        if (isAdmin && editingMonth !== `${month}-${calendarYear}`) {
                           setEditingMonth(`${month}-${calendarYear}`);
                           setEditValue(value?.toString() || '');
                           setEditResultType(monthData?.resultType || 'live');
@@ -468,7 +487,7 @@ const ResultsCalendar: React.FC = () => {
 
                       {/* Botões de ação para admin */}
                       {isAdmin && editingMonth !== `${month}-${calendarYear}` && (
-                        <div className="group">
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           {hasData ? (
                             /* Botão de edição para valores existentes */
                             <button
@@ -476,8 +495,9 @@ const ResultsCalendar: React.FC = () => {
                                 e.stopPropagation();
                                 setEditingMonth(`${month}-${calendarYear}`);
                                 setEditValue(value?.toString() || '');
+                                setEditResultType(monthData?.resultType || 'live');
                               }}
-                              className="absolute top-2 right-2 p-1 bg-slate-700/80 hover:bg-slate-600 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                              className="p-1 bg-slate-700/80 hover:bg-slate-600 rounded-full transition-colors"
                               title="Editar valor"
                             >
                               <Edit3 className="h-3 w-3 text-slate-300" />
@@ -489,8 +509,9 @@ const ResultsCalendar: React.FC = () => {
                                 e.stopPropagation();
                                 setEditingMonth(`${month}-${calendarYear}`);
                                 setEditValue('');
+                                setEditResultType('live');
                               }}
-                              className="absolute top-2 right-2 p-1.5 bg-green-600/80 hover:bg-green-500 rounded-full transition-colors shadow-lg"
+                              className="p-1.5 bg-green-600/80 hover:bg-green-500 rounded-full transition-colors shadow-lg"
                               title="Adicionar valor"
                             >
                               <Plus className="h-4 w-4 text-white" />
@@ -500,6 +521,9 @@ const ResultsCalendar: React.FC = () => {
                       )}
                       
                       <div className="text-center">
+                        <h3 className="text-lg font-semibold mb-1">{month}</h3>
+                        <p className="text-sm text-gray-400 mb-3">{calendarYear}</p>
+                        
                         <h3 className="text-lg font-semibold mb-1">{month}</h3>
                         <p className="text-sm text-gray-400 mb-3">{calendarYear}</p>
                         
@@ -524,7 +548,7 @@ const ResultsCalendar: React.FC = () => {
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
                               className="w-full px-3 py-2 bg-slate-700 border border-slate-500 rounded-lg text-white text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                              placeholder="0.0"
+                              placeholder={hasData ? value?.toString() : "0.0"}
                               autoFocus
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter') {
@@ -544,10 +568,10 @@ const ResultsCalendar: React.FC = () => {
                             <div className="flex gap-2 justify-center">
                               <button
                                 onClick={() => handleQuickEdit(month, calendarYear)}
-                                className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg transition-colors text-sm font-medium"
+                                className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg transition-colors text-sm font-medium flex items-center"
                                 title="Salvar"
                               >
-                                Salvar
+                                {hasData ? 'Atualizar' : 'Adicionar'}
                               </button>
                               <button
                                 onClick={() => {
@@ -567,9 +591,6 @@ const ResultsCalendar: React.FC = () => {
                                 {error}
                               </div>
                             )}
-                          </div>
-                        ) : value !== null ? (
-                          <div className="group">
                             <div className={`text-2xl font-bold transition-colors ${
                               value >= 0 ? 'text-green-400' : 'text-red-400'
                             } ${isAdmin ? 'group-hover:text-blue-400' : ''}`}>
@@ -580,9 +601,6 @@ const ResultsCalendar: React.FC = () => {
                                 Clique para editar
                               </div>
                             )}
-                          </div>
-                        ) : (
-                          <div className="text-gray-500 text-lg group">
                             <div>Sem dados</div>
                             {isAdmin && (
                               <div className="text-xs text-slate-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
