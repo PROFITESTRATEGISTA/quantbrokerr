@@ -528,17 +528,11 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
           {/* Seção de Resumo */}
           <div className="bg-slate-900/30 rounded-xl p-4 border border-slate-700">
             <h4 className="text-lg font-semibold text-white mb-3">Resumo da Performance</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-slate-400">Retorno Total:</span>
                 <span className={`ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {metrics.totalReturn >= 0 ? '+' : ''}{formatNumber(metrics.totalReturn)}%
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-400">Volatilidade:</span>
-                <span className="ml-2 font-semibold text-yellow-400">
-                  {formatNumber(metrics.volatility)}%
                 </span>
               </div>
               <div>
