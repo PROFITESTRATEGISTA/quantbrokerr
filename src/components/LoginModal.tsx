@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Eye, EyeOff, Phone, Mail } from 'lucide-react';
+import { X, Eye, EyeOff, Phone, Mail, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 // RD Station integration
@@ -24,7 +24,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   const [isLoading, setIsLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+  
+  // SMS Verification states
+  const [showSMSVerification, setShowSMSVerification] = useState(false);
+  const [smsCode, setSmsCode] = useState('');
+  const [smsLoading, setSmsLoading] = useState(false);
+  const [pendingUserData, setPendingUserData] = useState<any>(null);
 
   // Load RD Station script
   React.useEffect(() => {
@@ -57,66 +64,176 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
     return digits.length >= 10 && digits.length <= 13;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    
+  const sendSMSCode = async (phoneNumber: string) => {
     try {
-      if (isRegister) {
-        // Send to RD Station first
+      setSmsLoading(true);
+      setError('');
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-sms`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          action: 'send'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao enviar SMS');
+      }
+
+      setSuccess('Código SMS enviado com sucesso! Verifique seu telefone.');
+      return true;
+    } catch (error: any) {
+      console.error('SMS send error:', error);
+      setError(error.message || 'Erro ao enviar código SMS');
+      return false;
+    } finally {
+      setSmsLoading(false);
+    }
+  };
+
+  const verifySMSCode = async (phoneNumber: string, code: string) => {
+    try {
+      setSmsLoading(true);
+      setError('');
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-sms`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          code: code,
+          action: 'verify'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Código SMS inválido');
+      }
+
+      return result.success;
+    } catch (error: any) {
+      console.error('SMS verify error:', error);
+      setError(error.message || 'Erro ao verificar código SMS');
+      return false;
+    } finally {
+      setSmsLoading(false);
+    }
+  };
+
+  const handleSMSVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!smsCode || smsCode.length !== 6) {
+      setError('Digite o código de 6 dígitos');
+      return;
+    }
+
+    const formattedPhone = formatPhoneNumber(phone);
+    const isValid = await verifySMSCode(formattedPhone, smsCode);
+    
+    if (isValid && pendingUserData) {
+      try {
+        // Complete registration after SMS verification
+        const { data, error } = await supabase.auth.signUp({
+          email: pendingUserData.email,
+          password: pendingUserData.password,
+          options: {
+            data: {
+              full_name: pendingUserData.fullName,
+              phone: formattedPhone,
+              email: pendingUserData.email,
+              phone_verified: true
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        // Send to RD Station
         try {
           if (window.RdIntegration) {
             window.RdIntegration.post({
               token_rdstation: '57e7abbb49395ca58551fe103433f9da',
-              identificador: 'registro-usuario',
-              nome: fullName,
-              email: email,
-              telefone: phone,
-              tags: ['registro', 'usuario-novo', 'quant-broker']
+              identificador: 'registro-usuario-sms',
+              nome: pendingUserData.fullName,
+              email: pendingUserData.email,
+              telefone: formattedPhone,
+              tags: ['registro', 'usuario-novo', 'sms-verificado', 'quant-broker']
             });
           }
         } catch (rdError) {
           console.warn('RD Station integration error:', rdError);
-          // Continue with registration even if RD Station fails
         }
 
+        setSuccess('Conta criada com sucesso! Você já está logado.');
+        onLogin();
+        onClose();
+        resetForm();
+      } catch (error: any) {
+        setError(error.message || 'Erro ao criar conta');
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      if (isRegister) {
         // Validation
-        if (!fullName || !email || !password) {
-          throw new Error('Nome, email e senha são obrigatórios');
+        if (!fullName || !email || !password || !phone) {
+          throw new Error('Todos os campos são obrigatórios para registro');
         }
 
-        if (phone && !validatePhone(phone)) {
+        if (!validatePhone(phone)) {
           throw new Error('Número de telefone inválido. Use o formato (11) 99999-9999');
         }
 
-        const formattedPhone = phone ? formatPhoneNumber(phone) : null;
+        const formattedPhone = formatPhoneNumber(phone);
         
-        // Register with email only - no SMS verification
-        const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              full_name: fullName,
-              phone: formattedPhone,
-              email: email
-            },
-            emailRedirectTo: window.location.origin
+        // Check if email or phone already exists
+        const { data: existingUser } = await supabase
+          .from('user_profiles')
+          .select('email, phone')
+          .or(`email.eq.${email},phone.eq.${formattedPhone}`)
+          .single();
+
+        if (existingUser) {
+          if (existingUser.email === email) {
+            throw new Error('Este email já está cadastrado. Tente fazer login.');
           }
-        });
+          if (existingUser.phone === formattedPhone) {
+            throw new Error('Este telefone já está cadastrado. Tente fazer login.');
+          }
+        }
+
+        // Send SMS verification code
+        const smsSent = await sendSMSCode(formattedPhone);
         
-        if (error) throw error;
-        
-        if (data.user && !data.session) {
-          // Email confirmation required
-          setError('✅ Conta criada! Verifique seu email para confirmar o cadastro e depois faça login.');
-          setIsRegister(false); // Switch to login mode
-        } else if (data.session) {
-          // User logged in immediately (email confirmation disabled)
-          onLogin();
-          onClose();
-          resetForm();
+        if (smsSent) {
+          // Store user data for after SMS verification
+          setPendingUserData({
+            fullName,
+            email,
+            password,
+            phone: formattedPhone
+          });
+          setShowSMSVerification(true);
         }
       } else {
         // Login - can use either email or phone
@@ -162,6 +279,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         if (loginData.error) throw loginData.error;
         
         if (loginData.data.user) {
+          setSuccess('Login realizado com sucesso!');
           onLogin();
           onClose();
           resetForm();
@@ -178,14 +296,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         } else if (errorMessage.includes('phone')) {
           errorMessage = 'Este telefone já está cadastrado. Tente fazer login.';
         }
-      } else if (errorMessage.includes('invalid phone number')) {
-        errorMessage = 'Número de telefone inválido. Use o formato (11) 99999-9999';
-      } else if (errorMessage.includes('Email not confirmed')) {
-        errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
       } else if (errorMessage.includes('Invalid login credentials')) {
-        errorMessage = 'Email ou senha incorretos.';
-      } else if (errorMessage.includes('User already registered')) {
-        errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+        errorMessage = 'Email/telefone ou senha incorretos.';
       }
       
       setError(errorMessage);
@@ -200,12 +312,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
     setPassword('');
     setPhone('');
     setError('');
+    setSuccess('');
     setLoginMethod('email');
+    setShowSMSVerification(false);
+    setSmsCode('');
+    setPendingUserData(null);
   };
 
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const resendSMS = async () => {
+    if (pendingUserData?.phone) {
+      await sendSMSCode(pendingUserData.phone);
+    }
   };
 
   if (!isOpen) return null;
@@ -215,7 +337,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
-            {isRegister ? 'Criar Conta' : 'Fazer Login'}
+            {showSMSVerification ? 'Verificação SMS' : isRegister ? 'Criar Conta' : 'Fazer Login'}
           </h2>
           <button
             onClick={handleClose}
@@ -225,157 +347,122 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           </button>
         </div>
 
-        <form 
-          name={isRegister ? "registro-usuario" : "login-usuario"}
-          onSubmit={handleSubmit} 
-          className="p-6 space-y-6"
-        >
-          {/* Hidden RD Station fields */}
-          <input type="hidden" name="identificador" value={isRegister ? "registro-usuario" : "login-usuario"} />
-          
-          {error && (
-            <div className={`border px-4 py-3 rounded-lg ${
-              error.includes('✅') 
-                ? 'bg-green-50 border-green-200 text-green-700' 
-                : 'bg-red-50 border-red-200 text-red-700'
-            }`}>
-              {error}
+        {showSMSVerification ? (
+          // SMS Verification Form
+          <form onSubmit={handleSMSVerification} className="p-4 space-y-4">
+            <div className="text-center">
+              <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                Verificação por SMS
+              </h3>
+              <p className="text-gray-600 mb-2 text-sm">
+                Enviamos um código de 6 dígitos para:
+              </p>
+              <p className="font-medium text-gray-900 mb-4">
+                {pendingUserData?.phone}
+              </p>
             </div>
-          )}
 
-          {isRegister ? (
-            // Registration form - simplified, email only
-            <>
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome Completo *
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="nome"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Seu nome completo"
-                  required
-                />
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {error}
               </div>
+            )}
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  <Mail className="h-4 w-4 inline mr-1" />
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="seu@email.com"
-                  required
-                />
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">
+                {success}
               </div>
+            )}
 
-              <div>
-                <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-2">
-                  <Phone className="h-4 w-4 inline mr-1" />
-                  Telefone (opcional)
-                </label>
-                <input
-                  type="tel"
-                  id="telefone"
-                  name="telefone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="(11) 99999-9999"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Formato: (11) 99999-9999 ou 11999999999
-                </p>
-              </div>
+            <div>
+              <label htmlFor="smsCode" className="block text-sm font-medium text-gray-700 mb-1">
+                Código SMS (6 dígitos)
+              </label>
+              <input
+                type="text"
+                id="smsCode"
+                value={smsCode}
+                onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-center text-xl font-mono tracking-widest"
+                placeholder="000000"
+                maxLength={6}
+                required
+              />
+            </div>
 
-              <div>
-                <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="senha"
-                    name="senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    data-sensitive="true"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Mínimo 6 caracteres
-                </p>
-              </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={smsLoading || smsCode.length !== 6}
+                className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {smsLoading ? 'Verificando...' : 'Verificar Código'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={resendSMS}
+                disabled={smsLoading}
+                className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Reenviar
+              </button>
+            </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs text-blue-800">
-                  <strong>Confirmação por Email:</strong> Você receberá um email de confirmação para ativar sua conta.
-                </p>
+            <button
+              type="button"
+              onClick={() => setShowSMSVerification(false)}
+              className="w-full text-sm text-gray-600 hover:text-gray-800"
+            >
+              ← Voltar ao cadastro
+            </button>
+          </form>
+        ) : (
+          // Main Login/Register Form
+          <form 
+            name={isRegister ? "registro-usuario" : "login-usuario"}
+            onSubmit={handleSubmit} 
+            className="p-4 space-y-4"
+          >
+            {/* Hidden RD Station fields */}
+            <input type="hidden" name="identificador" value={isRegister ? "registro-usuario" : "login-usuario"} />
+            
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {error}
               </div>
-            </>
-          ) : (
-            // Login form - email or phone choice
-            <>
-              {/* Login Method Selector */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Como você quer fazer login?
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setLoginMethod('email')}
-                    className={`p-3 border-2 rounded-lg transition-all ${
-                      loginMethod === 'email'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-blue-300'
-                    }`}
-                  >
-                    <Mail className="h-5 w-5 mx-auto mb-1" />
-                    <div className="text-sm font-medium">Email</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLoginMethod('phone')}
-                    className={`p-3 border-2 rounded-lg transition-all ${
-                      loginMethod === 'phone'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-blue-300'
-                    }`}
-                  >
-                    <Phone className="h-5 w-5 mx-auto mb-1" />
-                    <div className="text-sm font-medium">Telefone</div>
-                  </button>
-                </div>
-              </div>
+            )}
 
-              {/* Login Fields */}
-              {loginMethod === 'email' ? (
+            {success && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm">
+                {success}
+              </div>
+            )}
+
+            {isRegister ? (
+              // Registration form with SMS verification
+              <>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nome Completo *
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="nome"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Seu nome completo"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                     <Mail className="h-4 w-4 inline mr-1" />
-                    Email
+                    Email *
                   </label>
                   <input
                     type="email"
@@ -383,16 +470,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                     name="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="seu@email.com"
                     required
                   />
                 </div>
-              ) : (
+
                 <div>
-                  <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">
                     <Phone className="h-4 w-4 inline mr-1" />
-                    Telefone (com DDD)
+                    Telefone (com DDD) *
                   </label>
                   <input
                     type="tel"
@@ -400,7 +487,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                     name="telefone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     placeholder="(11) 99999-9999"
                     required
                   />
@@ -408,88 +495,202 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                     Formato: (11) 99999-9999 ou 11999999999
                   </p>
                 </div>
-              )}
 
-              <div>
-                <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="senha"
-                    name="senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    data-sensitive="true"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                  />
-                  <button
+                <div>
+                  <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">
+                    Senha *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="senha"
+                      name="senha"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      data-sensitive="true"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mínimo 6 caracteres
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                  <p className="text-xs text-blue-800">
+                    <strong>Verificação por SMS:</strong> Você receberá um código no seu telefone para confirmar o cadastro.
+                  </p>
+                </div>
+              </>
+            ) : (
+              // Login form - email or phone choice
+              <>
+                {/* Login Method Selector */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Como você quer fazer login?
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod('email')}
+                      className={`p-3 border-2 rounded-lg transition-all ${
+                        loginMethod === 'email'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-blue-300'
+                      }`}
+                    >
+                      <Mail className="h-5 w-5 mx-auto mb-1" />
+                      <div className="text-sm font-medium">Email</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod('phone')}
+                      className={`p-3 border-2 rounded-lg transition-all ${
+                        loginMethod === 'phone'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-blue-300'
+                      }`}
+                    >
+                      <Phone className="h-5 w-5 mx-auto mb-1" />
+                      <div className="text-sm font-medium">Telefone</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Login Fields */}
+                {loginMethod === 'email' ? (
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      <Mail className="h-4 w-4 inline mr-1" />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="seu@email.com"
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">
+                      <Phone className="h-4 w-4 inline mr-1" />
+                      Telefone (com DDD)
+                    </label>
+                    <input
+                      type="tel"
+                      id="telefone"
+                      name="telefone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="(11) 99999-9999"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Formato: (11) 99999-9999 ou 11999999999
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">
+                    Senha
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="senha"
+                      name="senha"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      data-sensitive="true"
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="lembrar"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-600">Lembrar de mim</span>
+                  </label>
+                  <button 
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+                    className="text-sm text-blue-600 hover:text-blue-800"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    Esqueceu a senha?
                   </button>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="lembrar"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Lembrar de mim</span>
-                </label>
-                <button 
-                  type="button"
-                  onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  Esqueceu a senha?
-                </button>
-              </div>
-            </>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              isRegister ? 'Criando conta...' : 'Entrando...'
-            ) : (
-              isRegister ? 'Criar Conta' : 'Entrar'
+              </>
             )}
-          </button>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              {isRegister ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRegister(!isRegister);
-                  setError('');
-                  setEmail('');
-                  setPhone('');
-                  setPassword('');
-                  setFullName('');
-                  setLoginMethod('email');
-                }}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                {isRegister ? 'Fazer Login' : 'Cadastre-se'}
-              </button>
-            </p>
-          </div>
-        </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                isRegister ? 'Enviando código SMS...' : 'Entrando...'
+              ) : (
+                isRegister ? 'Criar Conta' : 'Entrar'
+              )}
+            </button>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                {isRegister ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(!isRegister);
+                    setError('');
+                    setSuccess('');
+                    setEmail('');
+                    setPhone('');
+                    setPassword('');
+                    setFullName('');
+                    setLoginMethod('email');
+                    setShowSMSVerification(false);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  {isRegister ? 'Fazer Login' : 'Cadastre-se'}
+                </button>
+              </p>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
