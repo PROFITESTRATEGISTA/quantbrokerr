@@ -24,9 +24,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   const [isLoading, setIsLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
 
   // Load RD Station script
@@ -84,18 +81,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           // Continue with registration even if RD Station fails
         }
 
-        // Registration - requires email, phone, and password
-        if (!fullName || !email || !phone || !password) {
-          throw new Error('Todos os campos são obrigatórios para registro');
+        // Validation
+        if (!fullName || !email || !password) {
+          throw new Error('Nome, email e senha são obrigatórios');
         }
 
-        if (!validatePhone(phone)) {
+        if (phone && !validatePhone(phone)) {
           throw new Error('Número de telefone inválido. Use o formato (11) 99999-9999');
         }
 
-        const formattedPhone = formatPhoneNumber(phone);
+        const formattedPhone = phone ? formatPhoneNumber(phone) : null;
         
-        // Register with email authentication (more reliable)
+        // Register with email only - no SMS verification
         const { data, error } = await supabase.auth.signUp({
           email: email,
           password: password,
@@ -104,7 +101,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
               full_name: fullName,
               phone: formattedPhone,
               email: email
-            }
+            },
+            emailRedirectTo: window.location.origin
           }
         });
         
@@ -112,10 +110,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         
         if (data.user && !data.session) {
           // Email confirmation required
-          setError('Verifique seu email para confirmar o cadastro e depois faça login.');
+          setError('✅ Conta criada! Verifique seu email para confirmar o cadastro e depois faça login.');
           setIsRegister(false); // Switch to login mode
         } else if (data.session) {
-          // User logged in immediately
+          // User logged in immediately (email confirmation disabled)
           onLogin();
           onClose();
           resetForm();
@@ -186,6 +184,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
       } else if (errorMessage.includes('Invalid login credentials')) {
         errorMessage = 'Email ou senha incorretos.';
+      } else if (errorMessage.includes('User already registered')) {
+        errorMessage = 'Este email já está cadastrado. Tente fazer login.';
       }
       
       setError(errorMessage);
@@ -209,7 +209,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   };
 
   if (!isOpen) return null;
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -235,13 +234,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           <input type="hidden" name="identificador" value={isRegister ? "registro-usuario" : "login-usuario"} />
           
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className={`border px-4 py-3 rounded-lg ${
+              error.includes('✅') 
+                ? 'bg-green-50 border-green-200 text-green-700' 
+                : 'bg-red-50 border-red-200 text-red-700'
+            }`}>
               {error}
             </div>
           )}
 
           {isRegister ? (
-            // Registration form - requires email, phone, and password
+            // Registration form - simplified, email only
             <>
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -262,7 +265,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   <Mail className="h-4 w-4 inline mr-1" />
-                  Email
+                  Email *
                 </label>
                 <input
                   type="email"
@@ -279,7 +282,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
               <div>
                 <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-2">
                   <Phone className="h-4 w-4 inline mr-1" />
-                  Telefone (com DDD)
+                  Telefone (opcional)
                 </label>
                 <input
                   type="tel"
@@ -289,7 +292,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   placeholder="(11) 99999-9999"
-                  required
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Formato: (11) 99999-9999 ou 11999999999
@@ -298,7 +300,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
               <div>
                 <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha
+                  Senha *
                 </label>
                 <div className="relative">
                   <input
@@ -478,6 +480,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                   setEmail('');
                   setPhone('');
                   setPassword('');
+                  setFullName('');
                   setLoginMethod('email');
                 }}
                 className="text-blue-600 hover:text-blue-800 font-medium"
