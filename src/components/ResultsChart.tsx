@@ -233,16 +233,28 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 <Bar 
                   dataKey="monthlyValue" 
                   shape={(props: any) => {
-                    const { x, y, width, height, payload } = props;
+                    const { x, y, width, height, payload, ...rest } = props;
                     const value = payload?.monthlyValue || 0;
                     const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                    
+                    // Para valores negativos, ajustar a posição Y e altura
+                    let rectY = y;
+                    let rectHeight = height;
+                    
+                    if (value < 0) {
+                      // Para valores negativos, a barra deve começar na linha zero e ir para baixo
+                      rectHeight = Math.abs(height);
+                    } else {
+                      // Para valores positivos, manter comportamento normal
+                      rectHeight = Math.abs(height);
+                    }
                     
                     return (
                       <rect
                         x={x}
-                        y={y}
+                        y={rectY}
                         width={width}
-                        height={Math.abs(height)}
+                        height={rectHeight}
                         fill={color}
                         rx={2}
                         ry={2}
