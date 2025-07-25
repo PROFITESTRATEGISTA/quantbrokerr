@@ -220,18 +220,6 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 6.82
               </span>
             </div>
-            <div>
-              <span className="text-slate-400">Taxa de Acerto Diária:</span>
-              <span className={`ml-2 font-semibold ${52 >= 50 ? 'text-green-400' : 'text-red-400'}`}>
-                52%
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-400">Média Operações/Dia:</span>
-              <span className="ml-2 font-semibold text-blue-400">
-                5
-              </span>
-            </div>
           </div>
           
           {/* Resumo Expandido */}
