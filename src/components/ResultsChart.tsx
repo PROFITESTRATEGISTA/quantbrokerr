@@ -260,14 +260,6 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                   dot={false}
                   activeDot={false}
                 />
-                        height={height}
-                        fill={color}
-                        rx={2}
-                        ry={2}
-                      />
-                    );
-                  }}
-                />
               </BarChart>
             )}
           </ResponsiveContainer>
