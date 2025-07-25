@@ -282,7 +282,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
         {/* Seção de Resumo */}
         <div className="bg-gradient-to-br from-slate-800/40 via-blue-900/30 to-teal-900/20 rounded-xl p-4 border border-slate-600/50">
           <h4 className="text-lg font-semibold text-white mb-3">Resumo da Performance</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-center">
             <div>
               <span className="text-slate-400">Retorno Total:</span>
               {renderEditableValue(
@@ -345,13 +345,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
           <div className="mt-4 pt-4 border-t border-slate-700">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Análise de Ganhos */}
-              <div className="bg-gradient-to-br from-green-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-green-500/20">
+              <div className="bg-gradient-to-br from-green-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-green-500/20 text-center">
                 <h5 className="text-green-400 font-semibold mb-2 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Análise de Ganhos Mensais
                 </h5>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
+                <div className="space-y-2 text-xs text-center">
+                  <div>
                     <span className="text-slate-400">Meses Positivos:</span>
                     {renderEditableValue(
                       'positiveMonths',
@@ -363,7 +363,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-green-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Ganho Médio:</span>
                     {renderEditableValue(
                       'avgWin',
@@ -372,7 +372,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       '+'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Ganho Mediano:</span>
                     {renderEditableValue(
                       'medianWin',
@@ -386,7 +386,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       '+'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Maior Ganho:</span>
                     {renderEditableValue(
                       'maxWin',
@@ -404,13 +404,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </div>
 
               {/* Análise de Perdas */}
-              <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-red-500/20">
+              <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-red-500/20 text-center">
                 <h5 className="text-red-400 font-semibold mb-2 flex items-center">
                   <TrendingDown className="w-4 h-4 mr-2" />
                   Análise de Perdas Mensais
                 </h5>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
+                <div className="space-y-2 text-xs text-center">
+                  <div>
                     <span className="text-slate-400">Meses Negativos:</span>
                     {renderEditableValue(
                       'negativeMonths',
@@ -422,7 +422,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-red-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Perda Média:</span>
                     {renderEditableValue(
                       'avgLoss',
@@ -431,7 +431,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       '-'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Perda Mediana:</span>
                     {renderEditableValue(
                       'medianLoss',
@@ -445,7 +445,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       '-'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Maior Perda:</span>
                     {renderEditableValue(
                       'maxLoss',
@@ -462,13 +462,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </div>
 
               {/* Métricas de Consistência */}
-              <div className="bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-cyan-900/20 rounded-lg p-3 border border-blue-500/20">
+              <div className="bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-cyan-900/20 rounded-lg p-3 border border-blue-500/20 text-center">
                 <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Consistência Mensal
                 </h5>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
+                <div className="space-y-2 text-xs text-center">
+                  <div>
                     <span className="text-slate-400">Taxa de Acerto Mensal:</span>
                     {renderEditableValue(
                       'winRate',
@@ -476,7 +476,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       `font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Fator de Lucro Mensal:</span>
                     {renderEditableValue(
                       'monthlyProfitFactor',
@@ -484,7 +484,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       `font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Meses Positivos Consecutivos:</span>
                     {renderEditableValue(
                       'consecutiveWins',
@@ -513,13 +513,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </div>
 
               {/* Métricas Diárias */}
-              <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-3 border border-purple-500/20">
+              <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-3 border border-purple-500/20 text-center">
                 <h5 className="text-purple-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Performance Diária
                 </h5>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
+                <div className="space-y-2 text-xs text-center">
+                  <div>
                     <span className="text-slate-400">Ganho Médio Diário:</span>
                     {renderEditableValue(
                       'avgDailyGain',
@@ -527,7 +527,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-green-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Ganho Máximo Diário:</span>
                     {renderEditableValue(
                       'maxDailyGain',
@@ -535,7 +535,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-green-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Perda Média Diária:</span>
                     {renderEditableValue(
                       'avgDailyLoss',
@@ -543,7 +543,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-red-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Perda Máxima Diária:</span>
                     {renderEditableValue(
                       'maxDailyLoss',
@@ -551,7 +551,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'text-red-400 font-medium'
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Taxa de Acerto Diária:</span>
                     {renderEditableValue(
                       'dailyWinRate',
@@ -559,7 +559,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       `font-medium text-green-400`
                     )}
                   </div>
-                  <div className="flex justify-between">
+                  <div>
                     <span className="text-slate-400">Média Operações/Dia:</span>
                     {renderEditableValue(
                       'avgOperationsPerDay',
