@@ -227,22 +227,23 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                   stroke="#64748b"
                   fontSize={12}
                   tickFormatter={formatYAxis}
-                  domain={['dataMin', 'dataMax']}
+                  domain={['dataMin - 5', 'dataMax + 5']}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="monthlyValue" 
-                  fill="#22c55e"
-                />
-                {/* Adicionar linha de referência no zero */}
+                {/* Linha de referência no zero */}
                 <Line 
                   type="monotone" 
                   dataKey={() => 0} 
-                  stroke="#e2e8f0" 
-                  strokeWidth={1}
-                  strokeDasharray="5 5"
+                  stroke="#64748b" 
+                  strokeWidth={2}
+                  strokeDasharray="3 3"
                   dot={false}
                   activeDot={false}
+                />
+                <Bar 
+                  dataKey="monthlyValue" 
+                  fill="#22c55e"
+                  radius={[2, 2, 2, 2]}
                 />
               </BarChart>
             )}
