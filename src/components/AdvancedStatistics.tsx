@@ -204,7 +204,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               <div className="bg-slate-800/50 rounded-lg p-4">
                 <h5 className="text-green-400 font-semibold mb-2 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Análise de Ganhos
+                  Análise de Ganhos Mensais
                 </h5>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
@@ -241,7 +241,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               <div className="bg-slate-800/50 rounded-lg p-4">
                 <h5 className="text-red-400 font-semibold mb-2 flex items-center">
                   <TrendingDown className="w-4 h-4 mr-2" />
-                  Análise de Perdas
+                  Análise de Perdas Mensais
                 </h5>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
