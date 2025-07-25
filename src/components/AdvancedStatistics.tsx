@@ -44,12 +44,88 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   asset,
   isAdmin
 }) => {
-  const [statistics, setStatistics] = useState<TradingStatistic[]>([]);
+  const [assetStatistics, setAssetStatistics] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  // Valores padrão para cada ativo
+  const defaultStatistics = {
+    bitcoin: {
+      profitFactor: '1.25',
+      sharpeRatio: '2.15',
+      recoveryFactor: '5.80',
+      avgDailyGain: 'R$ 380,50',
+      maxDailyGain: 'R$ 1.650,00',
+      avgDailyLoss: 'R$ 245,30',
+      maxDailyLoss: 'R$ 520,00',
+      dailyWinRate: '48%',
+      avgOperationsPerDay: '4'
+    },
+    miniIndice: {
+      profitFactor: '1.45',
+      sharpeRatio: '2.85',
+      recoveryFactor: '7.20',
+      avgDailyGain: 'R$ 520,80',
+      maxDailyGain: 'R$ 2.100,00',
+      avgDailyLoss: 'R$ 310,40',
+      maxDailyLoss: 'R$ 680,00',
+      dailyWinRate: '55%',
+      avgOperationsPerDay: '6'
+    },
+    miniDolar: {
+      profitFactor: '1.28',
+      sharpeRatio: '2.40',
+      recoveryFactor: '6.15',
+      avgDailyGain: 'R$ 485,20',
+      maxDailyGain: 'R$ 1.850,00',
+      avgDailyLoss: 'R$ 320,15',
+      maxDailyLoss: 'R$ 750,00',
+      dailyWinRate: '50%',
+      avgOperationsPerDay: '5'
+    },
+    portfolio: {
+      profitFactor: '1.33',
+      sharpeRatio: '2.61',
+      recoveryFactor: '6.82',
+      avgDailyGain: 'R$ 437,42',
+      maxDailyGain: 'R$ 1.917,00',
+      avgDailyLoss: 'R$ 287,32',
+      maxDailyLoss: 'R$ 600,00',
+      dailyWinRate: '52%',
+      avgOperationsPerDay: '5'
+    }
+  };
+
+  // Carregar estatísticas do localStorage ou usar padrões
+  useEffect(() => {
+    const savedStats = localStorage.getItem('assetStatistics');
+    if (savedStats) {
+      try {
+        const parsed = JSON.parse(savedStats);
+        setAssetStatistics({ ...defaultStatistics, ...parsed });
+      } catch (error) {
+        console.error('Error parsing saved statistics:', error);
+        setAssetStatistics(defaultStatistics);
+      }
+    } else {
+      setAssetStatistics(defaultStatistics);
+    }
+    setLoading(false);
+  }, []);
+
+  // Salvar estatísticas no localStorage
+  const saveStatistics = (newStats: Record<string, any>) => {
+    setAssetStatistics(newStats);
+    localStorage.setItem('assetStatistics', JSON.stringify(newStats));
+  };
+
+  // Obter estatísticas do ativo atual
+  const getCurrentAssetStats = () => {
+    return assetStatistics[asset] || defaultStatistics[asset as keyof typeof defaultStatistics] || {};
+  };
 
   const formatNumber = (num: number): string => {
     return num.toFixed(2);
@@ -88,28 +164,6 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
     }
   };
 
-  const fetchStatistics = async () => {
-    try {
-      setLoading(true);
-      const { data: stats, error } = await supabase
-        .from('trading_statistics')
-        .select('*')
-        .eq('year', selectedYear);
-
-      if (error) throw error;
-      setStatistics(stats || []);
-    } catch (error) {
-      console.error('Error fetching statistics:', error);
-      setError('Erro ao carregar estatísticas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStatistics();
-  }, [selectedYear]);
-
   const handleEditField = (fieldKey: string, currentValue: string) => {
     setEditingField(fieldKey);
     setEditValues({ ...editValues, [fieldKey]: currentValue });
@@ -118,16 +172,26 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   const handleSaveField = async (fieldKey: string) => {
     try {
       setSaving(true);
-      const newValue = parseFloat(editValues[fieldKey]);
+      const newValue = editValues[fieldKey];
       
-      if (isNaN(newValue)) {
-        setError('Valor inválido. Use números decimais.');
+      if (!newValue || newValue.trim() === '') {
+        setError('Valor não pode estar vazio.');
         return;
       }
 
-      // Aqui você pode salvar no banco de dados se necessário
-      // Por enquanto, apenas atualizar o estado local
-      console.log(`Salvando ${fieldKey}: ${newValue}`);
+      // Atualizar estatísticas do ativo atual
+      const currentStats = getCurrentAssetStats();
+      const updatedAssetStats = {
+        ...currentStats,
+        [fieldKey]: newValue
+      };
+      
+      const newAssetStatistics = {
+        ...assetStatistics,
+        [asset]: updatedAssetStats
+      };
+      
+      saveStatistics(newAssetStatistics);
       
       setEditingField(null);
       setError(null);
@@ -145,22 +209,32 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
     setError(null);
   };
 
+  // Função para determinar se um campo é editável (apenas valores inputados)
+  const isFieldEditable = (fieldKey: string) => {
+    const editableFields = [
+      'profitFactor', 'sharpeRatio', 'recoveryFactor',
+      'avgDailyGain', 'maxDailyGain', 'avgDailyLoss', 'maxDailyLoss',
+      'dailyWinRate', 'avgOperationsPerDay'
+    ];
+    return editableFields.includes(fieldKey);
+  };
+
   const renderEditableValue = (
     fieldKey: string, 
     value: string, 
     colorClass: string,
     prefix: string = '',
-    suffix: string = ''
+    suffix: string = '',
+    isEditable: boolean = true
   ) => {
-    if (isAdmin && editingField === fieldKey) {
+    if (isAdmin && isEditable && editingField === fieldKey) {
       return (
         <div className="flex items-center gap-2">
           <input
-            type="number"
-            step="0.01"
+            type="text"
             value={editValues[fieldKey] || ''}
             onChange={(e) => setEditValues({ ...editValues, [fieldKey]: e.target.value })}
-            className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
+            className="w-24 px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
             autoFocus
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
@@ -194,12 +268,12 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
 
     return (
       <span 
-        className={`${colorClass} ${isAdmin ? 'cursor-pointer hover:opacity-80' : ''} group flex items-center`}
-        onClick={() => isAdmin && handleEditField(fieldKey, value.replace(/[^\d.-]/g, ''))}
-        title={isAdmin ? "Clique para editar" : undefined}
+        className={`${colorClass} ${isAdmin && isEditable ? 'cursor-pointer hover:opacity-80' : ''} group flex items-center`}
+        onClick={() => isAdmin && isEditable && handleEditField(fieldKey, value)}
+        title={isAdmin && isEditable ? "Clique para editar" : undefined}
       >
         {prefix}{value}{suffix}
-        {isAdmin && (
+        {isAdmin && isEditable && (
           <Edit3 className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
       </span>
@@ -245,6 +319,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   };
 
   const metrics = calculateMetrics();
+  const currentAssetStats = getCurrentAssetStats();
 
   if (loading) {
     return (
@@ -288,7 +363,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               {renderEditableValue(
                 'totalReturn',
                 `${metrics.totalReturn >= 0 ? '+' : ''}${formatNumber(metrics.totalReturn)}%`,
-                `ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`
+                `ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`,
+                '',
+                '',
+                false
               )}
             </div>
             <div>
@@ -296,7 +374,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               {renderEditableValue(
                 'monthsAnalyzed',
                 data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length.toString(),
-                'ml-2 font-semibold text-blue-400'
+                'ml-2 font-semibold text-blue-400',
+                '',
+                '',
+                false
               )}
             </div>
             <div>
@@ -304,7 +385,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               {renderEditableValue(
                 'payoff',
                 formatNumber(metrics.payoff),
-                `ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`
+                `ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`,
+                '',
+                '',
+                false
               )}
             </div>
             <div>
@@ -312,31 +396,43 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               {renderEditableValue(
                 'avgMonthlyReturn',
                 `${formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%`,
-                `ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`
+                `ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`,
+                '',
+                '',
+                false
               )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Lucro:</span>
               {renderEditableValue(
                 'profitFactor',
-                '1.33',
-                `ml-2 font-semibold text-green-400`
+                currentAssetStats.profitFactor || '1.33',
+                `ml-2 font-semibold text-green-400`,
+                '',
+                '',
+                isFieldEditable('profitFactor')
               )}
             </div>
             <div>
               <span className="text-slate-400">Sharpe Ratio:</span>
               {renderEditableValue(
                 'sharpeRatio',
-                '2.61',
-                `ml-2 font-semibold text-green-400`
+                currentAssetStats.sharpeRatio || '2.61',
+                `ml-2 font-semibold text-green-400`,
+                '',
+                '',
+                isFieldEditable('sharpeRatio')
               )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Recuperação:</span>
               {renderEditableValue(
                 'recoveryFactor',
-                '6.82',
-                `ml-2 font-semibold text-green-400`
+                currentAssetStats.recoveryFactor || '6.82',
+                `ml-2 font-semibold text-green-400`,
+                '',
+                '',
+                isFieldEditable('recoveryFactor')
               )}
             </div>
           </div>
@@ -360,7 +456,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         return values.filter(v => v > 0).length.toString();
                       })(),
-                      'text-green-400 font-medium'
+                      'text-green-400 font-medium',
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -369,7 +468,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'avgWin',
                       `${formatNumber(metrics.avgWin)}%`,
                       'text-green-400 font-medium',
-                      '+'
+                      '+',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -383,7 +484,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         return formatNumber(calculateMedian(positiveValues));
                       })()}%`,
                       'text-green-400 font-medium',
-                      '+'
+                      '+',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -397,7 +500,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         return positiveValues.length > 0 ? formatNumber(Math.max(...positiveValues)) : '0.00';
                       })()}%`,
                       'text-green-400 font-medium',
-                      '+'
+                      '+',
+                      '',
+                      false
                     )}
                   </div>
                 </div>
@@ -419,7 +524,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         return values.filter(v => v < 0).length.toString();
                       })(),
-                      'text-red-400 font-medium'
+                      'text-red-400 font-medium',
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -428,7 +536,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       'avgLoss',
                       `${formatNumber(metrics.avgLoss)}%`,
                       'text-red-400 font-medium',
-                      '-'
+                      '-',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -442,7 +552,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         return formatNumber(calculateMedian(negativeValues));
                       })()}%`,
                       'text-red-400 font-medium',
-                      '-'
+                      '-',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -455,7 +567,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         const negativeValues = values.filter(v => v < 0);
                         return negativeValues.length > 0 ? formatNumber(Math.min(...negativeValues)) : '0.00';
                       })()}%`,
-                      'text-red-400 font-medium'
+                      'text-red-400 font-medium',
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                 </div>
@@ -473,7 +588,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     {renderEditableValue(
                       'winRate',
                       `${formatNumber(metrics.winRate)}%`,
-                      `font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`
+                      `font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`,
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -481,7 +599,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     {renderEditableValue(
                       'monthlyProfitFactor',
                       formatNumber(metrics.profitFactor),
-                      `font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`
+                      `font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`,
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                   <div className="flex justify-between">
@@ -506,7 +627,10 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         
                         return maxSequence;
                       })()} meses`,
-                      'text-blue-400 font-medium'
+                      'text-blue-400 font-medium',
+                      '',
+                      '',
+                      false
                     )}
                   </div>
                 </div>
@@ -523,48 +647,66 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     <span className="text-slate-400">Ganho Médio Diário:</span>
                     {renderEditableValue(
                       'avgDailyGain',
-                      'R$ 437,42',
-                      'text-green-400 font-medium'
+                      currentAssetStats.avgDailyGain || 'R$ 437,42',
+                      'text-green-400 font-medium',
+                      '',
+                      '',
+                      isFieldEditable('avgDailyGain')
                     )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Ganho Máximo Diário:</span>
                     {renderEditableValue(
                       'maxDailyGain',
-                      'R$ 1.917,00',
-                      'text-green-400 font-medium'
+                      currentAssetStats.maxDailyGain || 'R$ 1.917,00',
+                      'text-green-400 font-medium',
+                      '',
+                      '',
+                      isFieldEditable('maxDailyGain')
                     )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Média Diária:</span>
                     {renderEditableValue(
                       'avgDailyLoss',
-                      'R$ 287,32',
-                      'text-red-400 font-medium'
+                      currentAssetStats.avgDailyLoss || 'R$ 287,32',
+                      'text-red-400 font-medium',
+                      '',
+                      '',
+                      isFieldEditable('avgDailyLoss')
                     )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Máxima Diária:</span>
                     {renderEditableValue(
                       'maxDailyLoss',
-                      'R$ 600,00',
-                      'text-red-400 font-medium'
+                      currentAssetStats.maxDailyLoss || 'R$ 600,00',
+                      'text-red-400 font-medium',
+                      '',
+                      '',
+                      isFieldEditable('maxDailyLoss')
                     )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Taxa de Acerto Diária:</span>
                     {renderEditableValue(
                       'dailyWinRate',
-                      '52%',
-                      `font-medium text-green-400`
+                      currentAssetStats.dailyWinRate || '52%',
+                      `font-medium text-green-400`,
+                      '',
+                      '',
+                      isFieldEditable('dailyWinRate')
                     )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Média Operações/Dia:</span>
                     {renderEditableValue(
                       'avgOperationsPerDay',
-                      '5',
-                      'text-blue-400 font-medium'
+                      currentAssetStats.avgOperationsPerDay || '5',
+                      'text-blue-400 font-medium',
+                      '',
+                      '',
+                      isFieldEditable('avgOperationsPerDay')
                     )}
                   </div>
                 </div>
