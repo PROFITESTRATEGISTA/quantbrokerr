@@ -52,6 +52,19 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
     return num.toFixed(2);
   };
 
+  const calculateMedian = (values: number[]): number => {
+    if (values.length === 0) return 0;
+    
+    const sorted = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+    
+    if (sorted.length % 2 === 0) {
+      return (sorted[middle - 1] + sorted[middle]) / 2;
+    } else {
+      return sorted[middle];
+    }
+  };
+
   const getAssetValue = (result: MonthlyResult, assetType: string): number | null => {
     switch (assetType) {
       case 'bitcoin': return result.bitcoin;
@@ -224,6 +237,17 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Mediano:</span>
+                    <span className="text-green-400 font-medium">
+                      +{(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const positiveValues = values.filter(v => v > 0);
+                        return formatNumber(calculateMedian(positiveValues));
+                      })()}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-slate-400">Maior Ganho:</span>
                     <span className="text-green-400 font-medium">
                       +{(() => {
@@ -258,6 +282,17 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     <span className="text-slate-400">Perda Média:</span>
                     <span className="text-red-400 font-medium">
                       -{formatNumber(metrics.avgLoss)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Mediana:</span>
+                    <span className="text-red-400 font-medium">
+                      -{(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const negativeValues = values.filter(v => v < 0).map(v => Math.abs(v));
+                        return formatNumber(calculateMedian(negativeValues));
+                      })()}%
                     </span>
                   </div>
                   <div className="flex justify-between">
