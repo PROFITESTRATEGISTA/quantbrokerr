@@ -294,7 +294,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Sequência Máx:</span>
+                    <span className="text-slate-400">Meses Positivos Consecutivos:</span>
                     <span className="text-blue-400 font-medium">
                       {(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
