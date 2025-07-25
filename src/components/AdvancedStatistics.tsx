@@ -315,7 +315,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
       <div className="space-y-6">
         {/* Seção de Resumo */}
         <div className="bg-gradient-to-br from-slate-800/40 via-blue-900/30 to-teal-900/20 rounded-xl p-4 border border-slate-600/50">
-          <h4 className="text-lg font-semibold text-white mb-3">Resumo da Performance</h4>
+          <h4 className="text-lg font-semibold text-white mb-3 text-center">Resumo da Performance</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-center">
             <div>
               <span className="text-slate-400">Retorno Total:</span>
