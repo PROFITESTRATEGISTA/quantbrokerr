@@ -528,7 +528,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
           {/* Seção de Resumo */}
           <div className="bg-slate-900/30 rounded-xl p-4 border border-slate-700">
             <h4 className="text-lg font-semibold text-white mb-3">Resumo da Performance</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div>
                 <span className="text-slate-400">Retorno Total:</span>
                 <span className={`ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -541,7 +541,96 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                   {data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length}
                 </span>
               </div>
+              <div>
+                <span className="text-slate-400">Payoff Mensal:</span>
+                <span className={`ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatNumber(metrics.payoff)}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-400">Retorno Médio Mensal:</span>
+                <span className={`ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%
+                </span>
+              </div>
             </div>
+            
+            {/* Resumo Expandido */}
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Análise de Ganhos */}
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <h5 className="text-green-400 font-semibold mb-2 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Análise de Ganhos
+                  </h5>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Meses Positivos:</span>
+                      <span className="text-green-400 font-medium">
+                        {(() => {
+                          const filteredData = data.filter(d => d.year === selectedYear);
+                          const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                          return values.filter(v => v > 0).length;
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Ganho Médio:</span>
+                      <span className="text-green-400 font-medium">
+                        +{formatNumber(metrics.avgWin)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Maior Ganho:</span>
+                      <span className="text-green-400 font-medium">
+                        +{(() => {
+                          const filteredData = data.filter(d => d.year === selectedYear);
+                          const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                          const positiveValues = values.filter(v => v > 0);
+                          return positiveValues.length > 0 ? formatNumber(Math.max(...positiveValues)) : '0.00';
+                        })()}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Análise de Perdas */}
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <h5 className="text-red-400 font-semibold mb-2 flex items-center">
+                    <TrendingDown className="w-4 h-4 mr-2" />
+                    Análise de Perdas
+                  </h5>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Meses Negativos:</span>
+                      <span className="text-red-400 font-medium">
+                        {(() => {
+                          const filteredData = data.filter(d => d.year === selectedYear);
+                          const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                          return values.filter(v => v < 0).length;
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Perda Média:</span>
+                      <span className="text-red-400 font-medium">
+                        -{formatNumber(metrics.avgLoss)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Maior Perda:</span>
+                      <span className="text-red-400 font-medium">
+                        {(() => {
+                          const filteredData = data.filter(d => d.year === selectedYear);
+                          const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                          const negativeValues = values.filter(v => v < 0);
+                          return negativeValues.length > 0 ? formatNumber(Math.min(...negativeValues)) : '0.00';
+                        })()}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
           </div>
         </>
       )}
@@ -549,4 +638,50 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   );
 };
 
+                {/* Métricas de Consistência */}
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Consistência
+                  </h5>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Taxa de Acerto:</span>
+                      <span className={`font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
+                        {formatNumber(metrics.winRate)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Fator de Lucro:</span>
+                      <span className={`font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`}>
+                        {formatNumber(metrics.profitFactor)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Sequência Máx:</span>
+                      <span className="text-blue-400 font-medium">
+                        {(() => {
+                          const filteredData = data.filter(d => d.year === selectedYear);
+                          const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                          
+                          let maxSequence = 0;
+                          let currentSequence = 0;
+                          
+                          values.forEach(value => {
+                            if (value > 0) {
+                              currentSequence++;
+                              maxSequence = Math.max(maxSequence, currentSequence);
+                            } else {
+                              currentSequence = 0;
+                            }
+                          });
+                          
+                          return maxSequence;
+                        })()} meses
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 export default AdvancedStatistics;
