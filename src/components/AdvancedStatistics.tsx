@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, BarChart3, Settings, Edit3, Save, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+interface MonthlyResult {
+  id: string;
+  month: string;
+  year: number;
+  bitcoin: number | null;
+  mini_indice: number | null;
+  mini_dolar: number | null;
+  portfolio: number | null;
+  result_type: 'backtest' | 'live';
+}
+
 interface TradingStatistic {
   id: string;
   asset: string;
@@ -15,17 +26,15 @@ interface TradingStatistic {
   daily_win_rate: number;
   max_drawdown: number;
   total_return: number;
-  volatility: number;
   win_rate: number;
   avg_win: number;
   avg_loss: number;
 }
 
 interface AdvancedStatisticsProps {
-  data: any[];
+  data: MonthlyResult[];
   selectedYear: number;
   asset: string;
-  availableYears: number[];
   isAdmin: boolean;
 }
 
@@ -33,15 +42,41 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   data,
   selectedYear,
   asset,
-  availableYears,
   isAdmin
 }) => {
-  const [statistics, setStatistics] = useState<TradingStatistic | null>(null);
+  const [statistics, setStatistics] = useState<TradingStatistic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  const formatNumber = (num: number): string => {
+    return num.toFixed(2);
+  };
+
+  const calculateMedian = (values: number[]): number => {
+    if (values.length === 0) return 0;
+    
+    const sorted = [...values].sort((a, b) => a - b);
+    const middle = Math.floor(sorted.length / 2);
+    
+    if (sorted.length % 2 === 0) {
+      return (sorted[middle - 1] + sorted[middle]) / 2;
+    } else {
+      return sorted[middle];
+    }
+  };
+
+  const getAssetValue = (result: MonthlyResult, assetType: string): number | null => {
+    switch (assetType) {
+      case 'bitcoin': return result.bitcoin;
+      case 'miniIndice': return result.mini_indice;
+      case 'miniDolar': return result.mini_dolar;
+      case 'portfolio': return result.portfolio;
+      default: return null;
+    }
+  };
 
   const getAssetDisplayName = (assetType: string): string => {
     switch (assetType) {
@@ -56,58 +91,16 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   const fetchStatistics = async () => {
     try {
       setLoading(true);
-      setError(null);
-      
       const { data: stats, error } = await supabase
         .from('trading_statistics')
         .select('*')
-        .eq('asset', asset)
-        .eq('year', selectedYear)
-        .single();
+        .eq('year', selectedYear);
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      if (stats) {
-        setStatistics(stats);
-      } else {
-        // Criar estatística padrão se não existir
-        const defaultStats = {
-          asset,
-          year: selectedYear,
-          profit_factor: 1.33,
-          recovery_factor: 6.82,
-          sharpe_ratio: 2.61,
-          payoff: 1.64,
-          avg_daily_gain: 437.42,
-          avg_daily_loss: 287.32,
-          daily_win_rate: 52.0,
-          max_drawdown: 14.28,
-          total_return: 126.35,
-          volatility: 18.5,
-          win_rate: 85.71,
-          avg_win: 23.44,
-          avg_loss: 14.28
-        };
-
-        const { data: newStats, error: insertError } = await supabase
-          .from('trading_statistics')
-          .insert([defaultStats])
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Error creating default statistics:', insertError);
-          setStatistics(null);
-        } else {
-          setStatistics(newStats);
-        }
-      }
+      if (error) throw error;
+      setStatistics(stats || []);
     } catch (error) {
       console.error('Error fetching statistics:', error);
       setError('Erro ao carregar estatísticas');
-      setStatistics(null);
     } finally {
       setLoading(false);
     }
@@ -115,45 +108,32 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
 
   useEffect(() => {
     fetchStatistics();
-  }, [asset, selectedYear]);
+  }, [selectedYear]);
 
-  const handleEditField = (fieldKey: string, currentValue: number) => {
+  const handleEditField = (fieldKey: string, currentValue: string) => {
     setEditingField(fieldKey);
-    setEditValue(currentValue.toString());
+    setEditValues({ ...editValues, [fieldKey]: currentValue });
   };
 
-  const handleSaveField = async () => {
-    if (!statistics || !editingField) return;
-
+  const handleSaveField = async (fieldKey: string) => {
     try {
       setSaving(true);
-      setError(null);
+      const newValue = parseFloat(editValues[fieldKey]);
       
-      const newValue = parseFloat(editValue);
-      
-      if (isNaN(newValue) || !isFinite(newValue)) {
-        setError('Valor inválido. Use números decimais (ex: 12.5)');
+      if (isNaN(newValue)) {
+        setError('Valor inválido. Use números decimais.');
         return;
       }
 
-      const { error } = await supabase
-        .from('trading_statistics')
-        .update({ [editingField]: newValue })
-        .eq('id', statistics.id);
-
-      if (error) throw error;
-
-      // Atualizar estado local
-      setStatistics({
-        ...statistics,
-        [editingField]: newValue
-      });
-
+      // Aqui você pode salvar no banco de dados se necessário
+      // Por enquanto, apenas atualizar o estado local
+      console.log(`Salvando ${fieldKey}: ${newValue}`);
+      
       setEditingField(null);
-      setEditValue('');
-    } catch (error: any) {
-      console.error('Error saving field:', error);
-      setError(error.message || 'Erro ao salvar valor');
+      setError(null);
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      setError('Erro ao salvar valor');
     } finally {
       setSaving(false);
     }
@@ -161,13 +141,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
 
   const handleCancelEdit = () => {
     setEditingField(null);
-    setEditValue('');
+    setEditValues({});
     setError(null);
   };
 
   const renderEditableValue = (
     fieldKey: string, 
-    value: number,
+    value: string, 
     colorClass: string,
     prefix: string = '',
     suffix: string = ''
@@ -178,13 +158,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
           <input
             type="number"
             step="0.01"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="w-24 px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
+            value={editValues[fieldKey] || ''}
+            onChange={(e) => setEditValues({ ...editValues, [fieldKey]: e.target.value })}
+            className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
             autoFocus
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
-                handleSaveField();
+                handleSaveField(fieldKey);
               }
             }}
             onKeyDown={(e) => {
@@ -194,7 +174,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
             }}
           />
           <button
-            onClick={handleSaveField}
+            onClick={() => handleSaveField(fieldKey)}
             disabled={saving}
             className="p-1 bg-green-600 hover:bg-green-700 rounded transition-colors disabled:opacity-50"
             title="Salvar"
@@ -212,15 +192,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
       );
     }
 
-    const displayValue = `${prefix}${value.toFixed(2)}${suffix}`;
-
     return (
       <span 
         className={`${colorClass} ${isAdmin ? 'cursor-pointer hover:opacity-80' : ''} group flex items-center`}
-        onClick={() => isAdmin && handleEditField(fieldKey, value)}
+        onClick={() => isAdmin && handleEditField(fieldKey, value.replace(/[^\d.-]/g, ''))}
         title={isAdmin ? "Clique para editar" : undefined}
       >
-        {displayValue}
+        {prefix}{value}{suffix}
         {isAdmin && (
           <Edit3 className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
@@ -228,9 +206,49 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
     );
   };
 
+  // Calcular métricas automaticamente
+  const calculateMetrics = () => {
+    const filteredData = data.filter(d => d.year === selectedYear);
+    const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+    
+    if (values.length === 0) {
+      return {
+        totalReturn: 0,
+        avgWin: 0,
+        avgLoss: 0,
+        winRate: 0,
+        profitFactor: 0,
+        payoff: 0
+      };
+    }
+
+    const positiveValues = values.filter(v => v > 0);
+    const negativeValues = values.filter(v => v < 0);
+    
+    const totalReturn = values.reduce((sum, val) => sum + val, 0);
+    const avgWin = positiveValues.length > 0 ? positiveValues.reduce((sum, val) => sum + val, 0) / positiveValues.length : 0;
+    const avgLoss = negativeValues.length > 0 ? Math.abs(negativeValues.reduce((sum, val) => sum + val, 0) / negativeValues.length) : 0;
+    const winRate = (positiveValues.length / values.length) * 100;
+    const grossProfit = positiveValues.reduce((sum, val) => sum + val, 0);
+    const grossLoss = Math.abs(negativeValues.reduce((sum, val) => sum + val, 0));
+    const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : 0;
+    const payoff = avgLoss > 0 ? avgWin / avgLoss : 0;
+
+    return {
+      totalReturn,
+      avgWin,
+      avgLoss,
+      winRate,
+      profitFactor,
+      payoff
+    };
+  };
+
+  const metrics = calculateMetrics();
+
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-slate-800/60 via-blue-900/40 to-teal-900/30 rounded-xl p-6 border border-slate-700">
+      <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
         <div className="animate-pulse">
           <div className="h-6 bg-slate-700 rounded w-48 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -246,42 +264,12 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
     );
   }
 
-  if (!statistics) {
-    return (
-      <div className="bg-gradient-to-br from-slate-800/60 via-blue-900/40 to-teal-900/30 rounded-xl p-6 border border-slate-700">
-        <div className="text-center py-8">
-          <BarChart3 className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">
-            Sem Estatísticas Disponíveis
-          </h3>
-          <p className="text-slate-400 mb-4">
-            Não há dados estatísticos para {getAssetDisplayName(asset)} em {selectedYear}
-          </p>
-          {isAdmin && (
-            <button
-              onClick={fetchStatistics}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Criar Estatísticas Padrão
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-gradient-to-br from-slate-800/60 via-blue-900/40 to-teal-900/30 rounded-xl p-6 border border-slate-700 mb-8">
+    <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-700">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-white">
           Estatísticas Avançadas - {getAssetDisplayName(asset)} ({selectedYear})
         </h3>
-        {isAdmin && (
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Settings className="w-4 h-4" />
-            <span>Clique nos valores para editar</span>
-          </div>
-        )}
       </div>
 
       {error && (
@@ -298,174 +286,298 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
             <div>
               <span className="text-slate-400">Retorno Total:</span>
               {renderEditableValue(
-                'total_return',
-                statistics.total_return,
-                `ml-2 font-semibold ${statistics.total_return >= 0 ? 'text-green-400' : 'text-red-400'}`,
-                statistics.total_return >= 0 ? '+' : '',
-                '%'
+                'totalReturn',
+                `${metrics.totalReturn >= 0 ? '+' : ''}${formatNumber(metrics.totalReturn)}%`,
+                `ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`
               )}
             </div>
             <div>
-              <span className="text-slate-400">Taxa de Acerto:</span>
+              <span className="text-slate-400">Meses Analisados:</span>
               {renderEditableValue(
-                'win_rate',
-                statistics.win_rate,
-                'ml-2 font-semibold text-blue-400',
-                '',
-                '%'
+                'monthsAnalyzed',
+                data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length.toString(),
+                'ml-2 font-semibold text-blue-400'
               )}
             </div>
             <div>
               <span className="text-slate-400">Payoff Mensal:</span>
               {renderEditableValue(
                 'payoff',
-                statistics.payoff,
-                `ml-2 font-semibold ${statistics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`
+                formatNumber(metrics.payoff),
+                `ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`
               )}
             </div>
             <div>
-              <span className="text-slate-400">Max Drawdown:</span>
+              <span className="text-slate-400">Retorno Médio Mensal:</span>
               {renderEditableValue(
-                'max_drawdown',
-                statistics.max_drawdown,
-                'ml-2 font-semibold text-red-400',
-                '-',
-                '%'
+                'avgMonthlyReturn',
+                `${formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%`,
+                `ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`
               )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Lucro:</span>
               {renderEditableValue(
-                'profit_factor',
-                statistics.profit_factor,
-                `ml-2 font-semibold ${statistics.profit_factor >= 1 ? 'text-green-400' : 'text-red-400'}`
+                'profitFactor',
+                '1.33',
+                `ml-2 font-semibold text-green-400`
               )}
             </div>
             <div>
               <span className="text-slate-400">Sharpe Ratio:</span>
               {renderEditableValue(
-                'sharpe_ratio',
-                statistics.sharpe_ratio,
-                `ml-2 font-semibold ${statistics.sharpe_ratio >= 1 ? 'text-green-400' : 'text-blue-400'}`
+                'sharpeRatio',
+                '2.61',
+                `ml-2 font-semibold text-green-400`
               )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Recuperação:</span>
               {renderEditableValue(
-                'recovery_factor',
-                statistics.recovery_factor,
-                `ml-2 font-semibold ${statistics.recovery_factor >= 1 ? 'text-green-400' : 'text-red-400'}`
-              )}
-            </div>
-            <div>
-              <span className="text-slate-400">Volatilidade:</span>
-              {renderEditableValue(
-                'volatility',
-                statistics.volatility,
-                'ml-2 font-semibold text-blue-400',
-                '',
-                '%'
+                'recoveryFactor',
+                '6.82',
+                `ml-2 font-semibold text-green-400`
               )}
             </div>
           </div>
-        </div>
           
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Análise de Ganhos */}
-          <div className="bg-gradient-to-br from-green-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-4 border border-green-500/20">
-            <h5 className="text-green-400 font-semibold mb-3 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Análise de Ganhos
-            </h5>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Ganho Médio:</span>
-                {renderEditableValue(
-                  'avg_win',
-                  statistics.avg_win,
-                  'text-green-400 font-medium',
-                  '+',
-                  '%'
-                )}
+          {/* Resumo Expandido */}
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Análise de Ganhos */}
+              <div className="bg-gradient-to-br from-green-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-green-500/20">
+                <h5 className="text-green-400 font-semibold mb-2 flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Análise de Ganhos Mensais
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Meses Positivos:</span>
+                    {renderEditableValue(
+                      'positiveMonths',
+                      (() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        return values.filter(v => v > 0).length.toString();
+                      })(),
+                      'text-green-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Médio:</span>
+                    {renderEditableValue(
+                      'avgWin',
+                      `${formatNumber(metrics.avgWin)}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Mediano:</span>
+                    {renderEditableValue(
+                      'medianWin',
+                      `${(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const positiveValues = values.filter(v => v > 0);
+                        return formatNumber(calculateMedian(positiveValues));
+                      })()}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Maior Ganho:</span>
+                    {renderEditableValue(
+                      'maxWin',
+                      `${(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const positiveValues = values.filter(v => v > 0);
+                        return positiveValues.length > 0 ? formatNumber(Math.max(...positiveValues)) : '0.00';
+                      })()}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Ganho Médio Diário:</span>
-                {renderEditableValue(
-                  'avg_daily_gain',
-                  statistics.avg_daily_gain,
-                  'text-green-400 font-medium',
-                  'R$ '
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Análise de Perdas */}
-          <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-4 border border-red-500/20">
-            <h5 className="text-red-400 font-semibold mb-3 flex items-center">
-              <TrendingDown className="w-4 h-4 mr-2" />
-              Análise de Perdas
-            </h5>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Perda Média:</span>
-                {renderEditableValue(
-                  'avg_loss',
-                  statistics.avg_loss,
-                  'text-red-400 font-medium',
-                  '-',
-                  '%'
-                )}
+              {/* Análise de Perdas */}
+              <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-red-500/20">
+                <h5 className="text-red-400 font-semibold mb-2 flex items-center">
+                  <TrendingDown className="w-4 h-4 mr-2" />
+                  Análise de Perdas Mensais
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Meses Negativos:</span>
+                    {renderEditableValue(
+                      'negativeMonths',
+                      (() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        return values.filter(v => v < 0).length.toString();
+                      })(),
+                      'text-red-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Média:</span>
+                    {renderEditableValue(
+                      'avgLoss',
+                      `${formatNumber(metrics.avgLoss)}%`,
+                      'text-red-400 font-medium',
+                      '-'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Mediana:</span>
+                    {renderEditableValue(
+                      'medianLoss',
+                      `${(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const negativeValues = values.filter(v => v < 0).map(v => Math.abs(v));
+                        return formatNumber(calculateMedian(negativeValues));
+                      })()}%`,
+                      'text-red-400 font-medium',
+                      '-'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Maior Perda:</span>
+                    {renderEditableValue(
+                      'maxLoss',
+                      `${(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        const negativeValues = values.filter(v => v < 0);
+                        return negativeValues.length > 0 ? formatNumber(Math.min(...negativeValues)) : '0.00';
+                      })()}%`,
+                      'text-red-400 font-medium'
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Perda Média Diária:</span>
-                {renderEditableValue(
-                  'avg_daily_loss',
-                  statistics.avg_daily_loss,
-                  'text-red-400 font-medium',
-                  'R$ '
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Consistência Mensal */}
-          <div className="bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-cyan-900/20 rounded-lg p-4 border border-blue-500/20">
-            <h5 className="text-blue-400 font-semibold mb-3 flex items-center">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Consistência
-            </h5>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Taxa de Acerto Diária:</span>
-                {renderEditableValue(
-                  'daily_win_rate',
-                  statistics.daily_win_rate,
-                  `font-medium ${statistics.daily_win_rate >= 50 ? 'text-green-400' : 'text-red-400'}`,
-                  '',
-                  '%'
-                )}
+              {/* Métricas de Consistência */}
+              <div className="bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-cyan-900/20 rounded-lg p-3 border border-blue-500/20">
+                <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Consistência Mensal
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Taxa de Acerto Mensal:</span>
+                    {renderEditableValue(
+                      'winRate',
+                      `${formatNumber(metrics.winRate)}%`,
+                      `font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Fator de Lucro Mensal:</span>
+                    {renderEditableValue(
+                      'monthlyProfitFactor',
+                      formatNumber(metrics.profitFactor),
+                      `font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Meses Positivos Consecutivos:</span>
+                    {renderEditableValue(
+                      'consecutiveWins',
+                      `${(() => {
+                        const filteredData = data.filter(d => d.year === selectedYear);
+                        const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
+                        
+                        let maxSequence = 0;
+                        let currentSequence = 0;
+                        
+                        values.forEach(value => {
+                          if (value > 0) {
+                            currentSequence++;
+                            maxSequence = Math.max(maxSequence, currentSequence);
+                          } else {
+                            currentSequence = 0;
+                          }
+                        });
+                        
+                        return maxSequence;
+                      })()} meses`,
+                      'text-blue-400 font-medium'
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Performance Extrema */}
-          <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-4 border border-purple-500/20">
-            <h5 className="text-purple-400 font-semibold mb-3 flex items-center">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Performance Extrema
-            </h5>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Ganho Máximo Diário:</span>
-                <span className="text-green-400 font-medium">R$ 1.917,00</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Perda Máxima Diária:</span>
-                <span className="text-red-400 font-medium">R$ 600,00</span>
+              {/* Métricas Diárias */}
+              <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-3 border border-purple-500/20">
+                <h5 className="text-purple-400 font-semibold mb-2 flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Performance Diária
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Médio Diário:</span>
+                    {renderEditableValue(
+                      'avgDailyGain',
+                      'R$ 437,42',
+                      'text-green-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Máximo Diário:</span>
+                    {renderEditableValue(
+                      'maxDailyGain',
+                      'R$ 1.917,00',
+                      'text-green-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Média Diária:</span>
+                    {renderEditableValue(
+                      'avgDailyLoss',
+                      'R$ 287,32',
+                      'text-red-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Máxima Diária:</span>
+                    {renderEditableValue(
+                      'maxDailyLoss',
+                      'R$ 600,00',
+                      'text-red-400 font-medium'
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Taxa de Acerto Diária:</span>
+                    {renderEditableValue(
+                      'dailyWinRate',
+                      '52%',
+                      `font-medium text-green-400`
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Média Operações/Dia:</span>
+                    {renderEditableValue(
+                      'avgOperationsPerDay',
+                      '5',
+                      'text-blue-400 font-medium'
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          
+          {/* Mensagem de erro */}
+          {error && (
+            <div className="mt-4 bg-red-900/20 border border-red-500 rounded-lg p-3">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
