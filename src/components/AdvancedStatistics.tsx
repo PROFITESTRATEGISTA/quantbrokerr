@@ -633,13 +633,13 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       false
                     )}
                   </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-center">
               </div>
 
               {/* Métricas Diárias */}
               <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-3 border border-purple-500/20">
                 <h5 className="text-purple-400 font-semibold mb-2 flex items-center">
-                  <BarChart3 className="w-4 h-4 mr-2" />
+                  `block font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`,
                   Performance Diária
                 </h5>
                 <div className="space-y-2 text-xs">
@@ -650,7 +650,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.avgDailyGain || 'R$ 437,42',
                       'text-green-400 font-medium',
                       '',
-                      '',
+                  'block font-semibold text-blue-400',
                       isFieldEditable('avgDailyGain')
                     )}
                   </div>
@@ -661,7 +661,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.maxDailyGain || 'R$ 1.917,00',
                       'text-green-400 font-medium',
                       '',
-                      '',
+                  `block font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`,
                       isFieldEditable('maxDailyGain')
                     )}
                   </div>
@@ -672,7 +672,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.avgDailyLoss || 'R$ 287,32',
                       'text-red-400 font-medium',
                       '',
-                      '',
+                  `block font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`,
                       isFieldEditable('avgDailyLoss')
                     )}
                   </div>
@@ -683,7 +683,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.maxDailyLoss || 'R$ 600,00',
                       'text-red-400 font-medium',
                       '',
-                      '',
+                  `block font-semibold text-green-400`,
                       isFieldEditable('maxDailyLoss')
                     )}
                   </div>
@@ -694,7 +694,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.dailyWinRate || '52%',
                       `font-medium text-green-400`,
                       '',
-                      '',
+                  `block font-semibold text-green-400`,
                       isFieldEditable('dailyWinRate')
                     )}
                   </div>
@@ -705,7 +705,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                       currentAssetStats.avgOperationsPerDay || '5',
                       'text-blue-400 font-medium',
                       '',
-                      '',
+                  `block font-semibold text-green-400`,
                       isFieldEditable('avgOperationsPerDay')
                     )}
                   </div>
