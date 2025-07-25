@@ -28,7 +28,7 @@ const FAQ: React.FC = () => {
     {
       icon: Settings,
       question: "Como funciona a integração com a corretora?",
-      answer: "A integração é feita através do MetaTrader 5 via BTG Pactual. Após contratar o MT5 no BTG, você compartilha os dados de acesso conosco e configuramos o Copy Trade automaticamente. Todo o processo é seguro e você mantém controle total da sua conta.",
+      answer: "A integração é feita através do MetaTrader 5 via Mosaico BTG. Após contratar o MT5 no Mosaico BTG, você compartilha os dados de acesso conosco e configuramos o Copy Trade automaticamente. Todo o processo é seguro e você mantém controle total da sua conta.",
       color: "purple"
     },
     {
@@ -40,7 +40,7 @@ const FAQ: React.FC = () => {
     {
       icon: Play,
       question: "Posso usar em conta simulador?",
-      answer: "Não, nossos algoritmos operam exclusivamente em contas reais via BTG Pactual. O sistema foi desenvolvido para operação direta no mercado real, garantindo execução precisa e resultados autênticos.",
+      answer: "Não, nossos algoritmos operam exclusivamente em contas reais via Mosaico BTG. O sistema foi desenvolvido para operação direta no mercado real, garantindo execução precisa e resultados autênticos.",
       color: "orange"
     },
     {
@@ -52,7 +52,7 @@ const FAQ: React.FC = () => {
     {
       icon: Shield,
       question: "Como faço para começar?",
-      answer: "1) Escolha seu portfólio ideal, 2) Contrate o MetaTrader 5 no BTG Pactual, 3) Compartilhe os dados de acesso conosco, 4) Aguarde a ativação (até 2 horas úteis). Nossa equipe te acompanha em todo o processo de configuração.",
+      answer: "1) Escolha seu portfólio ideal, 2) Contrate o MetaTrader 5 no Mosaico BTG, 3) Compartilhe os dados de acesso conosco, 4) Aguarde a ativação (até 2 horas úteis). Nossa equipe te acompanha em todo o processo de configuração.",
       color: "indigo"
     }
   ];

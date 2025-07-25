@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
             <span className="text-gray-400">×</span>
             <Building2 className="h-6 w-6 text-blue-400" />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
-              Quant Broker × BTG Pactual
+              Quant Broker × Mosaico BTG
             </span>
           </div>
           

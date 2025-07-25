@@ -29,6 +29,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       id: 'bitcoin',
       name: 'Portfólio Bitcoin',
       description: 'Operações com Bitcoin Futuro na B3 via BTG Pactual — vagas limitadas',
+      description: 'Operações com Bitcoin Futuro na B3 via Mosaico BTG — vagas limitadas',
       price: billingPeriod === 'annual' ? 'R$ 2.160,00' : billingPeriod === 'semiannual' ? 'R$ 1.440,00' : 'R$ 300,00',
       originalPrice: billingPeriod === 'annual' ? 'R$ 3.600,00' : billingPeriod === 'semiannual' ? 'R$ 1.800,00' : undefined,
       minCapital: 'R$ 3.000',
@@ -39,7 +40,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Copy premium com execução sem spread',
         'Setup de tendência com inteligência artificial',
         'Operações via MetaTrader 5',
-        'Compatível com contas BTG Pactual',
+        'Compatível com contas Mosaico BTG',
         'Sem necessidade de configurar parâmetros'
       ],
       isAvailable: true
@@ -110,7 +111,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Planos de Portfólios de IA - BTG Pactual
+            Planos de Portfólios de IA - Quant Broker
           </h2>
           <div className="flex justify-center space-x-8 mb-8">
             <button 

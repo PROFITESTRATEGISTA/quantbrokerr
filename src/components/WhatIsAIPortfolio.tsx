@@ -34,10 +34,10 @@ const WhatIsAIPortfolio: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Portfólios de IA via BTG Pactual
+            Portfólios de IA Quant Broker
           </h2>
           <h3 className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Parceria Exclusiva para Automação Total e Rendimento Passivo
+            Parceria Exclusiva Mosaico BTG para Automação Total e Rendimento Passivo
           </h3>
         </div>
 

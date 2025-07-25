@@ -10,8 +10,8 @@ const LocalSEO: React.FC = () => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FinancialService",
-            "name": "Quant Broker - Portfólios de IA BTG Pactual",
-            "description": "Portfólios de IA com Copy Trading automatizado via BTG Pactual. Robôs inteligentes operando Bitcoin, Mini Índice e Mini Dólar 24/7.",
+            "name": "Quant Broker - Portfólios de IA",
+            "description": "Portfólios de IA Quant Broker com Copy Trading automatizado via Mosaico BTG. Robôs inteligentes operando Bitcoin, Mini Índice e Mini Dólar 24/7.",
             "url": "https://quantbroker.com.br",
             "telephone": "+55-11-91156-0276",
             "email": "contato@quantbroker.com.br",
@@ -171,8 +171,8 @@ const LocalSEO: React.FC = () => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Service",
-            "name": "Portfólios de IA BTG Pactual",
-            "description": "Copy Trading automatizado com inteligência artificial via BTG Pactual",
+            "name": "Portfólios de IA Quant Broker",
+            "description": "Copy Trading automatizado com inteligência artificial da Quant Broker via Mosaico BTG",
             "provider": {
               "@type": "Organization",
               "name": "Quant Broker"

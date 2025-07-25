@@ -13,6 +13,7 @@ const QuantBrokerSection: React.FC = () => {
       icon: Zap,
       title: 'Execução Ultra-Rápida',
       description: 'Tecnologia proprietária de execução em milissegundos com spreads reduzidos e ordens a mercado via BTG Pactual',
+      description: 'Tecnologia proprietária de execução em milissegundos com spreads reduzidos e ordens a mercado via Mosaico BTG',
       image: 'https://i.postimg.cc/m2X60w0K/technology-7994887-1280.jpg'
     },
     {

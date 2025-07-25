@@ -40,10 +40,10 @@ const LocationContent: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Portfólios de IA em Todo o Brasil
+            Portfólios de IA Quant Broker em Todo o Brasil
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Atendemos investidores em todas as principais cidades brasileiras com 
+            Atendemos investidores em todas as principais cidades brasileiras com tecnologia de copy trading Quant Broker via Mosaico BTG
             tecnologia de copy trading via BTG Pactual
           </p>
         </div>
@@ -98,7 +98,7 @@ const LocationContent: React.FC = () => {
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">Parceria BTG Pactual</h4>
               <p className="text-gray-700 text-sm">
-                Operamos exclusivamente via BTG Pactual, garantindo segurança e 
+                Operamos exclusivamente via Mosaico BTG, garantindo segurança e 
                 confiabilidade para investidores em todo território nacional.
               </p>
             </div>

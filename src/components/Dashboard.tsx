@@ -21,13 +21,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Building2 className="h-8 w-8 text-blue-600 mr-3" />
-            <span className="text-lg font-semibold text-gray-700">Parceria Exclusiva BTG Pactual</span>
+            <span className="text-lg font-semibold text-gray-700">Parceria Exclusiva Mosaico BTG</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Dashboard - Área do Cliente Portfólios de IA
+            Dashboard - Área do Cliente Portfólios de IA Quant Broker
           </h1>
           <h2 className="text-xl text-gray-600">
-            Configure seu Copy Trade e acompanhe sua performance
+            Configure seu Copy Trade Quant Broker e acompanhe sua performance
           </h2>
         </div>
 
@@ -42,7 +42,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
             </h3>
             
             <p className="text-gray-600 mb-8">
-              Aprenda como ativar seu Copy Trade no BTG Pactual + MetaTrader 5 em poucos passos simples.
+              Aprenda como ativar seu Copy Trade Quant Broker no Mosaico BTG + MetaTrader 5 em poucos passos simples.
             </p>
 
             <button

@@ -41,17 +41,17 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-4 py-2 bg-cyan-500/10 border border-cyan-400/20 rounded-full text-cyan-300 text-sm font-medium mb-8 backdrop-blur-sm">
             <Zap className="h-4 w-4 mr-2" />
-            Parceria Exclusiva BTG Pactual - Apenas 50 Vagas Disponíveis
+            Parceria Exclusiva Mosaico BTG - Apenas 50 Vagas Disponíveis
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Portfólios de IA BTG Pactual - Copy Trading Automatizado
+              Portfólios de IA Quant Broker - Copy Trading Automatizado
             </span>
           </h1>
 
           <h2 className="text-xl md:text-2xl font-light mb-8 text-slate-300 max-w-4xl mx-auto">
-            Plug & Play via BTG Pactual - Comece a Operar Sem Conhecimento Prévio com Spreads Baixos e Execução Rápida
+            Plug & Play via Mosaico BTG - Comece a Operar Sem Conhecimento Prévio com Spreads Baixos e Execução Rápida
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">

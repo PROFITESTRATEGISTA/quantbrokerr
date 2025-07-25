@@ -31,7 +31,7 @@ const PlanosPage: React.FC = () => {
     <Layout>
       <div className="text-center py-16 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white">
         <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          Escolha seu <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Portfólio de IA</span>
+          Escolha seu <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Portfólio de IA Quant Broker</span>
         </h1>
         <p className="text-xl text-slate-300 max-w-3xl mx-auto">
           Encontre o plano ideal para seu perfil de investimento e capital disponível

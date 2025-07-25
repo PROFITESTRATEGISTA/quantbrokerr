@@ -60,7 +60,7 @@ const Tutorial: React.FC<TutorialProps> = () => {
     },
     {
       title: 'Contratar Plataforma MetaTrader 5 no BTG',
-      description: 'Configure sua conta no BTG Pactual para operar com o MetaTrader 5.',
+      description: 'Configure sua conta no Mosaico BTG para operar com o MetaTrader 5.',
       content: (
         <div className="space-y-6">
           <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
@@ -127,7 +127,7 @@ const Tutorial: React.FC<TutorialProps> = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <h5 className="font-medium text-gray-900 mb-2">Acesso à área de Renda Variável</h5>
-              <p className="text-sm text-gray-600">Navegue até a seção correta no BTG</p>
+              <p className="text-sm text-gray-600">Navegue até a seção correta no Mosaico BTG</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
               <h5 className="font-medium text-gray-900 mb-2">Contratação do MetaTrader 5</h5>
@@ -224,13 +224,13 @@ const Tutorial: React.FC<TutorialProps> = () => {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <Building2 className="h-8 w-8 text-blue-600 mr-3" />
-            <span className="text-lg font-semibold text-gray-700">Parceria Exclusiva BTG Pactual</span>
+            <span className="text-lg font-semibold text-gray-700">Parceria Exclusiva Mosaico BTG</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Tutorial: Como Ativar seu Portfólio de IA BTG Pactual
+            Tutorial: Como Ativar seu Portfólio de IA Quant Broker
           </h1>
           <h2 className="text-xl text-gray-600">
-            Siga este tutorial passo a passo para ativar seu Portfólio de IA via BTG Pactual + MetaTrader 5
+            Siga este tutorial passo a passo para ativar seu Portfólio de IA via Mosaico BTG + MetaTrader 5
           </h2>
         </div>
 

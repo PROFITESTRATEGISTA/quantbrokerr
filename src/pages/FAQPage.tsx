@@ -10,7 +10,7 @@ const FAQPage: React.FC = () => {
           Perguntas <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Frequentes</span>
         </h1>
         <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-          Encontre respostas para as principais dúvidas sobre nossos Portfólios de IA
+          Encontre respostas para as principais dúvidas sobre nossos Portfólios de IA Quant Broker
         </p>
       </div>
       <FAQ />

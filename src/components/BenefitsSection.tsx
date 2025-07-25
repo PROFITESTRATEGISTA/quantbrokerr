@@ -51,7 +51,7 @@ const BenefitsSection: React.FC = () => {
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Portfólios de IA?</span>
           </h2>
           <h3 className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Tecnologia de ponta, resultados comprovados e a confiança da parceria com o BTG Pactual
+            Tecnologia de ponta, resultados comprovados e a confiança da parceria com o Mosaico BTG
           </h3>
         </div>
 

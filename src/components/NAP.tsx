@@ -13,7 +13,7 @@ const NAP: React.FC<NAPProps> = ({
   className = '' 
 }) => {
   const businessInfo = {
-    name: "Quant Broker - Portfólios de IA BTG Pactual",
+    name: "Quant Broker - Portfólios de IA",
     address: {
       street: "Av. Paulista, 1000",
       city: "São Paulo",
@@ -64,7 +64,7 @@ const NAP: React.FC<NAPProps> = ({
         {showIcons && <Building2 className="h-5 w-5 mr-3 text-blue-600" />}
         <div>
           <h3 className="font-semibold text-gray-900">{businessInfo.name}</h3>
-          <p className="text-sm text-gray-600">Parceria Exclusiva BTG Pactual</p>
+          <p className="text-sm text-gray-600">Parceria Exclusiva Mosaico BTG</p>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ const NAP: React.FC<NAPProps> = ({
               <span className="font-medium">WhatsApp:</span> {businessInfo.phone.primary}
             </p>
             <p className="text-gray-700">
-              <span className="font-medium">BTG Mosaico:</span> {businessInfo.phone.btg}
+              <span className="font-medium">Mosaico BTG:</span> {businessInfo.phone.btg}
             </p>
           </div>
         </div>
