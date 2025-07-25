@@ -282,7 +282,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 </h5>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Taxa de Acerto:</span>
+                    <span className="text-slate-400">Taxa de Acerto Mensal:</span>
                     <span className={`font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
                       {formatNumber(metrics.winRate)}%
                     </span>
