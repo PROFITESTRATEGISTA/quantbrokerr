@@ -288,7 +288,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Fator de Lucro:</span>
+                    <span className="text-slate-400">Fator de Lucro Mensal:</span>
                     <span className={`font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`}>
                       {formatNumber(metrics.profitFactor)}
                     </span>
