@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, BarChart3, Settings } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Settings, Edit3, Save, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface MonthlyResult {
@@ -47,6 +47,9 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   const [statistics, setStatistics] = useState<TradingStatistic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   const formatNumber = (num: number): string => {
     return num.toFixed(2);
@@ -106,6 +109,102 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
   useEffect(() => {
     fetchStatistics();
   }, [selectedYear]);
+
+  const handleEditField = (fieldKey: string, currentValue: string) => {
+    setEditingField(fieldKey);
+    setEditValues({ ...editValues, [fieldKey]: currentValue });
+  };
+
+  const handleSaveField = async (fieldKey: string) => {
+    try {
+      setSaving(true);
+      const newValue = parseFloat(editValues[fieldKey]);
+      
+      if (isNaN(newValue)) {
+        setError('Valor inválido. Use números decimais.');
+        return;
+      }
+
+      // Aqui você pode salvar no banco de dados se necessário
+      // Por enquanto, apenas atualizar o estado local
+      console.log(`Salvando ${fieldKey}: ${newValue}`);
+      
+      setEditingField(null);
+      setError(null);
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      setError('Erro ao salvar valor');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingField(null);
+    setEditValues({});
+    setError(null);
+  };
+
+  const renderEditableValue = (
+    fieldKey: string, 
+    value: string, 
+    colorClass: string,
+    prefix: string = '',
+    suffix: string = ''
+  ) => {
+    if (isAdmin && editingField === fieldKey) {
+      return (
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            step="0.01"
+            value={editValues[fieldKey] || ''}
+            onChange={(e) => setEditValues({ ...editValues, [fieldKey]: e.target.value })}
+            className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-500 rounded text-white focus:border-blue-500 focus:outline-none"
+            autoFocus
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSaveField(fieldKey);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                handleCancelEdit();
+              }
+            }}
+          />
+          <button
+            onClick={() => handleSaveField(fieldKey)}
+            disabled={saving}
+            className="p-1 bg-green-600 hover:bg-green-700 rounded transition-colors disabled:opacity-50"
+            title="Salvar"
+          >
+            <Save className="w-3 h-3" />
+          </button>
+          <button
+            onClick={handleCancelEdit}
+            className="p-1 bg-gray-600 hover:bg-gray-700 rounded transition-colors"
+            title="Cancelar"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <span 
+        className={`${colorClass} ${isAdmin ? 'cursor-pointer hover:opacity-80' : ''} group flex items-center`}
+        onClick={() => isAdmin && handleEditField(fieldKey, value.replace(/[^\d.-]/g, ''))}
+        title={isAdmin ? "Clique para editar" : undefined}
+      >
+        {prefix}{value}{suffix}
+        {isAdmin && (
+          <Edit3 className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+        )}
+      </span>
+    );
+  };
 
   // Calcular métricas automaticamente
   const calculateMetrics = () => {
@@ -181,50 +280,64 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
 
       <div className="space-y-6">
         {/* Seção de Resumo */}
-        <div className="bg-slate-900/30 rounded-xl p-4 border border-slate-700">
+        <div className="bg-gradient-to-br from-slate-800/40 via-blue-900/30 to-teal-900/20 rounded-xl p-4 border border-slate-600/50">
           <h4 className="text-lg font-semibold text-white mb-3">Resumo da Performance</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="text-slate-400">Retorno Total:</span>
-              <span className={`ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {metrics.totalReturn >= 0 ? '+' : ''}{formatNumber(metrics.totalReturn)}%
-              </span>
+              {renderEditableValue(
+                'totalReturn',
+                `${metrics.totalReturn >= 0 ? '+' : ''}${formatNumber(metrics.totalReturn)}%`,
+                `ml-2 font-semibold ${metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`
+              )}
             </div>
             <div>
               <span className="text-slate-400">Meses Analisados:</span>
-              <span className="ml-2 font-semibold text-blue-400">
-                {data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length}
-              </span>
+              {renderEditableValue(
+                'monthsAnalyzed',
+                data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length.toString(),
+                'ml-2 font-semibold text-blue-400'
+              )}
             </div>
             <div>
               <span className="text-slate-400">Payoff Mensal:</span>
-              <span className={`ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`}>
-                {formatNumber(metrics.payoff)}
-              </span>
+              {renderEditableValue(
+                'payoff',
+                formatNumber(metrics.payoff),
+                `ml-2 font-semibold ${metrics.payoff >= 1 ? 'text-green-400' : 'text-red-400'}`
+              )}
             </div>
             <div>
               <span className="text-slate-400">Retorno Médio Mensal:</span>
-              <span className={`ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%
-              </span>
+              {renderEditableValue(
+                'avgMonthlyReturn',
+                `${formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%`,
+                `ml-2 font-semibold ${(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1)) >= 0 ? 'text-green-400' : 'text-red-400'}`
+              )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Lucro:</span>
-              <span className={`ml-2 font-semibold ${1.33 >= 1 ? 'text-green-400' : 'text-red-400'}`}>
-                1.33
-              </span>
+              {renderEditableValue(
+                'profitFactor',
+                '1.33',
+                `ml-2 font-semibold text-green-400`
+              )}
             </div>
             <div>
               <span className="text-slate-400">Sharpe Ratio:</span>
-              <span className={`ml-2 font-semibold ${2.61 >= 1 ? 'text-green-400' : 'text-red-400'}`}>
-                2.61
-              </span>
+              {renderEditableValue(
+                'sharpeRatio',
+                '2.61',
+                `ml-2 font-semibold text-green-400`
+              )}
             </div>
             <div>
               <span className="text-slate-400">Fator de Recuperação:</span>
-              <span className={`ml-2 font-semibold ${6.82 >= 2 ? 'text-green-400' : 'text-red-400'}`}>
-                6.82
-              </span>
+              {renderEditableValue(
+                'recoveryFactor',
+                '6.82',
+                `ml-2 font-semibold text-green-400`
+              )}
             </div>
           </div>
           
@@ -232,7 +345,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
           <div className="mt-4 pt-4 border-t border-slate-700">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Análise de Ganhos */}
-              <div className="bg-slate-800/50 rounded-lg p-3">
+              <div className="bg-gradient-to-br from-green-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-green-500/20">
                 <h5 className="text-green-400 font-semibold mb-2 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Análise de Ganhos Mensais
@@ -240,47 +353,58 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Meses Positivos:</span>
-                    <span className="text-green-400 font-medium">
-                      {(() => {
+                    {renderEditableValue(
+                      'positiveMonths',
+                      (() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
-                        return values.filter(v => v > 0).length;
-                      })()}
-                    </span>
+                        return values.filter(v => v > 0).length.toString();
+                      })(),
+                      'text-green-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Ganho Médio:</span>
-                    <span className="text-green-400 font-medium">
-                      +{formatNumber(metrics.avgWin)}%
-                    </span>
+                    {renderEditableValue(
+                      'avgWin',
+                      `${formatNumber(metrics.avgWin)}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Ganho Mediano:</span>
-                    <span className="text-green-400 font-medium">
-                      +{(() => {
+                    {renderEditableValue(
+                      'medianWin',
+                      `${(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         const positiveValues = values.filter(v => v > 0);
                         return formatNumber(calculateMedian(positiveValues));
-                      })()}%
-                    </span>
+                      })()}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Maior Ganho:</span>
-                    <span className="text-green-400 font-medium">
-                      +{(() => {
+                    {renderEditableValue(
+                      'maxWin',
+                      `${(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         const positiveValues = values.filter(v => v > 0);
                         return positiveValues.length > 0 ? formatNumber(Math.max(...positiveValues)) : '0.00';
-                      })()}%
-                    </span>
+                      })()}%`,
+                      'text-green-400 font-medium',
+                      '+'
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Análise de Perdas */}
-              <div className="bg-slate-800/50 rounded-lg p-3">
+              <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-blue-900/20 rounded-lg p-3 border border-red-500/20">
                 <h5 className="text-red-400 font-semibold mb-2 flex items-center">
                   <TrendingDown className="w-4 h-4 mr-2" />
                   Análise de Perdas Mensais
@@ -288,47 +412,57 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Meses Negativos:</span>
-                    <span className="text-red-400 font-medium">
-                      {(() => {
+                    {renderEditableValue(
+                      'negativeMonths',
+                      (() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
-                        return values.filter(v => v < 0).length;
-                      })()}
-                    </span>
+                        return values.filter(v => v < 0).length.toString();
+                      })(),
+                      'text-red-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Média:</span>
-                    <span className="text-red-400 font-medium">
-                      -{formatNumber(metrics.avgLoss)}%
-                    </span>
+                    {renderEditableValue(
+                      'avgLoss',
+                      `${formatNumber(metrics.avgLoss)}%`,
+                      'text-red-400 font-medium',
+                      '-'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Mediana:</span>
-                    <span className="text-red-400 font-medium">
-                      -{(() => {
+                    {renderEditableValue(
+                      'medianLoss',
+                      `${(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         const negativeValues = values.filter(v => v < 0).map(v => Math.abs(v));
                         return formatNumber(calculateMedian(negativeValues));
-                      })()}%
-                    </span>
+                      })()}%`,
+                      'text-red-400 font-medium',
+                      '-'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Maior Perda:</span>
-                    <span className="text-red-400 font-medium">
-                      {(() => {
+                    {renderEditableValue(
+                      'maxLoss',
+                      `${(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         const negativeValues = values.filter(v => v < 0);
                         return negativeValues.length > 0 ? formatNumber(Math.min(...negativeValues)) : '0.00';
-                      })()}%
-                    </span>
+                      })()}%`,
+                      'text-red-400 font-medium'
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Métricas de Consistência */}
-              <div className="bg-slate-800/50 rounded-lg p-3">
+              <div className="bg-gradient-to-br from-blue-900/20 via-slate-800/40 to-cyan-900/20 rounded-lg p-3 border border-blue-500/20">
                 <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Consistência Mensal
@@ -336,20 +470,25 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Taxa de Acerto Mensal:</span>
-                    <span className={`font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
-                      {formatNumber(metrics.winRate)}%
-                    </span>
+                    {renderEditableValue(
+                      'winRate',
+                      `${formatNumber(metrics.winRate)}%`,
+                      `font-medium ${metrics.winRate >= 50 ? 'text-green-400' : 'text-red-400'}`
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Fator de Lucro Mensal:</span>
-                    <span className={`font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`}>
-                      {formatNumber(metrics.profitFactor)}
-                    </span>
+                    {renderEditableValue(
+                      'monthlyProfitFactor',
+                      formatNumber(metrics.profitFactor),
+                      `font-medium ${metrics.profitFactor >= 1 ? 'text-green-400' : 'text-red-400'}`
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Meses Positivos Consecutivos:</span>
-                    <span className="text-blue-400 font-medium">
-                      {(() => {
+                    {renderEditableValue(
+                      'consecutiveWins',
+                      `${(() => {
                         const filteredData = data.filter(d => d.year === selectedYear);
                         const values = filteredData.map(d => getAssetValue(d, asset)).filter((v): v is number => v !== null);
                         
@@ -366,14 +505,15 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         });
                         
                         return maxSequence;
-                      })()} meses
-                    </span>
+                      })()} meses`,
+                      'text-blue-400 font-medium'
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Métricas Diárias */}
-              <div className="bg-slate-800/50 rounded-lg p-3">
+              <div className="bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-teal-900/20 rounded-lg p-3 border border-purple-500/20">
                 <h5 className="text-purple-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Performance Diária
@@ -381,44 +521,63 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Ganho Médio Diário:</span>
-                    <span className="text-green-400 font-medium">
-                      R$ 437,42
-                    </span>
+                    {renderEditableValue(
+                      'avgDailyGain',
+                      'R$ 437,42',
+                      'text-green-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Ganho Máximo Diário:</span>
-                    <span className="text-green-400 font-medium">
-                      R$ 1.917,00
-                    </span>
+                    {renderEditableValue(
+                      'maxDailyGain',
+                      'R$ 1.917,00',
+                      'text-green-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Média Diária:</span>
-                    <span className="text-red-400 font-medium">
-                      R$ 287,32
-                    </span>
+                    {renderEditableValue(
+                      'avgDailyLoss',
+                      'R$ 287,32',
+                      'text-red-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Perda Máxima Diária:</span>
-                    <span className="text-red-400 font-medium">
-                      R$ 600,00
-                    </span>
+                    {renderEditableValue(
+                      'maxDailyLoss',
+                      'R$ 600,00',
+                      'text-red-400 font-medium'
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Taxa de Acerto Diária:</span>
-                    <span className={`font-medium ${52 >= 50 ? 'text-green-400' : 'text-red-400'}`}>
-                      52%
-                    </span>
+                    {renderEditableValue(
+                      'dailyWinRate',
+                      '52%',
+                      `font-medium text-green-400`
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Média Operações/Dia:</span>
-                    <span className="text-blue-400 font-medium">
-                      5
-                    </span>
+                    {renderEditableValue(
+                      'avgOperationsPerDay',
+                      '5',
+                      'text-blue-400 font-medium'
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          
+          {/* Mensagem de erro */}
+          {error && (
+            <div className="mt-4 bg-red-900/20 border border-red-500 rounded-lg p-3">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
