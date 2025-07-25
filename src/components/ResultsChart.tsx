@@ -227,10 +227,30 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                   stroke="#64748b"
                   fontSize={12}
                   tickFormatter={formatYAxis}
-                  domain={['dataMin - 5', 'dataMax + 5']}
+                  domain={[(dataMin: number) => Math.min(dataMin - 5, -5), (dataMax: number) => dataMax + 5]}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                {/* Linha de referência no zero */}
+                <Bar 
+                  dataKey="monthlyValue" 
+                  shape={(props: any) => {
+                    const { x, y, width, height, payload } = props;
+                    const value = payload?.monthlyValue || 0;
+                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                    
+                    return (
+                      <rect
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={Math.abs(height)}
+                        fill={color}
+                        rx={2}
+                        ry={2}
+                      />
+                    );
+                  }}
+                />
+                {/* Linha de referência no zero - depois das barras para ficar por cima */}
                 <Line 
                   type="monotone" 
                   dataKey={() => 0} 
@@ -240,18 +260,6 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                   dot={false}
                   activeDot={false}
                 />
-                <Bar 
-                  dataKey="monthlyValue" 
-                  shape={(props: any) => {
-                    const { fill, payload, x, y, width, height } = props;
-                    const value = payload?.monthlyValue || 0;
-                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
-                    
-                    return (
-                      <rect
-                        x={x}
-                        y={y}
-                        width={width}
                         height={height}
                         fill={color}
                         rx={2}
