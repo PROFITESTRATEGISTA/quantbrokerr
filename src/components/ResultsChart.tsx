@@ -232,16 +232,17 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
                   dataKey="monthlyValue" 
-                  fill={(entry) => {
-                    return entry >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
-                  }}
-                  radius={[4, 4, 0, 0]}
-                  shape={(props) => {
-                    const { fill, ...rest } = props;
-                    const value = props.payload?.monthlyValue || 0;
-                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
-                    return <rect {...rest} fill={color} />;
-                  }}
+                  fill="#22c55e"
+                />
+                {/* Adicionar linha de referência no zero */}
+                <Line 
+                  type="monotone" 
+                  dataKey={() => 0} 
+                  stroke="#e2e8f0" 
+                  strokeWidth={1}
+                  strokeDasharray="5 5"
+                  dot={false}
+                  activeDot={false}
                 />
               </BarChart>
             )}
