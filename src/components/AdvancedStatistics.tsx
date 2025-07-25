@@ -209,6 +209,12 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </span>
             </div>
             <div>
+              <span className="text-slate-400">Fator de Lucro:</span>
+              <span className={`ml-2 font-semibold ${1.33 >= 1 ? 'text-green-400' : 'text-red-400'}`}>
+                1.33
+              </span>
+            </div>
+            <div>
               <span className="text-slate-400">Sharpe Ratio:</span>
               <span className={`ml-2 font-semibold ${2.61 >= 1 ? 'text-green-400' : 'text-red-400'}`}>
                 2.61
