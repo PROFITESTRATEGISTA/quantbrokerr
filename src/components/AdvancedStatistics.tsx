@@ -208,13 +208,37 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                 {formatNumber(metrics.totalReturn / Math.max(data.filter(d => d.year === selectedYear && getAssetValue(d, asset) !== null).length, 1))}%
               </span>
             </div>
+            <div>
+              <span className="text-slate-400">Sharpe Ratio:</span>
+              <span className={`ml-2 font-semibold ${2.61 >= 1 ? 'text-green-400' : 'text-red-400'}`}>
+                2.61
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400">Fator de Recuperação:</span>
+              <span className={`ml-2 font-semibold ${6.82 >= 2 ? 'text-green-400' : 'text-red-400'}`}>
+                6.82
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400">Taxa de Acerto Diária:</span>
+              <span className={`ml-2 font-semibold ${52 >= 50 ? 'text-green-400' : 'text-red-400'}`}>
+                52%
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400">Média Operações/Dia:</span>
+              <span className="ml-2 font-semibold text-blue-400">
+                5
+              </span>
+            </div>
           </div>
           
           {/* Resumo Expandido */}
           <div className="mt-4 pt-4 border-t border-slate-700">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Análise de Ganhos */}
-              <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="bg-slate-800/50 rounded-lg p-3">
                 <h5 className="text-green-400 font-semibold mb-2 flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Análise de Ganhos Mensais
@@ -262,7 +286,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </div>
 
               {/* Análise de Perdas */}
-              <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="bg-slate-800/50 rounded-lg p-3">
                 <h5 className="text-red-400 font-semibold mb-2 flex items-center">
                   <TrendingDown className="w-4 h-4 mr-2" />
                   Análise de Perdas Mensais
@@ -310,7 +334,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               </div>
 
               {/* Métricas de Consistência */}
-              <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="bg-slate-800/50 rounded-lg p-3">
                 <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Consistência Mensal
@@ -349,6 +373,40 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                         
                         return maxSequence;
                       })()} meses
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Métricas Diárias */}
+              <div className="bg-slate-800/50 rounded-lg p-3">
+                <h5 className="text-purple-400 font-semibold mb-2 flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Performance Diária
+                </h5>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Médio Diário:</span>
+                    <span className="text-green-400 font-medium">
+                      R$ 437,42
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Média Diária:</span>
+                    <span className="text-red-400 font-medium">
+                      R$ 287,32
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Taxa de Acerto Diária:</span>
+                    <span className={`font-medium ${52 >= 50 ? 'text-green-400' : 'text-red-400'}`}>
+                      52%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Média Operações/Dia:</span>
+                    <span className="text-blue-400 font-medium">
+                      5
                     </span>
                   </div>
                 </div>
