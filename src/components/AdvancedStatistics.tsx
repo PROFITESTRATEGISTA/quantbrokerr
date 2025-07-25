@@ -278,7 +278,7 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
               <div className="bg-slate-800/50 rounded-lg p-4">
                 <h5 className="text-blue-400 font-semibold mb-2 flex items-center">
                   <BarChart3 className="w-4 h-4 mr-2" />
-                  Consistência
+                  Consistência Mensal
                 </h5>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
