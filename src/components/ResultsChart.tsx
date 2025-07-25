@@ -227,6 +227,7 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                   stroke="#64748b"
                   fontSize={12}
                   tickFormatter={formatYAxis}
+                  domain={['dataMin', 'dataMax']}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
