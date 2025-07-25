@@ -60,10 +60,22 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
   }
 
   const assetColors = {
-    bitcoin: '#f97316',
-    miniIndice: '#3b82f6',
-    miniDolar: '#10b981',
-    portfolio: '#8b5cf6'
+    bitcoin: {
+      positive: '#22c55e', // green-500
+      negative: '#ef4444'  // red-500
+    },
+    miniIndice: {
+      positive: '#22c55e', // green-500
+      negative: '#ef4444'  // red-500
+    },
+    miniDolar: {
+      positive: '#22c55e', // green-500
+      negative: '#ef4444'  // red-500
+    },
+    portfolio: {
+      positive: '#22c55e', // green-500
+      negative: '#ef4444'  // red-500
+    }
   };
 
   const assetNames = {
@@ -181,10 +193,15 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 <Line 
                   type="monotone" 
                   dataKey="cumulativeValue" 
-                  stroke={assetColors[asset]}
+                  stroke="#6b7280"
                   strokeWidth={6}
-                  dot={{ fill: assetColors[asset], strokeWidth: 2, r: 6 }}
-                  activeDot={{ r: 8, stroke: assetColors[asset], strokeWidth: 2 }}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    const value = payload?.monthlyValue || 0;
+                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                    return <circle cx={cx} cy={cy} r={6} fill={color} stroke={color} strokeWidth={2} />;
+                  }}
+                  activeDot={{ r: 8, stroke: "#6b7280", strokeWidth: 2 }}
                   connectNulls={false}
                 />
                 {/* Zero line */}
@@ -214,8 +231,16 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
                   dataKey="monthlyValue" 
-                  fill={assetColors[asset]}
+                  fill={(entry) => {
+                    return entry >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                  }}
                   radius={[4, 4, 0, 0]}
+                  shape={(props) => {
+                    const { fill, ...rest } = props;
+                    const value = props.payload?.monthlyValue || 0;
+                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                    return <rect {...rest} fill={color} />;
+                  }}
                 />
               </BarChart>
             )}
