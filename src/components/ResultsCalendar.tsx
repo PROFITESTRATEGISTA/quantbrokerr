@@ -380,7 +380,7 @@ const ResultsCalendar: React.FC = () => {
 
         {/* Calendar Section */}
         <div>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12 mt-8 gap-4">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Calendar className="w-6 h-6" />
               Calendário de Resultados {calendarYear} - {getAssetDisplayName(calendarAsset)}
