@@ -242,8 +242,23 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 />
                 <Bar 
                   dataKey="monthlyValue" 
-                  fill="#22c55e"
-                  radius={[2, 2, 2, 2]}
+                  shape={(props: any) => {
+                    const { fill, payload, x, y, width, height } = props;
+                    const value = payload?.monthlyValue || 0;
+                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
+                    
+                    return (
+                      <rect
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        fill={color}
+                        rx={2}
+                        ry={2}
+                      />
+                    );
+                  }}
                 />
               </BarChart>
             )}
