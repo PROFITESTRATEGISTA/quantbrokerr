@@ -374,6 +374,7 @@ const ResultsCalendar: React.FC = () => {
           data={monthlyData}
           asset={chartAsset}
           availableYears={availableYears}
+          selectedYear={chartYear}
           isAdmin={isAdmin}
         />
 
