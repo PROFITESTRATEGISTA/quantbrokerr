@@ -1,5 +1,5 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { TrendingUp, BarChart3 } from 'lucide-react';
 
 interface MonthData {
@@ -232,24 +232,15 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar 
                   dataKey="monthlyValue" 
-                  shape={(props: any) => {
-                    const { x, y, width, height, payload } = props;
-                    const value = payload?.monthlyValue || 0;
-                    const color = value >= 0 ? assetColors[asset].positive : assetColors[asset].negative;
-                    
-                    return (
-                      <rect
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={Math.abs(height)}
-                        fill={color}
-                        rx={2}
-                        ry={2}
-                      />
-                    );
-                  }}
-                />
+                  radius={[2, 2, 2, 2]}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.monthlyValue >= 0 ? assetColors[asset].positive : assetColors[asset].negative}
+                    />
+                  ))}
+                </Bar>
                 {/* Linha de referência no zero - depois das barras para ficar por cima */}
                 <Line 
                   type="monotone" 
