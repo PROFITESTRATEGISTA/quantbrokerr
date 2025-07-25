@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, BarChart3, Target, DollarSign, Percent, Calculator, Award, Edit3, Save, X, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Target, DollarSign, Percent, Calculator, Award, Edit3, Save, X, AlertCircle, Settings } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface MonthData {
