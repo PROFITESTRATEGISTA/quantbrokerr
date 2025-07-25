@@ -208,6 +208,37 @@ const ResultsCalendar: React.FC = () => {
       setError('Erro ao atualizar tipo de resultado');
     }
   };
+
+  const handleDeleteResult = async (month: string, year: number, asset: string) => {
+    try {
+      setError(null);
+      
+      // Definir qual coluna será zerada
+      const columnMap: { [key: string]: string } = {
+        bitcoin: 'bitcoin',
+        miniIndice: 'mini_indice',
+        miniDolar: 'mini_dolar',
+        portfolio: 'portfolio'
+      };
+
+      const { error } = await supabase
+        .from('monthly_results')
+        .update({ [columnMap[asset]]: null })
+        .eq('month', month)
+        .eq('year', year);
+
+      if (error) throw error;
+
+      await fetchResults();
+      setEditingMonth(null);
+      setEditValue('');
+      setEditResultType('live');
+    } catch (error) {
+      console.error('Error deleting result:', error);
+      setError('Erro ao excluir resultado');
+    }
+  };
+
   const handleUpdateStatistics = async (asset: string, year: number, metrics: any) => {
     try {
       // Here you could save custom statistics to a separate table if needed
@@ -570,6 +601,19 @@ const ResultsCalendar: React.FC = () => {
                               >
                                 {hasData ? 'Atualizar' : 'Adicionar'}
                               </button>
+                              {hasData && (
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Tem certeza que deseja excluir o resultado de ${month} ${calendarYear} para ${getAssetDisplayName(calendarAsset)}?`)) {
+                                      handleDeleteResult(month, calendarYear, calendarAsset);
+                                    }
+                                  }}
+                                  className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium"
+                                  title="Excluir resultado"
+                                >
+                                  Excluir
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   setEditingMonth(null);
