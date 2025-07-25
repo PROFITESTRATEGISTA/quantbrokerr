@@ -266,7 +266,10 @@ const ResultsChart: React.FC<ResultsChartProps> = ({ data, asset, year }) => {
           </div>
           <div className="text-center">
             <div className="text-lg font-bold text-blue-600">
-              {chartData.length > 0 ? (chartData.reduce((acc, d) => acc + d.monthlyValue, 0) / chartData.length).toFixed(1) : 0}%
+              {(() => {
+                const validData = chartData.filter(d => d.month !== 'Início' && d.monthlyValue !== 0);
+                return validData.length > 0 ? (validData.reduce((acc, d) => acc + d.monthlyValue, 0) / validData.length).toFixed(1) : '0.0';
+              })()}%
             </div>
             <div className="text-sm text-gray-600">Média Mensal</div>
           </div>
