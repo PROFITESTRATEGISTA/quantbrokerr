@@ -386,9 +386,21 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-slate-400">Ganho Máximo Diário:</span>
+                    <span className="text-green-400 font-medium">
+                      R$ 1.917,00
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-slate-400">Perda Média Diária:</span>
                     <span className="text-red-400 font-medium">
                       R$ 287,32
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Perda Máxima Diária:</span>
+                    <span className="text-red-400 font-medium">
+                      R$ 600,00
                     </span>
                   </div>
                   <div className="flex justify-between">
