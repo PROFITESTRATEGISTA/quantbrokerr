@@ -25,7 +25,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   
   // SMS Verification states
   const [showSMSVerification, setShowSMSVerification] = useState(false);
@@ -280,40 +279,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           throw new Error('Senha é obrigatória');
         }
 
-        let loginData;
-        
-        if (loginMethod === 'email') {
-          if (!email) {
-            throw new Error('Email é obrigatório para login');
-          }
-          
-          loginData = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-        } else {
-          if (!phone) {
-            throw new Error('Telefone é obrigatório para login');
-          }
-          
-          const formattedPhone = formatPhoneNumber(phone);
-          
-          // Try to find user by phone in user_profiles and then login with email
-          const { data: profile } = await supabase
-            .from('user_profiles')
-            .select('email')
-            .eq('phone', formattedPhone)
-            .single();
-          
-          if (!profile) {
-            throw new Error('Usuário não encontrado com este telefone');
-          }
-          
-          loginData = await supabase.auth.signInWithPassword({
-            email: profile.email,
-            password,
-          });
+        if (!email) {
+          throw new Error('Email é obrigatório para login');
         }
+        
+        const loginData = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
         if (loginData.error) throw loginData.error;
         
@@ -352,7 +325,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
     setPhone('');
     setError('');
     setSuccess('');
-    setLoginMethod('email');
     setShowSMSVerification(false);
     setSmsCode('');
     setPendingUserData(null);
@@ -574,78 +546,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
             ) : (
               // Login form - email or phone choice
               <>
-                {/* Login Method Selector */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Como você quer fazer login?
+                {/* Email Field */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <Mail className="h-4 w-4 inline mr-1" />
+                    Email
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod('email')}
-                      className={`p-3 border-2 rounded-lg transition-all ${
-                        loginMethod === 'email'
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 hover:border-blue-300'
-                      }`}
-                    >
-                      <Mail className="h-5 w-5 mx-auto mb-1" />
-                      <div className="text-sm font-medium">Email</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLoginMethod('phone')}
-                      className={`p-3 border-2 rounded-lg transition-all ${
-                        loginMethod === 'phone'
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 hover:border-blue-300'
-                      }`}
-                    >
-                      <Phone className="h-5 w-5 mx-auto mb-1" />
-                      <div className="text-sm font-medium">Telefone</div>
-                    </button>
-                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="seu@email.com"
+                    required
+                  />
                 </div>
-
-                {/* Login Fields */}
-                {loginMethod === 'email' ? (
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                      <Mail className="h-4 w-4 inline mr-1" />
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      placeholder="seu@email.com"
-                      required
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">
-                      <Phone className="h-4 w-4 inline mr-1" />
-                      Telefone (com DDD)
-                    </label>
-                    <input
-                      type="tel"
-                      id="telefone"
-                      name="telefone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      placeholder="(11) 99999-9999"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Formato: (11) 99999-9999 ou 11999999999
-                    </p>
-                  </div>
-                )}
 
                 <div>
                   <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">
@@ -719,7 +636,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                     setPhone('');
                     setPassword('');
                     setFullName('');
-                    setLoginMethod('email');
                     setShowSMSVerification(false);
                   }}
                   className="text-blue-600 hover:text-blue-800 font-medium"
