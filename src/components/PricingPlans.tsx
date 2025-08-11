@@ -220,6 +220,8 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 </button>
               </div>
             )}
+            
+            <div className="flex justify-center space-x-8 mb-8">
               <button 
                 onClick={() => onToggleBilling('monthly')}
                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
@@ -369,7 +371,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               Apenas 50 vagas disponíveis - Para planos semestrais e anuais, entre em contato com nossa equipe
             </p>
           </div>
-        </div>
         </div>
 
         <WaitlistModal
