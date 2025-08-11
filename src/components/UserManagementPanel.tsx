@@ -285,6 +285,8 @@ const UserManagementPanel: React.FC = () => {
         email: '',
         phone: '',
         full_name: '',
+        leverage_multiplier: 1,
+        contracted_plan: 'none',
         is_active: true
       });
       await fetchUsers();
