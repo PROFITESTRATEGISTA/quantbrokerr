@@ -104,8 +104,8 @@ const UserManagementPanel: React.FC = () => {
     setEditForm({
       full_name: user.full_name || '',
       phone: user.phone || '',
-      leverage_multiplier: user.current_leverage || user.leverage_multiplier || 1,
-      current_leverage: user.current_leverage || user.leverage_multiplier || 1,
+      leverage_multiplier: Number(user.current_leverage || user.leverage_multiplier || 1),
+      current_leverage: Number(user.current_leverage || user.leverage_multiplier || 1),
       contracted_plan: user.contracted_plan || 'none',
       plan_status: user.plan_status || 'inactive',
       is_active: user.is_active !== false // Default to true if undefined
@@ -633,7 +633,8 @@ const UserManagementPanel: React.FC = () => {
                             console.log('🔧 Changing plan to:', newPlan);
                             setEditForm({...editForm, contracted_plan: newPlan});
                           }}
-                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                          disabled={false}
                         >
                           <option value="none">Nenhum</option>
                           <option value="bitcoin">Bitcoin</option>
@@ -660,7 +661,8 @@ const UserManagementPanel: React.FC = () => {
                             console.log('🔧 Changing leverage to:', newLeverage);
                             setEditForm({...editForm, leverage_multiplier: newLeverage, current_leverage: newLeverage});
                           }}
-                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[80px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[80px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                          disabled={false}
                         >
                           <option value={1}>1x</option>
                           <option value={2}>2x</option>
