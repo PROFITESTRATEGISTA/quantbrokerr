@@ -12,6 +12,7 @@ interface UserProfile {
   contracted_plan: string | null;
   created_at: string;
   updated_at: string;
+  phone_confirmed_at?: string | null;
 }
 
 const UserManagementPanel: React.FC = () => {
@@ -30,6 +31,7 @@ const UserManagementPanel: React.FC = () => {
     contracted_plan: 'none',
     is_active: true
   });
+  const [isAdmin] = useState(true);
 
   useEffect(() => {
     fetchUsers();
@@ -643,9 +645,9 @@ const UserManagementPanel: React.FC = () => {
                           {user.is_active ? 'Ativo' : 'Inativo'}
                         </span>
                       )}
-                  </tr>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.updated_at || user.created_at).toLocaleDateString('pt-BR')}
+                      {user.updated_at ? new Date(user.updated_at).toLocaleDateString('pt-BR') : 'N/A'}
                     </td>
                   </tr>
                 ))}
