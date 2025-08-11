@@ -44,7 +44,7 @@ const UserManagementPanel: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔍 Fetching users from user_profiles table...');
+      console.log('🔍 Fetching users via admin edge function...');
       
       // First, try to get current user to verify admin access
       const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
@@ -62,57 +62,30 @@ const UserManagementPanel: React.FC = () => {
       
       console.log('✅ Admin access verified for:', currentUser.email);
       
-      // Try to fetch from user_profiles table
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (profilesError) {
-        console.error('❌ Error fetching user profiles:', profilesError);
-        console.log('🔄 Trying to fetch from auth.users instead...');
-        
-        // Fallback: try to get users from auth and create profiles
-        try {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          const result = await response.json();
-          
-          if (result.success && result.users) {
-            console.log('✅ Users loaded from edge function:', result.users.length);
-            setUsers(result.users);
-            
-            if (result.users.length === 0) {
-              setError('Nenhum usuário encontrado no sistema. Verifique se há usuários cadastrados.');
-            }
-          } else {
-            throw new Error(result.error || 'Erro ao carregar usuários');
-          }
-        } catch (edgeFunctionError) {
-          console.error('❌ Edge function error:', edgeFunctionError);
-          setError('Erro ao carregar usuários. Verifique as permissões e tente novamente.');
-        }
-        return;
+      // Use admin edge function to get users with proper permissions
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      console.log('✅ Users loaded from user_profiles:', (profilesData || []).length);
+      const result = await response.json();
       
-      if (!profilesData || profilesData.length === 0) {
-        console.log('⚠️ No users found in user_profiles table');
-        setError('Nenhum usuário encontrado. Clique em "Sincronizar Usuários" para buscar usuários do sistema de autenticação.');
-        setUsers([]);
+      if (result.success && result.users) {
+        console.log('✅ Users loaded from edge function:', result.users.length);
+        setUsers(result.users);
+        
+        if (result.users.length === 0) {
+          setError('Nenhum usuário encontrado no sistema. Clique em "Sincronizar Usuários" para buscar usuários do sistema de autenticação.');
+        }
       } else {
-        setUsers(profilesData);
+        throw new Error(result.error || 'Erro ao carregar usuários');
       }
       
     } catch (error: any) {
@@ -243,49 +216,27 @@ const UserManagementPanel: React.FC = () => {
       
       console.log('🔄 Sincronizando usuários...');
       
-      // Buscar usuários do auth que não têm perfil
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Use admin edge function to sync users
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=sync`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       
-      if (authError) {
-        throw new Error('Erro ao acessar usuários do sistema de autenticação');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      // Buscar perfis existentes
-      const { data: existingProfiles } = await supabase
-        .from('user_profiles')
-        .select('id');
+      const result = await response.json();
       
-      const existingIds = new Set((existingProfiles || []).map(p => p.id));
-      const usersWithoutProfile = authUsers.users.filter(user => !existingIds.has(user.id));
-      
-      if (usersWithoutProfile.length === 0) {
-        setSuccess('Todos os usuários já possuem perfis. Nenhuma sincronização necessária.');
-        return;
+      if (result.success) {
+        setSuccess(result.message || 'Sincronização concluída com sucesso!');
+        await fetchUsers();
+      } else {
+        throw new Error(result.error || 'Erro na sincronização');
       }
-      
-      // Criar perfis para usuários sem perfil
-      const newProfiles = usersWithoutProfile.map(user => ({
-        id: user.id,
-        email: user.email!,
-        phone: user.phone || user.user_metadata?.phone || null,
-        full_name: user.user_metadata?.full_name || null,
-        leverage_multiplier: 1,
-        current_leverage: 1,
-        is_active: true,
-        contracted_plan: 'none',
-        plan_status: 'inactive'
-      }));
-      
-      const { error: insertError } = await supabase
-        .from('user_profiles')
-        .insert(newProfiles);
-      
-      if (insertError) {
-        throw new Error(`Erro ao criar perfis: ${insertError.message}`);
-      }
-      
-      setSuccess(`Sincronização concluída! ${newProfiles.length} perfis criados.`);
-      await fetchUsers();
       
     } catch (error: any) {
       console.error('Sync error:', error);
@@ -300,68 +251,35 @@ const UserManagementPanel: React.FC = () => {
     try {
       setError(null);
       
-      // Criar usuário no auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newUserForm.email,
-        password: 'TempPassword123!',
-        options: {
-          data: {
-            full_name: newUserForm.full_name,
-            phone: newUserForm.phone
-          }
-        }
+      // Use admin edge function to create user
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: newUserForm.email,
+          phone: newUserForm.phone,
+          full_name: newUserForm.full_name,
+          leverage_multiplier: newUserForm.leverage_multiplier,
+          contracted_plan: newUserForm.contracted_plan,
+          is_active: newUserForm.is_active
+        })
       });
 
-      if (authError) throw authError;
-
-      // Aguardar trigger executar e criar perfil manualmente se necessário
-      if (authData.user) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Verificar se perfil foi criado pelo trigger
-        const { data: existingProfile } = await supabase
-          .from('user_profiles')
-          .select('id')
-          .eq('id', authData.user.id)
-          .single();
-        
-        if (!existingProfile) {
-          // Criar perfil manualmente se trigger falhou
-          const { error: createError } = await supabase
-            .from('user_profiles')
-            .insert({
-              id: authData.user.id,
-              email: newUserForm.email,
-              phone: newUserForm.phone || null,
-              full_name: newUserForm.full_name || null,
-              leverage_multiplier: newUserForm.leverage_multiplier,
-              current_leverage: newUserForm.leverage_multiplier,
-              contracted_plan: newUserForm.contracted_plan,
-              plan_status: newUserForm.contracted_plan !== 'none' ? 'active' : 'inactive',
-              is_active: newUserForm.is_active
-            });
-          
-          if (createError) throw createError;
-        } else {
-          // Atualizar perfil existente com dados do formulário
-          const { error: updateError } = await supabase
-            .from('user_profiles')
-            .update({
-              phone: newUserForm.phone || null,
-              full_name: newUserForm.full_name || null,
-              leverage_multiplier: newUserForm.leverage_multiplier,
-              current_leverage: newUserForm.leverage_multiplier,
-              contracted_plan: newUserForm.contracted_plan,
-              plan_status: newUserForm.contracted_plan !== 'none' ? 'active' : 'inactive',
-              is_active: newUserForm.is_active
-            })
-            .eq('id', authData.user.id);
-          
-          if (updateError) throw updateError;
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      setSuccess('Usuário criado com sucesso! Senha temporária: TempPassword123!');
+      const result = await response.json();
+      
+      if (result.success) {
+        setSuccess(result.message || 'Usuário criado com sucesso!');
+      } else {
+        throw new Error(result.error || 'Erro ao criar usuário');
+      }
+      
       setShowAddModal(false);
       setNewUserForm({
         email: '',
@@ -373,6 +291,7 @@ const UserManagementPanel: React.FC = () => {
       });
       await fetchUsers();
     } catch (error: any) {
+      console.error('Error creating user:', error);
       setError(error.message);
     }
   };
