@@ -38,13 +38,80 @@ const UserManagementPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Fetching all users from user_profiles...');
+      
+      // First, let's check auth.users to see all registered users
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      if (authError) {
+        console.error('❌ Error fetching auth users:', authError);
+      } else {
+        console.log('👥 Auth users found:', authUsers.users.length);
+        console.log('📋 Auth users list:', authUsers.users.map(u => ({ id: u.id, email: u.email })));
+      }
+      
+      // Now fetch from user_profiles
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching user profiles:', error);
+        throw error;
+      }
+      
+      console.log('📊 User profiles found:', (data || []).length);
+      console.log('📋 User profiles list:', (data || []).map(u => ({ id: u.id, email: u.email, full_name: u.full_name })));
+      
       setUsers(data || []);
+      
+      // Check for missing profiles
+      if (authUsers && authUsers.users) {
+        const profileIds = new Set((data || []).map(p => p.id));
+        const missingProfiles = authUsers.users.filter(u => !profileIds.has(u.id));
+        
+        if (missingProfiles.length > 0) {
+          console.warn('⚠️ Users without profiles found:', missingProfiles.length);
+          console.log('📋 Missing profiles:', missingProfiles.map(u => ({ id: u.id, email: u.email })));
+          
+          // Create missing profiles
+          for (const authUser of missingProfiles) {
+            try {
+              console.log(`➕ Creating profile for user: ${authUser.email}`);
+              const { error: insertError } = await supabase
+                .from('user_profiles')
+                .insert({
+                  id: authUser.id,
+                  email: authUser.email,
+                  full_name: authUser.user_metadata?.full_name || '',
+                  phone: authUser.user_metadata?.phone || authUser.phone || null,
+                  leverage_multiplier: 1,
+                  contracted_plan: 'none',
+                  is_active: true
+                });
+              
+              if (insertError) {
+                console.error(`❌ Error creating profile for ${authUser.email}:`, insertError);
+              } else {
+                console.log(`✅ Profile created for ${authUser.email}`);
+              }
+            } catch (createError) {
+              console.error(`❌ Exception creating profile for ${authUser.email}:`, createError);
+            }
+          }
+          
+          // Refetch after creating missing profiles
+          const { data: updatedData, error: refetchError } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (!refetchError && updatedData) {
+            console.log('🔄 Refetched user profiles:', updatedData.length);
+            setUsers(updatedData);
+          }
+        }
+      }
     } catch (error: any) {
       console.error('Error fetching users:', error);
       setError('Erro ao carregar usuários');
