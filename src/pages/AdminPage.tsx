@@ -67,7 +67,7 @@ const AdminPage: React.FC = () => {
                 }`}
               >
                 <Users className="h-4 w-4 mr-2" />
-                Usuários
+                Central de Usuários
               </button>
               <button
                 onClick={() => setActiveTab('waitlist')}
