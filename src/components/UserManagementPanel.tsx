@@ -99,6 +99,8 @@ const UserManagementPanel: React.FC = () => {
       contracted_plan: user.contracted_plan,
       is_active: user.is_active
     });
+    setError(null);
+    setSuccess(null);
   };
 
   const handleSaveEdit = async () => {
@@ -106,13 +108,17 @@ const UserManagementPanel: React.FC = () => {
 
     try {
       setError(null);
+      console.log('💾 Saving user edit:', { editingUser, editForm });
       
       // Check if user profile exists, if not create it
       const existingUser = users.find(u => u.id === editingUser);
-      const hasProfile = existingUser && users.some(u => u.id === editingUser && u.created_at);
+      const hasProfile = existingUser && existingUser.created_at;
+      
+      console.log('🔍 User profile check:', { hasProfile, existingUser: !!existingUser });
       
       if (!hasProfile) {
         // Create new profile
+        console.log('➕ Creating new profile for user:', existingUser?.email);
         const { error } = await supabase
           .from('user_profiles')
           .insert({
@@ -125,19 +131,22 @@ const UserManagementPanel: React.FC = () => {
         console.log(`✅ Created profile for user: ${existingUser?.email}`);
       } else {
         // Update existing profile
+        console.log('📝 Updating existing profile for user:', existingUser?.email);
         const { error } = await supabase
-        .from('user_profiles')
-        .update(editForm)
-        .eq('id', editingUser);
+          .from('user_profiles')
+          .update(editForm)
+          .eq('id', editingUser);
 
         if (error) throw error;
+        console.log('✅ Updated profile for user:', existingUser?.email);
       }
       
       setSuccess('Usuário atualizado com sucesso!');
       setEditingUser(null);
       setEditForm({});
-      fetchUsers();
+      await fetchUsers();
     } catch (error: any) {
+      console.error('❌ Error saving user edit:', error);
       setError(error.message);
     }
   };
@@ -587,9 +596,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.contracted_plan || 'none'}
+                          value={editForm.contracted_plan || user.contracted_plan || 'none'}
                           onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
                         >
                           <option value="none">Nenhum</option>
                           <option value="bitcoin">Bitcoin</option>
@@ -610,9 +619,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.leverage_multiplier || 1}
+                          value={editForm.leverage_multiplier || user.leverage_multiplier || 1}
                           onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value)})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
                         >
                           <option value={1}>1x</option>
                           <option value={2}>2x</option>
@@ -629,9 +638,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.is_active ? 'active' : 'inactive'}
+                          value={editForm.is_active !== undefined ? (editForm.is_active ? 'active' : 'inactive') : (user.is_active ? 'active' : 'inactive')}
                           onChange={(e) => setEditForm({...editForm, is_active: e.target.value === 'active'})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
                         >
                           <option value="active">Ativo</option>
                           <option value="inactive">Inativo</option>
