@@ -525,6 +525,114 @@ const UserManagementPanel: React.FC = () => {
                               </button>
                             </>
                           ) : (
+                            <span className="text-sm text-gray-400">Não informado</span>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        Não verificado
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingUser === user.id ? (
+                        <select
+                          value={editForm.contracted_plan || 'none'}
+                          onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
+                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value="none">Nenhum</option>
+                          <option value="bitcoin">Bitcoin</option>
+                          <option value="mini-indice">Mini Índice</option>
+                          <option value="mini-dolar">Mini Dólar</option>
+                          <option value="portfolio-completo">Portfólio Completo</option>
+                        </select>
+                      ) : (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.contracted_plan && user.contracted_plan !== 'none'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {getPlanDisplayName(user.contracted_plan)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingUser === user.id ? (
+                        <select
+                          value={editForm.leverage_multiplier || 1}
+                          onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value)})}
+                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value={1}>1x</option>
+                          <option value={2}>2x</option>
+                          <option value={3}>3x</option>
+                          <option value={4}>4x</option>
+                          <option value={5}>5x</option>
+                        </select>
+                      ) : (
+                        <span className="text-sm font-medium text-gray-900">
+                          {user.leverage_multiplier}x
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingUser === user.id ? (
+                        <select
+                          value={editForm.is_active ? 'active' : 'inactive'}
+                          onChange={(e) => setEditForm({...editForm, is_active: e.target.value === 'active'})}
+                          className="text-sm border border-gray-300 rounded px-2 py-1"
+                        >
+                          <option value="active">Ativo</option>
+                          <option value="inactive">Inativo</option>
+                        </select>
+                      ) : (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {user.is_active ? 'Ativo' : 'Inativo'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(user.updated_at).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {editingUser === user.id ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSaveEdit}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            <Save className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-900"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditUser(user)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
