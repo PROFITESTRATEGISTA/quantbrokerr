@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Edit3, Save, X, Plus, Trash2, Shield, Mail, Phone, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Edit3, Save, X, Plus, Trash2, Shield, Mail, Phone, Calendar, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface UserProfile {
@@ -283,10 +283,11 @@ const UserManagementPanel: React.FC = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contato</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel. Verificado</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alavancagem</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cadastro</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Acesso</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
@@ -328,10 +329,30 @@ const UserManagementPanel: React.FC = () => {
                           placeholder="(11) 99999-9999"
                         />
                       ) : (
-                        <div className="text-sm text-gray-900">
-                          {user.phone || 'Não informado'}
+                        <div className="space-y-1">
+                          <div className="text-sm text-gray-900">
+                            {user.phone || 'Não informado'}
+                          </div>
+                          {user.phone && (
+                            <button
+                              onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}`, '_blank')}
+                              className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                              WhatsApp
+                            </button>
+                          )}
                         </div>
                       )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.phone 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.phone ? 'Verificado' : 'Não verificado'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
@@ -395,8 +416,16 @@ const UserManagementPanel: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {new Date(user.updated_at).toLocaleDateString('pt-BR')}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(user.updated_at).toLocaleTimeString('pt-BR', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
