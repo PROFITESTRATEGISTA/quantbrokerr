@@ -40,16 +40,18 @@ const UserManagementPanel: React.FC = () => {
       setLoading(true);
       console.log('🔍 Fetching all users from user_profiles...');
       
-      // First, let's check auth.users to see all registered users
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Fetch all users from auth.users first to get complete list
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      
       if (authError) {
         console.error('❌ Error fetching auth users:', authError);
-      } else {
-        console.log('👥 Auth users found:', authUsers.users.length);
-        console.log('📋 Auth users list:', authUsers.users.map(u => ({ id: u.id, email: u.email })));
+        setError('Erro ao carregar usuários do sistema de autenticação');
+        return;
       }
       
-      // Now fetch from user_profiles
+      console.log('👥 Total auth users found:', authData.users.length);
+      
+      // Fetch user profiles
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -57,61 +59,42 @@ const UserManagementPanel: React.FC = () => {
 
       if (error) {
         console.error('❌ Error fetching user profiles:', error);
-        throw error;
+        setError('Erro ao carregar perfis de usuários');
+        return;
       }
       
       console.log('📊 User profiles found:', (data || []).length);
-      console.log('📋 User profiles list:', (data || []).map(u => ({ id: u.id, email: u.email, full_name: u.full_name })));
       
-      setUsers(data || []);
+      // Create a map of existing profiles
+      const profilesMap = new Map((data || []).map(profile => [profile.id, profile]));
       
-      // Check for missing profiles
-      if (authUsers && authUsers.users) {
-        const profileIds = new Set((data || []).map(p => p.id));
-        const missingProfiles = authUsers.users.filter(u => !profileIds.has(u.id));
+      // Combine auth users with profile data
+      const completeUserList: UserProfile[] = authData.users.map(authUser => {
+        const existingProfile = profilesMap.get(authUser.id);
         
-        if (missingProfiles.length > 0) {
-          console.warn('⚠️ Users without profiles found:', missingProfiles.length);
-          console.log('📋 Missing profiles:', missingProfiles.map(u => ({ id: u.id, email: u.email })));
-          
-          // Create missing profiles
-          for (const authUser of missingProfiles) {
-            try {
-              console.log(`➕ Creating profile for user: ${authUser.email}`);
-              const { error: insertError } = await supabase
-                .from('user_profiles')
-                .insert({
-                  id: authUser.id,
-                  email: authUser.email,
-                  full_name: authUser.user_metadata?.full_name || '',
-                  phone: authUser.user_metadata?.phone || authUser.phone || null,
-                  leverage_multiplier: 1,
-                  contracted_plan: 'none',
-                  is_active: true
-                });
-              
-              if (insertError) {
-                console.error(`❌ Error creating profile for ${authUser.email}:`, insertError);
-              } else {
-                console.log(`✅ Profile created for ${authUser.email}`);
-              }
-            } catch (createError) {
-              console.error(`❌ Exception creating profile for ${authUser.email}:`, createError);
-            }
-          }
-          
-          // Refetch after creating missing profiles
-          const { data: updatedData, error: refetchError } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .order('created_at', { ascending: false });
-          
-          if (!refetchError && updatedData) {
-            console.log('🔄 Refetched user profiles:', updatedData.length);
-            setUsers(updatedData);
-          }
+        if (existingProfile) {
+          // User has a profile, use it
+          return existingProfile;
+        } else {
+          // User doesn't have a profile, create a virtual one
+          console.log(`⚠️ User without profile: ${authUser.email}`);
+          return {
+            id: authUser.id,
+            email: authUser.email,
+            phone: authUser.user_metadata?.phone || authUser.phone || null,
+            full_name: authUser.user_metadata?.full_name || null,
+            leverage_multiplier: 1,
+            is_active: true,
+            contracted_plan: 'none',
+            created_at: authUser.created_at,
+            updated_at: authUser.updated_at || authUser.created_at
+          };
         }
-      }
+      });
+      
+      console.log('📋 Complete user list:', completeUserList.length);
+      setUsers(completeUserList);
+      
     } catch (error: any) {
       console.error('Error fetching users:', error);
       setError('Erro ao carregar usuários');
@@ -136,12 +119,32 @@ const UserManagementPanel: React.FC = () => {
 
     try {
       setError(null);
-      const { error } = await supabase
+      
+      // Check if user profile exists, if not create it
+      const existingUser = users.find(u => u.id === editingUser);
+      const hasProfile = existingUser && users.some(u => u.id === editingUser && u.created_at);
+      
+      if (!hasProfile) {
+        // Create new profile
+        const { error } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: editingUser,
+            email: existingUser?.email || '',
+            ...editForm
+          });
+        
+        if (error) throw error;
+        console.log(`✅ Created profile for user: ${existingUser?.email}`);
+      } else {
+        // Update existing profile
+        const { error } = await supabase
         .from('user_profiles')
         .update(editForm)
         .eq('id', editingUser);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
       
       setSuccess('Usuário atualizado com sucesso!');
       setEditingUser(null);
@@ -161,12 +164,23 @@ const UserManagementPanel: React.FC = () => {
     if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) return;
 
     try {
+      // First delete from user_profiles (if exists)
       const { error } = await supabase
         .from('user_profiles')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error && !error.message.includes('No rows found')) {
+        throw error;
+      }
+      
+      // Then delete from auth (admin operation)
+      const { error: authError } = await supabase.auth.admin.deleteUser(id);
+      
+      if (authError) {
+        console.warn('Warning deleting auth user:', authError);
+        // Don't throw error here as profile deletion might be enough
+      }
       
       setSuccess('Usuário excluído com sucesso!');
       fetchUsers();
