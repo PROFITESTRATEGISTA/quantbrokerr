@@ -312,6 +312,24 @@ const AdvancedStatistics: React.FC<AdvancedStatisticsProps> = ({
 
   return (
     <div className="bg-gradient-to-br from-slate-900/50 to-blue-900/30 rounded-xl p-6 border border-slate-600/50">
+      {/* Portfolio Title Header */}
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-white mb-2">
+          Análise Detalhada - {(() => {
+            switch (asset) {
+              case 'bitcoin': return 'Portfólio Bitcoin';
+              case 'miniIndice': return 'Portfólio Mini Índice';
+              case 'miniDolar': return 'Portfólio Mini Dólar';
+              case 'portfolio': return 'Portfólio Completo';
+              default: return 'Portfólio';
+            }
+          })()}
+        </h3>
+        <p className="text-slate-300 text-sm">
+          Estatísticas avançadas e métricas de performance para {selectedYear}
+        </p>
+      </div>
+      
       <div className="space-y-6">
         {/* Seção de Resumo */}
         <div className="bg-gradient-to-br from-slate-800/40 via-blue-900/30 to-teal-900/20 rounded-xl p-4 border border-slate-600/50">
