@@ -222,7 +222,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           )}
           
           <div className="flex justify-center space-x-8 mb-8">
-          </h2>
           <div className="flex justify-center space-x-8 mb-8">
             <button 
               onClick={() => onToggleBilling('monthly')}
