@@ -58,13 +58,7 @@ const UserManagementPanel: React.FC = () => {
 
         if (result.success) {
           console.log('✅ Usuários carregados via edge function:', result.users.length);
-          console.log('
-          )
-        }
-      }
-    }
-  }
-}📊 Total auth users:', result.total_auth_users);
+          console.log('📊 Total auth users:', result.total_auth_users);
           console.log('📊 Total profiles:', result.total_profiles);
           setUsers(result.users);
           return;
@@ -597,6 +591,9 @@ const UserManagementPanel: React.FC = () => {
                             type="number"
                             min="1"
                             value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
+                            onChange={(e) => setEditForm({...editForm, current_leverage: parseInt(e.target.value) || 1})}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 w-20"
+                          />
                         </>
                       ) : (
                         <div className="text-sm">
