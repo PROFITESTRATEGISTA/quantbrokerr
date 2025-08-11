@@ -40,6 +40,9 @@ const FinancialPanel: React.FC = () => {
   const [editingContract, setEditingContract] = useState<ClientContract | null>(null);
   const [editingCost, setEditingCost] = useState<FinancialCost | null>(null);
 
+  // Search states
+  const [userSearch, setUserSearch] = useState('');
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   // Form states
   const [contractForm, setContractForm] = useState({
     user_id: '',
@@ -371,6 +374,9 @@ const FinancialPanel: React.FC = () => {
 
   const openEditContract = (contract: ClientContract) => {
     setEditingContract(contract);
+    // Find user name for search field
+    const selectedUser = users.find(user => user.id === contract.user_id);
+    setUserSearch(selectedUser ? `${selectedUser.full_name || selectedUser.email} (${selectedUser.email})` : '');
     setContractForm({
       user_id: contract.user_id,
       plan_type: contract.plan_type,
@@ -425,6 +431,28 @@ const FinancialPanel: React.FC = () => {
     return names[period as keyof typeof names] || period;
   };
 
+  // Filter users based on search
+  const filteredUsers = users.filter(user => {
+    const searchTerm = userSearch.toLowerCase();
+    const userName = (user.full_name || '').toLowerCase();
+    const userEmail = user.email.toLowerCase();
+    return userName.includes(searchTerm) || userEmail.includes(searchTerm);
+  });
+
+  const handleUserSelect = (user: any) => {
+    setContractForm({...contractForm, user_id: user.id});
+    setUserSearch(`${user.full_name || user.email} (${user.email})`);
+    setShowUserDropdown(false);
+  };
+
+  const handleUserSearchChange = (value: string) => {
+    setUserSearch(value);
+    setShowUserDropdown(true);
+    // Clear selection if search is cleared
+    if (!value) {
+      setContractForm({...contractForm, user_id: ''});
+    }
+  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -714,23 +742,54 @@ const FinancialPanel: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleSaveContract} className="p-6 space-y-6">
+              <form 
+                onSubmit={handleSaveContract} 
+                className="p-6 space-y-6"
+                onClick={(e) => {
+                  // Close dropdown when clicking outside
+                  if (!(e.target as Element).closest('.relative')) {
+                    setShowUserDropdown(false);
+                  }
+                }}
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
-                    <select
-                      value={contractForm.user_id}
-                      onChange={(e) => setContractForm({...contractForm, user_id: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                      required
-                    >
-                      <option value="">Selecione um cliente</option>
-                      {users.map(user => (
-                        <option key={user.id} value={user.id}>
-                          {user.full_name || user.email || 'Usuário sem nome'} ({user.email})
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={userSearch}
+                        onChange={(e) => handleUserSearchChange(e.target.value)}
+                        onFocus={() => setShowUserDropdown(true)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                        placeholder="Digite o nome ou email do cliente..."
+                        required
+                      />
+                      
+                      {showUserDropdown && filteredUsers.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                          {filteredUsers.map(user => (
+                            <button
+                              key={user.id}
+                              type="button"
+                              onClick={() => handleUserSelect(user)}
+                              className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:bg-blue-50 focus:outline-none"
+                            >
+                              <div className="font-medium text-gray-900">
+                                {user.full_name || 'Nome não informado'}
+                              </div>
+                              <div className="text-sm text-gray-600">{user.email}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {showUserDropdown && userSearch && filteredUsers.length === 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                          <p className="text-gray-500 text-sm">Nenhum usuário encontrado</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
