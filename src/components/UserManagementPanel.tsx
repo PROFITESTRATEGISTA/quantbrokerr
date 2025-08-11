@@ -662,14 +662,21 @@ const UserManagementPanel: React.FC = () => {
                             <input
                               type="number"
                               min="1"
-                              max="100"
+                             max="100"
                               value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
                               onChange={(e) => {
                                 const newLeverage = parseInt(e.target.value) || 1;
+                               // Validate against max leverage
+                               const maxLev = editForm.max_leverage || user.max_leverage || 100;
+                               if (newLeverage > maxLev) {
+                                 setError(`Alavancagem atual não pode exceder a máxima (${maxLev}x)`);
+                                 return;
+                               }
+                               setError(null);
                                 console.log('🔧 Changing current leverage to:', newLeverage);
                                 setEditForm({...editForm, current_leverage: newLeverage});
                               }}
-                              className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                             className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="1"
                             />
                           </div>
@@ -682,12 +689,20 @@ const UserManagementPanel: React.FC = () => {
                               value={editForm.max_leverage || user.max_leverage || 100}
                               onChange={(e) => {
                                 const newMaxLeverage = parseInt(e.target.value) || 100;
+                               // Validate that max is at least current
+                               const currentLev = editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1;
+                               if (newMaxLeverage < currentLev) {
+                                 setError(`Alavancagem máxima deve ser pelo menos ${currentLev}x (alavancagem atual)`);
+                                 return;
+                               }
+                               setError(null);
                                 console.log('🔧 Changing max leverage to:', newMaxLeverage);
                                 setEditForm({...editForm, max_leverage: newMaxLeverage});
                               }}
-                              className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                             className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="100"
                             />
+                           <p className="text-xs text-gray-500 mt-1">Máximo: 100x</p>
                           </div>
                         </div>
                       ) : (
@@ -802,12 +817,11 @@ const UserManagementPanel: React.FC = () => {
                       onChange={(e) => setNewUserForm({...newUserForm, leverage_multiplier: parseInt(e.target.value)})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value={1}>1x</option>
-                      <option value={2}>2x</option>
-                      <option value={3}>3x</option>
-                      <option value={4}>4x</option>
-                      <option value={5}>5x</option>
+                     {Array.from({length: 100}, (_, i) => i + 1).map(value => (
+                       <option key={value} value={value}>{value}x</option>
+                     ))}
                     </select>
+                   <p className="text-xs text-gray-500 mt-1">Escolha de 1x até 100x</p>
                   </div>
 
                   <div>
@@ -837,6 +851,15 @@ const UserManagementPanel: React.FC = () => {
                     </select>
                   </div>
                 </div>
+
+               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                 <h4 className="font-semibold text-blue-900 mb-2">Controle de Alavancagem</h4>
+                 <ul className="text-sm text-blue-800 space-y-1">
+                   <li>• Alavancagem pode ser definida de 1x até 100x</li>
+                   <li>• Alavancagem atual não pode exceder a máxima</li>
+                   <li>• Mudanças são registradas no histórico</li>
+                 </ul>
+               </div>
 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <p className="text-sm text-yellow-800">
