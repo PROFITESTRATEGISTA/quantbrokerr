@@ -47,7 +47,6 @@ const ResultsCalendar: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = useState<string>('portfolio');
   
   // Risk Management states
-  const [showRiskManagement, setShowRiskManagement] = useState(false);
   const [showRiskManagement, setShowRiskManagement] = useState(true);
   const [riskSettings, setRiskSettings] = useState({
     dailyLossLimit: 5.0,
