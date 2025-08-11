@@ -644,6 +644,10 @@ const UserManagementPanel: React.FC = () => {
                         </span>
                       )}
                   </tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(user.updated_at || user.created_at).toLocaleDateString('pt-BR')}
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
