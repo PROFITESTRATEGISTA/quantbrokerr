@@ -48,6 +48,7 @@ const ResultsCalendar: React.FC = () => {
   
   // Risk Management states
   const [showRiskManagement, setShowRiskManagement] = useState(false);
+  const [showRiskManagement, setShowRiskManagement] = useState(true);
   const [riskSettings, setRiskSettings] = useState({
     dailyLossLimit: 5.0,
     monthlyLossLimit: 15.0,
@@ -314,13 +315,13 @@ const ResultsCalendar: React.FC = () => {
       
       // Save risk settings to localStorage for now
       // In a real implementation, you would save to a database table
-      localStorage.setItem(`risk_settings_${calendarAsset}`, JSON.stringify(riskSettings));
+      localStorage.setItem(`risk_settings_${chartAsset}`, JSON.stringify(riskSettings));
       
       setEditingRisk(false);
-      setSuccess('Configurações de risco atualizadas com sucesso!');
+      // setSuccess('Configurações de risco atualizadas com sucesso!');
       
       // Auto-hide success message after 3 seconds
-      setTimeout(() => setSuccess(null), 3000);
+      // setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error('Error updating risk settings:', error);
       setError('Erro ao atualizar configurações de risco');
@@ -346,7 +347,7 @@ const ResultsCalendar: React.FC = () => {
 
   useEffect(() => {
     loadRiskSettings();
-  }, [calendarAsset]);
+  }, [chartAsset]);
 
   // Show empty state message for production
   const isProductionMode = monthlyData.length === 0;
@@ -358,7 +359,7 @@ const ResultsCalendar: React.FC = () => {
       
       // Set initial years to most recent available year
       const mostRecentYear = years[0];
-      if (mostRecentYear) {
+      const saved = localStorage.getItem(`risk_settings_${chartAsset}`);
         setChartYear(mostRecentYear);
         setCalendarYear(mostRecentYear);
       }
@@ -426,22 +427,12 @@ const ResultsCalendar: React.FC = () => {
         {/* Risk Management Section */}
         {isAdmin && (
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Shield className="w-6 h-6 text-red-400" />
-                Gerenciamento de Risco - {getAssetDisplayName(calendarAsset)}
-              </h2>
-              <button
-                onClick={() => setShowRiskManagement(!showRiskManagement)}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                {showRiskManagement ? 'Ocultar' : 'Mostrar'} Configurações
-              </button>
-            </div>
+            <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
+              <Shield className="w-6 h-6 text-red-400" />
+              Gerenciamento de Risco - {getAssetDisplayName(chartAsset)}
+            </h2>
 
-            {showRiskManagement && (
-              <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-orange-900/20 rounded-xl p-6 border border-red-500/30">
+            <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-orange-900/20 rounded-xl p-6 border border-red-500/30">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                   {/* Current Risk Metrics */}
                   <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-600">
@@ -622,7 +613,6 @@ const ResultsCalendar: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
           </div>
         )}
 
