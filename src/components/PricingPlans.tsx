@@ -370,13 +370,14 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             </p>
           </div>
         </div>
-      </div>
+        </div>
 
-      <WaitlistModal
+        <WaitlistModal
         isOpen={showWaitlistModal}
         onClose={() => setShowWaitlistModal(false)}
         portfolioType={selectedPortfolio}
       />
+      </div>
     </React.Fragment>
   );
 };
