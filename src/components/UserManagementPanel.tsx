@@ -43,25 +43,82 @@ const UserManagementPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log('🔍 Fetching users from user_profiles table...');
       
-      const { data, error } = await supabase
+      // First, try to get current user to verify admin access
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('❌ Auth error:', authError);
+        setError('Erro de autenticação');
+        return;
+      }
+      
+      if (!currentUser || currentUser.email !== 'pedropardal04@gmail.com') {
+        setError('Acesso negado. Apenas administradores podem ver a lista de usuários.');
+        return;
+      }
+      
+      console.log('✅ Admin access verified for:', currentUser.email);
+      
+      // Try to fetch from user_profiles table
+      const { data: profilesData, error: profilesError } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ Error fetching users:', error);
-        setError('Erro ao carregar usuários');
+      if (profilesError) {
+        console.error('❌ Error fetching user profiles:', profilesError);
+        console.log('🔄 Trying to fetch from auth.users instead...');
+        
+        // Fallback: try to get users from auth and create profiles
+        try {
+          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const result = await response.json();
+          
+          if (result.success && result.users) {
+            console.log('✅ Users loaded from edge function:', result.users.length);
+            setUsers(result.users);
+            
+            if (result.users.length === 0) {
+              setError('Nenhum usuário encontrado no sistema. Verifique se há usuários cadastrados.');
+            }
+          } else {
+            throw new Error(result.error || 'Erro ao carregar usuários');
+          }
+        } catch (edgeFunctionError) {
+          console.error('❌ Edge function error:', edgeFunctionError);
+          setError('Erro ao carregar usuários. Verifique as permissões e tente novamente.');
+        }
         return;
       }
       
-      console.log('✅ Users loaded from user_profiles:', (data || []).length);
-      setUsers(data || []);
+      console.log('✅ Users loaded from user_profiles:', (profilesData || []).length);
+      
+      if (!profilesData || profilesData.length === 0) {
+        console.log('⚠️ No users found in user_profiles table');
+        setError('Nenhum usuário encontrado. Clique em "Sincronizar Usuários" para buscar usuários do sistema de autenticação.');
+        setUsers([]);
+      } else {
+        setUsers(profilesData);
+      }
       
     } catch (error: any) {
       console.error('Error fetching users:', error);
-      setError('Erro ao carregar usuários');
+      setError(`Erro ao carregar usuários: ${error.message}`);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
