@@ -58,7 +58,13 @@ const UserManagementPanel: React.FC = () => {
 
         if (result.success) {
           console.log('✅ Usuários carregados via edge function:', result.users.length);
-          console.log('📊 Total auth users:', result.total_auth_users);
+          console.log('
+          )
+        }
+      }
+    }
+  }
+}📊 Total auth users:', result.total_auth_users);
           console.log('📊 Total profiles:', result.total_profiles);
           setUsers(result.users);
           return;
