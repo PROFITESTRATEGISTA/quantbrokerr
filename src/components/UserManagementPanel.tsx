@@ -9,7 +9,6 @@ interface UserProfile {
   full_name: string | null;
   leverage_multiplier: number;
   current_leverage?: number;
-  max_leverage?: number;
   plan_status?: string;
   is_active: boolean;
   contracted_plan: string | null;
@@ -105,7 +104,6 @@ const UserManagementPanel: React.FC = () => {
       full_name: user.full_name || '',
       phone: user.phone || '',
       current_leverage: Number(user.current_leverage || user.leverage_multiplier || 1),
-      max_leverage: Number(user.max_leverage || 100),
       contracted_plan: user.contracted_plan || 'none',
       plan_status: user.plan_status || 'inactive',
       is_active: user.is_active !== false // Default to true if undefined
@@ -145,7 +143,6 @@ const UserManagementPanel: React.FC = () => {
             id: editingUser,
             email: userToEdit?.email || '',
             current_leverage: editForm.leverage_multiplier || 1,
-            max_leverage: 5,
             plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive',
             ...editForm
           });
@@ -593,19 +590,11 @@ const UserManagementPanel: React.FC = () => {
                               </div>
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}`, '_blank')}
+                                  onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
                                   className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
                                 >
                                   <MessageCircle className="h-3 w-3" />
                                   WhatsApp
-                                </button>
-                                <button
-                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá! Entrando em contato sobre o usuário: ${user.full_name || user.email} (${user.phone})`, '_blank')}
-                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                                  title="WhatsApp Suporte Quant Broker"
-                                >
-                                  <MessageCircle className="h-3 w-3" />
-                                  Suporte
                                 </button>
                               </div>
                             </>
@@ -613,7 +602,7 @@ const UserManagementPanel: React.FC = () => {
                             <div className="space-y-1">
                               <span className="text-sm text-gray-400">Não informado</span>
                               {isAdmin && (
-                                <button
+                                onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
                                   onClick={() => handleEditUser(user)}
                                   className="block text-xs text-blue-600 hover:text-blue-800"
                                 >
@@ -664,18 +653,21 @@ const UserManagementPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
-                        <input
-                          type="number"
-                          min="1"
-                          value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
-                          onChange={(e) => {
-                            const newLeverage = parseInt(e.target.value) || 1;
-                            console.log('🔧 Changing current leverage to:', newLeverage);
-                            setEditForm({...editForm, current_leverage: newLeverage});
-                          }}
-                          className="w-20 text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
-                          placeholder="1"
-                        />
+                        <>
+                          <input
+                            type="number"
+                            min="1"
+                            value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
+                            onChange={(e) => {
+                              const newLeverage = parseInt(e.target.value) || 1;
+                              console.log('🔧 Changing current leverage to:', newLeverage);
+                              setEditForm({...editForm, current_leverage: newLeverage});
+                            }}
+                            className="w-20 text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                            placeholder="1"
+                          />
+                        </>
+                      ) : (
                         <div className="text-sm">
                           <div className="font-medium text-gray-900">
                             {user.current_leverage || user.leverage_multiplier || 1}x
