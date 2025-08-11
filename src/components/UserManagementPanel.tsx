@@ -320,6 +320,17 @@ const UserManagementPanel: React.FC = () => {
     }
   };
 
+  const resetUserForm = () => {
+    setNewUserForm({
+      email: '',
+      phone: '',
+      full_name: '',
+      leverage_multiplier: 1,
+      contracted_plan: 'none',
+      is_active: true
+    });
+  };
+
   const getPlanDisplayName = (plan: string | null) => {
     if (!plan || plan === 'none') return 'Nenhum';
     const names = {
@@ -456,11 +467,11 @@ const UserManagementPanel: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contato</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano Contratado</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alavancagem Atual</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status do Plano</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Usuário</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado em</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tel. Verificado</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alavancagem</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Acesso</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -516,7 +527,7 @@ const UserManagementPanel: React.FC = () => {
                               type="text"
                               value={editForm.full_name || ''}
                               onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                              className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 min-w-[150px]"
+                              className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1"
                               placeholder="Nome completo"
                             />
                           ) : (
@@ -534,7 +545,7 @@ const UserManagementPanel: React.FC = () => {
                           type="tel"
                           value={editForm.phone || ''}
                           onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                          className="text-sm text-gray-900 border border-gray-300 rounded px-2 py-1 min-w-[140px]"
+                          className="text-sm text-gray-900 border border-gray-300 rounded px-2 py-1 w-full"
                           placeholder="(11) 99999-9999"
                         />
                       ) : (
@@ -546,7 +557,7 @@ const UserManagementPanel: React.FC = () => {
                               </div>
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}?text=Olá, sou do Quant Broker e estou aqui para te ajudar com seu portfólio de IA. Como posso ajudar?`, '_blank')}
+                                  onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
                                   className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
                                 >
                                   <MessageCircle className="h-3 w-3" />
@@ -555,17 +566,41 @@ const UserManagementPanel: React.FC = () => {
                               </div>
                             </>
                           ) : (
-                            <span className="text-sm text-gray-400">Não informado</span>
+                            <div className="space-y-1">
+                              <span className="text-sm text-gray-400">Não informado</span>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
+                                  className="block text-xs text-blue-600 hover:text-blue-800"
+                                >
+                                  + Adicionar telefone
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.phone_confirmed_at 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.phone_confirmed_at ? 'Verificado' : 'Não verificado'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
                           value={editForm.contracted_plan || user.contracted_plan || 'none'}
-                          onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
-                          className="text-sm border border-gray-300 rounded px-3 py-2 min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          onChange={(e) => {
+                            const newPlan = e.target.value;
+                            console.log('🔧 Changing plan to:', newPlan);
+                            setEditForm({...editForm, contracted_plan: newPlan});
+                          }}
+                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                          disabled={false}
                         >
                           <option value="none">Nenhum</option>
                           <option value="bitcoin">Bitcoin</option>
@@ -585,43 +620,32 @@ const UserManagementPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
-                        <input
-                          type="number"
-                          min="1"
-                          value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
-                          onChange={(e) => setEditForm({...editForm, current_leverage: parseInt(e.target.value) || 1})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-20"
-                        />
+                        <>
+                          <input
+                            type="number"
+                            min="1"
+                            value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
+                            onChange={(e) => setEditForm({...editForm, current_leverage: parseInt(e.target.value) || 1})}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 w-20"
+                          />
+                        </>
                       ) : (
                         <div className="text-sm">
                           <div className="font-medium text-gray-900">
                             {user.current_leverage || user.leverage_multiplier || 1}x
                           </div>
+                          <div className="text-xs text-gray-500">
+                            Sem limite
+                          </div>
                         </div>
                       )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.plan_status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : user.plan_status === 'suspended'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : user.plan_status === 'expired'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {user.plan_status === 'active' ? 'Ativo' :
-                         user.plan_status === 'suspended' ? 'Suspenso' :
-                         user.plan_status === 'expired' ? 'Expirado' :
-                         user.plan_status === 'pending' ? 'Pendente' : 'Inativo'}
-                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
                           value={editForm.is_active ? 'active' : 'inactive'}
                           onChange={(e) => setEditForm({...editForm, is_active: e.target.value === 'active'})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 min-w-[80px]"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[80px]"
                         >
                           <option value="active">Ativo</option>
                           <option value="inactive">Inativo</option>
@@ -637,7 +661,7 @@ const UserManagementPanel: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
+                      {user.updated_at ? new Date(user.updated_at).toLocaleDateString('pt-BR') : 'N/A'}
                     </td>
                   </tr>
                 ))}
@@ -720,6 +744,7 @@ const UserManagementPanel: React.FC = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="1"
                     />
+                    <p className="text-xs text-gray-500 mt-1">Digite qualquer valor (sem limite máximo)</p>
                   </div>
 
                   <div>
@@ -751,12 +776,11 @@ const UserManagementPanel: React.FC = () => {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Informações sobre a tabela user_profiles</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">Controle de Alavancagem</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Conectada à tabela de autenticação via foreign key</li>
-                    <li>• Controle de planos e alavancagem integrado</li>
-                    <li>• Policies de segurança configuradas</li>
-                    <li>• Triggers automáticos para atualizações</li>
+                    <li>• Alavancagem pode ser definida livremente (sem limite)</li>
+                    <li>• Digite qualquer valor numérico desejado</li>
+                    <li>• Mudanças são registradas no histórico</li>
                   </ul>
                 </div>
 
