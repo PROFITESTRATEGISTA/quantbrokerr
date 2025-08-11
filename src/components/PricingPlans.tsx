@@ -353,12 +353,11 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
                 <button
                   onClick={() => handlePlanSelection(plan.id)}
-                  disabled={!plan.isAvailable}
                   className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
                     plan.isRecommended || plan.id === recommendedPlan
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
-                  } ${!plan.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  }`}
                 >
                   {getButtonText(plan.id)}
                 </button>
