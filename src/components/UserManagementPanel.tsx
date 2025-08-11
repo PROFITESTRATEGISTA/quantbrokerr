@@ -53,6 +53,8 @@ const UserManagementPanel: React.FC = () => {
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
           headers: {
             'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          current_leverage: 1,
+          max_leverage: 100,
             'Content-Type': 'application/json',
           },
         });
