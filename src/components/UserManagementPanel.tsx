@@ -51,7 +51,8 @@ const UserManagementPanel: React.FC = () => {
         return;
       }
       
-      console.log('📊 Users found:', (data || []).length);
+      console.log('📊 Users found in user_profiles:', (data || []).length);
+      console.log('👥 User profiles data:', data);
       setUsers(data || []);
       
     } catch (error: any) {

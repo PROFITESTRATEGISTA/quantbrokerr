@@ -161,6 +161,45 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
         if (error) throw error;
 
+        console.log('✅ User created in auth:', data.user?.id);
+
+        // Wait for trigger to execute and then ensure profile exists
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check if profile was created by trigger
+        if (data.user) {
+          const { data: existingProfile, error: profileCheckError } = await supabase
+            .from('user_profiles')
+            .select('id')
+            .eq('id', data.user.id)
+            .single();
+
+          console.log('🔍 Profile check result:', { existingProfile, profileCheckError });
+
+          // If profile doesn't exist, create it manually
+          if (!existingProfile) {
+            console.log('⚠️ Profile not found, creating manually...');
+            const { error: createProfileError } = await supabase
+              .from('user_profiles')
+              .insert({
+                id: data.user.id,
+                email: pendingUserData.email,
+                phone: formattedPhone,
+                full_name: pendingUserData.fullName,
+                leverage_multiplier: 1,
+                is_active: true,
+                contracted_plan: 'none'
+              });
+
+            if (createProfileError) {
+              console.error('❌ Error creating profile manually:', createProfileError);
+            } else {
+              console.log('✅ Profile created manually');
+            }
+          } else {
+            console.log('✅ Profile already exists from trigger');
+          }
+        }
         // Send to RD Station
         try {
           if (window.RdIntegration) {
