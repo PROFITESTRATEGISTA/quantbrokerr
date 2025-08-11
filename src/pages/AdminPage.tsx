@@ -3,10 +3,11 @@ import Layout from '../components/Layout';
 import ResultsCalendar from '../components/ResultsCalendar';
 import FinancialPanel from '../components/FinancialPanel';
 import WaitlistPanel from '../components/WaitlistPanel';
-import { BarChart3, DollarSign, Settings, TrendingUp, Clock } from 'lucide-react';
+import UserManagementPanel from '../components/UserManagementPanel';
+import { BarChart3, DollarSign, Users, TrendingUp, Clock } from 'lucide-react';
 
 const AdminPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'results' | 'financial' | 'statistics' | 'waitlist'>('results');
+  const [activeTab, setActiveTab] = useState<'results' | 'financial' | 'users' | 'waitlist'>('results');
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -14,22 +15,8 @@ const AdminPage: React.FC = () => {
         return <ResultsCalendar />;
       case 'financial':
         return <FinancialPanel />;
-      case 'statistics':
-        return (
-          <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center py-12">
-                <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Estatísticas de Trading
-                </h3>
-                <p className="text-gray-600">
-                  Painel de estatísticas avançadas em desenvolvimento
-                </p>
-              </div>
-            </div>
-          </div>
-        );
+      case 'users':
+        return <UserManagementPanel />;
       case 'waitlist':
         return <WaitlistPanel />;
       default:
@@ -72,15 +59,15 @@ const AdminPage: React.FC = () => {
                 Financeiro
               </button>
               <button
-                onClick={() => setActiveTab('statistics')}
+                onClick={() => setActiveTab('users')}
                 className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === 'statistics'
+                  activeTab === 'users'
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Estatísticas
+                <Users className="h-4 w-4 mr-2" />
+                Usuários
               </button>
               <button
                 onClick={() => setActiveTab('waitlist')}
