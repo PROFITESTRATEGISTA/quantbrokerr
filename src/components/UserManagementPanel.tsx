@@ -331,7 +331,14 @@ const UserManagementPanel: React.FC = () => {
                       ) : (
                         <div className="space-y-1">
                           <div className="text-sm text-gray-900">
-                            {user.phone || 'Não informado'}
+                            {user.phone || (
+                              <button
+                                onClick={() => handleEditUser(user)}
+                                className="text-blue-600 hover:text-blue-800 text-xs"
+                              >
+                                + Adicionar telefone
+                              </button>
+                            )}
                           </div>
                           {user.phone && (
                             <button
@@ -347,11 +354,11 @@ const UserManagementPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.phone 
+                        user.phone && user.phone.length >= 10
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {user.phone ? 'Verificado' : 'Não verificado'}
+                        {user.phone && user.phone.length >= 10 ? 'Verificado' : 'Não verificado'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
