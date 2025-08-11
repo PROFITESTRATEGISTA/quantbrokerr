@@ -733,7 +733,18 @@ const FinancialPanel: React.FC = () => {
                       <option value={2}>2x</option>
                       <option value={3}>3x</option>
                       <option value={4}>4x</option>
-                      <option value={5}>5x (Máximo)</option>
+                      <option value={5}>5x</option>
+                      <option value={6}>6x</option>
+                      <option value={7}>7x</option>
+                      <option value={8}>8x</option>
+                      <option value={9}>9x</option>
+                      <option value={10}>10x</option>
+                      <option value={15}>15x</option>
+                      <option value={20}>20x</option>
+                      <option value={25}>25x</option>
+                      <option value={30}>30x</option>
+                      <option value={50}>50x</option>
+                      <option value={100}>100x</option>
                     </select>
                     <p className="text-xs text-gray-500 mt-1">
                       Multiplicador de alavancagem para o cliente
