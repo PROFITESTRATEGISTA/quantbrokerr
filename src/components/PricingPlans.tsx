@@ -220,8 +220,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 </button>
               </div>
             )}
-            
-            <div className="flex justify-center space-x-8 mb-8">
               <button 
                 onClick={() => onToggleBilling('monthly')}
                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
