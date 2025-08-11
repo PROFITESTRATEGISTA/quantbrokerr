@@ -534,21 +534,22 @@ const UserManagementPanel: React.FC = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.plan_status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : user.plan_status === 'suspended'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : user.plan_status === 'expired'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {user.plan_status === 'active' ? 'Ativo' :
-                         user.plan_status === 'suspended' ? 'Suspenso' :
-                         user.plan_status === 'expired' ? 'Expirado' :
-                         user.plan_status === 'pending' ? 'Pendente' : 'Inativo'}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {user.last_sign_in_at ? (
+                        <div>
+                          <div className="text-gray-900 font-medium">
+                            {new Date(user.last_sign_in_at).toLocaleDateString('pt-BR')}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(user.last_sign_in_at).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic">Nunca fez login</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
