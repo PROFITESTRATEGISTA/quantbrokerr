@@ -15,6 +15,8 @@ interface ClientContract {
   contract_end: string;
   is_active: boolean;
   contract_pdf_url?: string;
+  cancellation_date?: string;
+  cancellation_reason?: string;
 }
 
 interface FinancialCost {
@@ -43,6 +45,16 @@ const FinancialPanel: React.FC = () => {
   // Search states
   const [userSearch, setUserSearch] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  
+  // Rescission states
+  const [showRescissionModal, setShowRescissionModal] = useState(false);
+  const [rescissionContract, setRescissionContract] = useState<ClientContract | null>(null);
+  const [rescissionReason, setRescissionReason] = useState('');
+  
+  // Statistics states
+  const [planDistribution, setPlanDistribution] = useState<{counts: Record<string, number>, revenue: Record<string, number>}>({counts: {}, revenue: {}});
+  const [leverageDistribution, setLeverageDistribution] = useState<Record<string, number>>({});
+  
   // Form states
   const [contractForm, setContractForm] = useState({
     user_id: '',
@@ -67,6 +79,12 @@ const FinancialPanel: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (contracts.length > 0) {
+      calculateDistributions();
+    }
+  }, [contracts]);
 
   const fetchData = async () => {
     try {
@@ -406,11 +424,23 @@ const FinancialPanel: React.FC = () => {
   // Cálculos financeiros
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
   const activeContracts = contracts.filter(c => c.is_active);
+  const cancelledContracts = contracts.filter(c => !c.is_active);
   const monthlyRevenue = activeContracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
+  const totalRevenue = contracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
   const monthlyCosts = costs
     .filter(cost => cost.cost_date.startsWith(currentMonth) || cost.is_recurring)
     .reduce((sum, cost) => sum + cost.amount, 0);
   const monthlyProfit = monthlyRevenue - monthlyCosts;
+  
+  // Cálculos do ERP
+  const totalClients = activeContracts.length;
+  const averageLeverage = activeContracts.length > 0 
+    ? activeContracts.reduce((sum, c) => sum + (c.leverage_multiplier || 1), 0) / activeContracts.length 
+    : 0;
+  const totalAssetsUnderManagement = activeContracts.reduce((sum, contract) => {
+    const baseAmount = 10000; // R$ 10.000 base por 1x
+    return sum + (baseAmount * (contract.leverage_multiplier || 1));
+  }, 0);
 
   const getPlanDisplayName = (plan: string) => {
     const names = {
@@ -443,6 +473,48 @@ const FinancialPanel: React.FC = () => {
     setContractForm({...contractForm, user_id: user.id});
     setUserSearch(`${user.full_name || user.email} (${user.email})`);
     setShowUserDropdown(false);
+  };
+
+  const handleRescindContract = async () => {
+    if (!rescissionContract || !rescissionReason.trim()) {
+      setError('Motivo da rescisão é obrigatório');
+      return;
+    }
+
+    try {
+      setError(null);
+      console.log('🗂️ Rescinding contract:', rescissionContract.id);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({
+          is_active: false,
+          cancellation_date: new Date().toISOString().split('T')[0],
+          cancellation_reason: rescissionReason
+        })
+        .eq('id', rescissionContract.id);
+
+      if (error) {
+        console.error('❌ Error rescinding contract:', error);
+        throw error;
+      }
+      
+      console.log('✅ Contract rescinded successfully');
+      setSuccess('Contrato rescindido com sucesso!');
+      setShowRescissionModal(false);
+      setRescissionContract(null);
+      setRescissionReason('');
+      await fetchContracts();
+    } catch (error: any) {
+      console.error('❌ Contract rescission error:', error);
+      setError(error.message);
+    }
+  };
+
+  const openRescissionModal = (contract: ClientContract) => {
+    setRescissionContract(contract);
+    setRescissionReason('');
+    setShowRescissionModal(true);
   };
 
   const handleUserSearchChange = (value: string) => {
@@ -541,6 +613,141 @@ const FinancialPanel: React.FC = () => {
           </div>
         </div>
 
+        {/* ERP Statistics Dashboard */}
+        <div className="bg-white rounded-lg shadow-sm mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Dashboard Executivo - Mini ERP</h2>
+            <p className="text-sm text-gray-600">Métricas e estatísticas do negócio</p>
+          </div>
+          
+          <div className="p-6">
+            {/* Primary Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-600">Total de Clientes</p>
+                    <p className="text-2xl font-bold text-blue-900">{totalClients}</p>
+                  </div>
+                  <Users className="h-8 w-8 text-blue-600" />
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-600">Patrimônio Sob Custódia</p>
+                    <p className="text-2xl font-bold text-green-900">
+                      R$ {totalAssetsUnderManagement.toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-green-600" />
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-purple-600">Alavancagem Média</p>
+                    <p className="text-2xl font-bold text-purple-900">{averageLeverage.toFixed(1)}x</p>
+                  </div>
+                  <Calculator className="h-8 w-8 text-purple-600" />
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-orange-600">Receita Acumulada</p>
+                    <p className="text-2xl font-bold text-orange-900">
+                      R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-orange-600" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Distribution Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Plan Distribution */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Portfólio</h3>
+                <div className="space-y-3">
+                  {Object.entries(planDistribution.counts).map(([plan, count]) => (
+                    <div key={plan} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className={`w-4 h-4 rounded mr-3 ${
+                          plan === 'bitcoin' ? 'bg-orange-500' :
+                          plan === 'mini-indice' ? 'bg-blue-500' :
+                          plan === 'mini-dolar' ? 'bg-green-500' : 'bg-purple-500'
+                        }`}></div>
+                        <span className="text-sm font-medium text-gray-700">
+                          {getPlanDisplayName(plan)}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-gray-900">{count} clientes</div>
+                        <div className="text-xs text-gray-600">
+                          R$ {(planDistribution.revenue[plan] || 0).toLocaleString('pt-BR')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Leverage Distribution */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Alavancagem</h3>
+                <div className="space-y-3">
+                  {Object.entries(leverageDistribution).map(([leverage, count]) => (
+                    <div key={leverage} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 bg-indigo-500 rounded mr-3"></div>
+                        <span className="text-sm font-medium text-gray-700">{leverage}x</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-gray-900">{count} clientes</div>
+                        <div className="text-xs text-gray-600">
+                          R$ {(count * 10000 * parseInt(leverage)).toLocaleString('pt-BR')} patrimônio
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Contract Status Summary */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold text-green-900 mb-2">Contratos Ativos</h4>
+                <div className="text-2xl font-bold text-green-600">{activeContracts.length}</div>
+                <div className="text-sm text-green-700">
+                  R$ {monthlyRevenue.toLocaleString('pt-BR')} mensais
+                </div>
+              </div>
+              
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold text-red-900 mb-2">Contratos Cancelados</h4>
+                <div className="text-2xl font-bold text-red-600">{cancelledContracts.length}</div>
+                <div className="text-sm text-red-700">
+                  Taxa de cancelamento: {contracts.length > 0 ? ((cancelledContracts.length / contracts.length) * 100).toFixed(1) : 0}%
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h4 className="font-semibold text-blue-900 mb-2">Ticket Médio</h4>
+                <div className="text-2xl font-bold text-blue-600">
+                  R$ {activeContracts.length > 0 ? (monthlyRevenue / activeContracts.length).toLocaleString('pt-BR') : '0'}
+                </div>
+                <div className="text-sm text-blue-700">Por cliente ativo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Contracts Section */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
           <div className="px-6 py-4 border-b border-gray-200">
@@ -612,10 +819,15 @@ const FinancialPanel: React.FC = () => {
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {contract.is_active ? 'Ativo' : 'Inativo'}
+                        {contract.is_active ? 'Ativo' : 'Cancelado'}
                       </span>
+                      {!contract.is_active && contract.cancellation_date && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Cancelado em {new Date(contract.cancellation_date).toLocaleDateString('pt-BR')}
+                        </div>
+                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => openEditContract(contract)}
@@ -624,6 +836,15 @@ const FinancialPanel: React.FC = () => {
                         >
                           <Edit3 className="h-4 w-4" />
                         </button>
+                        {contract.is_active && (
+                          <button
+                            onClick={() => openRescissionModal(contract)}
+                            className="text-orange-600 hover:text-orange-800"
+                            title="Rescindir contrato"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteContract(contract.id)}
                           className="text-red-600 hover:text-red-800"
@@ -1030,6 +1251,78 @@ const FinancialPanel: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Rescission Modal */}
+        {showRescissionModal && rescissionContract && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+              <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Rescindir Contrato</h2>
+                <button
+                  onClick={() => {
+                    setShowRescissionModal(false);
+                    setRescissionContract(null);
+                    setRescissionReason('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="mb-4">
+                  <h3 className="font-semibold text-gray-900">Cliente: {rescissionContract.user_name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {getPlanDisplayName(rescissionContract.plan_type)} - 
+                    R$ {rescissionContract.monthly_value.toLocaleString('pt-BR')} mensais
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Motivo da Rescisão *
+                  </label>
+                  <textarea
+                    value={rescissionReason}
+                    onChange={(e) => setRescissionReason(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                    rows={4}
+                    placeholder="Descreva o motivo da rescisão do contrato..."
+                    required
+                  />
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-orange-800">
+                    <strong>Atenção:</strong> Esta ação irá cancelar o contrato permanentemente. 
+                    O contrato será marcado como inativo e não gerará mais receita.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleRescindContract}
+                    disabled={!rescissionReason.trim()}
+                    className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                  >
+                    Confirmar Rescisão
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowRescissionModal(false);
+                      setRescissionContract(null);
+                      setRescissionReason('');
+                    }}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
