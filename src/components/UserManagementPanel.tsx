@@ -600,14 +600,6 @@ const UserManagementPanel: React.FC = () => {
                                   <MessageCircle className="h-3 w-3" />
                                   WhatsApp
                                 </button>
-                                <button
-                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá! Entrando em contato sobre o usuário: ${user.full_name || user.email} (${user.phone})`, '_blank')}
-                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
-                                  title="WhatsApp Suporte Quant Broker"
-                                >
-                                  <MessageCircle className="h-3 w-3" />
-                                  Suporte
-                                </button>
                               </div>
                             </>
                           ) : (
@@ -615,10 +607,11 @@ const UserManagementPanel: React.FC = () => {
                               <span className="text-sm text-gray-400">Não informado</span>
                               {isAdmin && (
                                 <button
-                                  onClick={() => handleEditUser(user)}
-                                  className="block text-xs text-blue-600 hover:text-blue-800"
+                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
+                                  className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
                                 >
-                                  + Adicionar telefone
+                                  <MessageCircle className="h-3 w-3" />
+                                  WhatsApp
                                 </button>
                               )}
                             </div>
