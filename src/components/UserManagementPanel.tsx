@@ -134,6 +134,18 @@ const UserManagementPanel: React.FC = () => {
       
       console.log('🔍 User profile check:', { hasProfile, userExists: !!userToEdit });
       
+     // Prepare update data with explicit field mapping
+     const updateData = {
+       full_name: editForm.full_name,
+       phone: editForm.phone,
+       current_leverage: editForm.current_leverage || 1,
+       contracted_plan: editForm.contracted_plan,
+       plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive',
+       is_active: editForm.is_active
+     };
+     
+     console.log('📝 Update data being sent:', updateData);
+     
       if (!hasProfile) {
         // Create new profile
         console.log('➕ Creating new profile for user:', userToEdit?.email);
@@ -142,9 +154,7 @@ const UserManagementPanel: React.FC = () => {
           .insert({
             id: editingUser,
             email: userToEdit?.email || '',
-            current_leverage: editForm.leverage_multiplier || 1,
-            plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive',
-            ...editForm
+           ...updateData
           });
         
         if (error) throw error;
@@ -153,20 +163,13 @@ const UserManagementPanel: React.FC = () => {
         // Update existing profile
         console.log('📝 Updating existing profile for user:', userToEdit?.email);
         
-        // Prepare update data with proper field mapping
-        const updateData = {
-          ...editForm,
-          current_leverage: editForm.current_leverage,
-          plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive'
-        };
-        
-        const { error } = await supabase
+       const { data, error } = await supabase
           .from('user_profiles')
           .update(updateData)
           .eq('id', editingUser);
 
         if (error) throw error;
-        console.log('✅ Updated profile for user:', userToEdit?.email);
+       console.log('✅ Updated profile for user:', userToEdit?.email, 'Updated data:', data);
       }
       
       setSuccess('Usuário atualizado com sucesso!');
