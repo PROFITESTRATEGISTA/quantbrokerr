@@ -38,22 +38,47 @@ const UserManagementPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Fetching users from user_profiles...');
+      console.log('🔍 Fetching all users via edge function...');
 
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Tentar buscar todos os usuários via edge function
+      try {
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+          headers: {
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (error) {
-        console.error('❌ Error fetching users:', error);
-        setError('Erro ao carregar usuários');
-        return;
+        const result = await response.json();
+
+        if (result.success) {
+          console.log('✅ Usuários carregados via edge function:', result.users.length);
+          console.log('📊 Total auth users:', result.total_auth_users);
+          console.log('📊 Total profiles:', result.total_profiles);
+          setUsers(result.users);
+          return;
+        } else {
+          throw new Error(result.error || 'Erro na edge function');
+        }
+      } catch (edgeError) {
+        console.warn('⚠️ Edge function não disponível, usando fallback:', edgeError);
+        
+        // Fallback: buscar apenas da tabela user_profiles
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('❌ Error fetching users from profiles:', error);
+          setError('Erro ao carregar usuários');
+          return;
+        }
+        
+        console.log('📊 Users found in user_profiles (fallback):', (data || []).length);
+        setUsers(data || []);
+        setError('Lista limitada aos usuários com perfis. Use "Sincronizar Usuários" para carregar todos.');
       }
-      
-      console.log('📊 Users found in user_profiles:', (data || []).length);
-      console.log('👥 User profiles data:', data);
-      setUsers(data || []);
       
     } catch (error: any) {
       console.error('Error fetching users:', error);
@@ -211,62 +236,33 @@ const UserManagementPanel: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       
-      // Tentar buscar usuários do auth (pode falhar se não tiver permissão)
-      try {
-        const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      console.log('🔄 Sincronizando usuários via edge function...');
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=sync`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess(result.message);
+        console.log('✅ Sincronização concluída:', result);
         
-        if (authError) {
-          throw new Error('Sem permissão para acessar lista completa de usuários');
-        }
-        
-        console.log('👥 Auth users found:', authData.users.length);
-        
-        // Buscar perfis existentes
-        const { data: profiles } = await supabase
-          .from('user_profiles')
-          .select('id, email');
-        
-        const existingProfileIds = new Set((profiles || []).map(p => p.id));
-        
-        // Encontrar usuários sem perfil
-        const usersWithoutProfile = authData.users.filter(user => !existingProfileIds.has(user.id));
-        
-        if (usersWithoutProfile.length > 0) {
-          console.log(`🔧 Creating profiles for ${usersWithoutProfile.length} users...`);
-          
-          // Criar perfis para usuários sem perfil
-          const newProfiles = usersWithoutProfile.map(user => ({
-            id: user.id,
-            email: user.email,
-            phone: user.user_metadata?.phone || user.phone || null,
-            full_name: user.user_metadata?.full_name || null,
-            leverage_multiplier: 1,
-            is_active: true,
-            contracted_plan: 'none'
-          }));
-          
-          const { error: insertError } = await supabase
-            .from('user_profiles')
-            .insert(newProfiles);
-          
-          if (insertError) {
-            console.error('Error creating profiles:', insertError);
-          } else {
-            setSuccess(`${usersWithoutProfile.length} perfis de usuário criados com sucesso!`);
-          }
-        }
-        
-      } catch (authError) {
-        console.warn('Auth API not available, using profiles only:', authError);
-        setError('Lista limitada aos usuários com perfis. Para ver todos os usuários, é necessário permissão de administrador.');
+        // Recarregar lista de usuários
+        await fetchUsers();
+      } else {
+        throw new Error(result.error || 'Erro na sincronização');
       }
       
-      // Recarregar lista de usuários
-      await fetchUsers();
-      
     } catch (error: any) {
-      setError(error.message);
+      console.error('Erro na sincronização:', error);
+      setError(`Erro na sincronização: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -365,7 +361,7 @@ const UserManagementPanel: React.FC = () => {
               <button
                 onClick={handleSyncUsers}
                 disabled={loading}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Users className="w-4 h-4" />
                 {loading ? 'Sincronizando...' : 'Sincronizar Usuários'}
@@ -525,14 +521,28 @@ const UserManagementPanel: React.FC = () => {
                               </button>
                             </>
                           ) : (
-                            <span className="text-sm text-gray-400">Não informado</span>
+                            <div className="space-y-1">
+                              <span className="text-sm text-gray-400">Não informado</span>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => handleEditUser(user)}
+                                  className="block text-xs text-blue-600 hover:text-blue-800"
+                                >
+                                  + Adicionar telefone
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Não verificado
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.phone_confirmed_at 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.phone_confirmed_at ? 'Verificado' : 'Não verificado'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
