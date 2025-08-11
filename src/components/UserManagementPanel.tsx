@@ -38,62 +38,21 @@ const UserManagementPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Fetching all users from user_profiles...');
-      
-      // Fetch all users from auth.users first to get complete list
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('❌ Error fetching auth users:', authError);
-        setError('Erro ao carregar usuários do sistema de autenticação');
-        return;
-      }
-      
-      console.log('👥 Total auth users found:', authData.users.length);
-      
-      // Fetch user profiles
+      console.log('🔍 Fetching users from user_profiles...');
+
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error fetching user profiles:', error);
-        setError('Erro ao carregar perfis de usuários');
+        console.error('❌ Error fetching users:', error);
+        setError('Erro ao carregar usuários');
         return;
       }
       
-      console.log('📊 User profiles found:', (data || []).length);
-      
-      // Create a map of existing profiles
-      const profilesMap = new Map((data || []).map(profile => [profile.id, profile]));
-      
-      // Combine auth users with profile data
-      const completeUserList: UserProfile[] = authData.users.map(authUser => {
-        const existingProfile = profilesMap.get(authUser.id);
-        
-        if (existingProfile) {
-          // User has a profile, use it
-          return existingProfile;
-        } else {
-          // User doesn't have a profile, create a virtual one
-          console.log(`⚠️ User without profile: ${authUser.email}`);
-          return {
-            id: authUser.id,
-            email: authUser.email,
-            phone: authUser.user_metadata?.phone || authUser.phone || null,
-            full_name: authUser.user_metadata?.full_name || null,
-            leverage_multiplier: 1,
-            is_active: true,
-            contracted_plan: 'none',
-            created_at: authUser.created_at,
-            updated_at: authUser.updated_at || authUser.created_at
-          };
-        }
-      });
-      
-      console.log('📋 Complete user list:', completeUserList.length);
-      setUsers(completeUserList);
+      console.log('📊 Users found:', (data || []).length);
+      setUsers(data || []);
       
     } catch (error: any) {
       console.error('Error fetching users:', error);
@@ -194,20 +153,25 @@ const UserManagementPanel: React.FC = () => {
     try {
       setError(null);
       
-      // Primeiro criar o usuário no auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Criar usuário através do signup normal
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: newUserForm.email,
         password: 'TempPassword123!', // Senha temporária
-        email_confirm: true,
-        user_metadata: {
-          full_name: newUserForm.full_name,
-          phone: newUserForm.phone
+        options: {
+          data: {
+            full_name: newUserForm.full_name,
+            phone: newUserForm.phone
+          }
         }
       });
 
       if (authError) throw authError;
 
-      // Depois atualizar o perfil
+      // O trigger handle_new_user criará automaticamente o perfil
+      // Aguardar um pouco para o trigger executar
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Atualizar o perfil com dados adicionais se necessário
       if (authData.user) {
         const { error: profileError } = await supabase
           .from('user_profiles')
@@ -220,7 +184,132 @@ const UserManagementPanel: React.FC = () => {
           })
           .eq('id', authData.user.id);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.warn('Warning updating profile:', profileError);
+          // Don't throw error, profile might be created by trigger
+        }
+      }
+
+      setSuccess('Usuário criado com sucesso! Senha temporária: TempPassword123!');
+      setShowAddModal(false);
+      setNewUserForm({
+        email: '',
+        phone: '',
+        full_name: '',
+        leverage_multiplier: 1,
+        contracted_plan: 'none',
+        is_active: true
+      });
+      fetchUsers();
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
+  const handleSyncUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Tentar buscar usuários do auth (pode falhar se não tiver permissão)
+      try {
+        const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          throw new Error('Sem permissão para acessar lista completa de usuários');
+        }
+        
+        console.log('👥 Auth users found:', authData.users.length);
+        
+        // Buscar perfis existentes
+        const { data: profiles } = await supabase
+          .from('user_profiles')
+          .select('id, email');
+        
+        const existingProfileIds = new Set((profiles || []).map(p => p.id));
+        
+        // Encontrar usuários sem perfil
+        const usersWithoutProfile = authData.users.filter(user => !existingProfileIds.has(user.id));
+        
+        if (usersWithoutProfile.length > 0) {
+          console.log(`🔧 Creating profiles for ${usersWithoutProfile.length} users...`);
+          
+          // Criar perfis para usuários sem perfil
+          const newProfiles = usersWithoutProfile.map(user => ({
+            id: user.id,
+            email: user.email,
+            phone: user.user_metadata?.phone || user.phone || null,
+            full_name: user.user_metadata?.full_name || null,
+            leverage_multiplier: 1,
+            is_active: true,
+            contracted_plan: 'none'
+          }));
+          
+          const { error: insertError } = await supabase
+            .from('user_profiles')
+            .insert(newProfiles);
+          
+          if (insertError) {
+            console.error('Error creating profiles:', insertError);
+          } else {
+            setSuccess(`${usersWithoutProfile.length} perfis de usuário criados com sucesso!`);
+          }
+        }
+        
+      } catch (authError) {
+        console.warn('Auth API not available, using profiles only:', authError);
+        setError('Lista limitada aos usuários com perfis. Para ver todos os usuários, é necessário permissão de administrador.');
+      }
+      
+      // Recarregar lista de usuários
+      await fetchUsers();
+      
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddUserManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setError(null);
+      
+      // Criar usuário através do signup normal
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: newUserForm.email,
+        password: 'TempPassword123!',
+        options: {
+          data: {
+            full_name: newUserForm.full_name,
+            phone: newUserForm.phone
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      // O trigger handle_new_user criará automaticamente o perfil
+      // Aguardar um pouco para o trigger executar
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Atualizar o perfil com dados adicionais
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .update({
+            full_name: newUserForm.full_name,
+            phone: newUserForm.phone,
+            leverage_multiplier: newUserForm.leverage_multiplier,
+            contracted_plan: newUserForm.contracted_plan,
+            is_active: newUserForm.is_active
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.warn('Warning updating profile:', profileError);
+        }
       }
 
       setSuccess('Usuário criado com sucesso! Senha temporária: TempPassword123!');
@@ -271,13 +360,23 @@ const UserManagementPanel: React.FC = () => {
                 <p className="text-gray-600">Gerencie perfis de usuários e contratos</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Novo Usuário
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleSyncUsers}
+                disabled={loading}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <Users className="w-4 h-4" />
+                {loading ? 'Sincronizando...' : 'Sincronizar Usuários'}
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Novo Usuário
+              </button>
+            </div>
           </div>
         </div>
 
@@ -581,7 +680,7 @@ const UserManagementPanel: React.FC = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleAddUser} className="p-6 space-y-6">
+              <form onSubmit={handleAddUserManual} className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
