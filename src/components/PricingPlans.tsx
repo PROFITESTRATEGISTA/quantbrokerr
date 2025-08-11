@@ -88,7 +88,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     const offer = portfolioOffers[planId];
     return offer ? offer.is_available : planId !== 'bitcoin'; // Bitcoin padrão como indisponível
   };
-  const plans: Plan[] = [
+
   const toggleAvailability = async (planId: string, currentAvailability: boolean) => {
     try {
       setUpdating(planId);
@@ -114,6 +114,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     }
   };
 
+  const plans: Plan[] = [
     {
       id: 'bitcoin',
       name: 'Portfólio Bitcoin',
