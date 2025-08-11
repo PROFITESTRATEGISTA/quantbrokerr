@@ -121,17 +121,21 @@ const UserManagementPanel: React.FC = () => {
       console.log('💾 Saving user edit for:', userToEdit?.email);
       console.log('📝 Form data:', editForm);
       
-      // Prepare update data
-      const updateData: any = {};
+      // Prepare update data - only update changed fields
+      const updateData: any = {
+        updated_at: new Date().toISOString()
+      };
       
+      // Only include fields that are actually being edited
       if (editForm.full_name !== undefined) {
-        updateData.full_name = editForm.full_name;
+        updateData.full_name = editForm.full_name || '';
       }
       if (editForm.phone !== undefined) {
-        updateData.phone = editForm.phone;
+        updateData.phone = editForm.phone || null;
       }
       if (editForm.current_leverage !== undefined) {
-        updateData.current_leverage = Number(editForm.current_leverage);
+        updateData.current_leverage = Number(editForm.current_leverage) || 1;
+        updateData.leverage_multiplier = Number(editForm.current_leverage) || 1; // Keep both in sync
       }
       if (editForm.contracted_plan !== undefined) {
         updateData.contracted_plan = editForm.contracted_plan;
@@ -194,64 +198,6 @@ const UserManagementPanel: React.FC = () => {
       }
       
       setSuccess('Usuário excluído com sucesso!');
-      fetchUsers();
-    } catch (error: any) {
-      setError(error.message);
-    }
-  };
-
-  const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setError(null);
-      
-      // Criar usuário através do signup normal
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newUserForm.email,
-        password: 'TempPassword123!', // Senha temporária
-        options: {
-          data: {
-            full_name: newUserForm.full_name,
-            phone: newUserForm.phone
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // O trigger handle_new_user criará automaticamente o perfil
-      // Aguardar um pouco para o trigger executar
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Atualizar o perfil com dados adicionais se necessário
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .update({
-            full_name: newUserForm.full_name,
-            phone: newUserForm.phone,
-            leverage_multiplier: newUserForm.leverage_multiplier,
-            contracted_plan: newUserForm.contracted_plan,
-            is_active: newUserForm.is_active
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.warn('Warning updating profile:', profileError);
-          // Don't throw error, profile might be created by trigger
-        }
-      }
-
-      setSuccess('Usuário criado com sucesso! Senha temporária: TempPassword123!');
-      setShowAddModal(false);
-      setNewUserForm({
-        email: '',
-        phone: '',
-        full_name: '',
-        leverage_multiplier: 1,
-        contracted_plan: 'none',
-        is_active: true
-      });
       fetchUsers();
     } catch (error: any) {
       setError(error.message);
@@ -645,14 +591,6 @@ const UserManagementPanel: React.FC = () => {
                             type="number"
                             min="1"
                             value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
-                            onChange={(e) => {
-                              const newLeverage = parseInt(e.target.value) || 1;
-                              console.log('🔧 Changing current leverage to:', newLeverage);
-                              setEditForm({...editForm, current_leverage: newLeverage});
-                            }}
-                            className="w-20 text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
-                            placeholder="1"
-                          />
                         </>
                       ) : (
                         <div className="text-sm">
