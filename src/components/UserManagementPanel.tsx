@@ -432,8 +432,9 @@ const UserManagementPanel: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contato</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status do Plano</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Usuário</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Login</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado em</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -649,7 +650,34 @@ const UserManagementPanel: React.FC = () => {
                       placeholder="Nome do usuário"
                     />
                   </div>
-                  
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Alavancagem</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={newUserForm.leverage_multiplier}
+                      onChange={(e) => setNewUserForm({...newUserForm, leverage_multiplier: parseInt(e.target.value) || 1})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Plano Contratado</label>
+                    <select
+                      value={newUserForm.contracted_plan}
+                      onChange={(e) => setNewUserForm({...newUserForm, contracted_plan: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="none">Nenhum</option>
+                      <option value="bitcoin">Bitcoin</option>
+                      <option value="mini-indice">Mini Índice</option>
+                      <option value="mini-dolar">Mini Dólar</option>
+                      <option value="portfolio-completo">Portfólio Completo</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                     <select
