@@ -535,20 +535,20 @@ const UserManagementPanel: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.last_sign_in_at ? (
+                      {user.email_confirmed_at ? (
                         <div>
                           <div className="text-gray-900 font-medium">
-                            {new Date(user.last_sign_in_at).toLocaleDateString('pt-BR')}
+                            {new Date(user.email_confirmed_at).toLocaleDateString('pt-BR')}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {new Date(user.last_sign_in_at).toLocaleTimeString('pt-BR', { 
+                            {new Date(user.email_confirmed_at).toLocaleTimeString('pt-BR', { 
                               hour: '2-digit', 
                               minute: '2-digit' 
                             })}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-gray-400 italic">Nunca fez login</span>
+                        <span className="text-gray-400 italic">Email não confirmado</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
