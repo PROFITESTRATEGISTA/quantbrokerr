@@ -118,59 +118,43 @@ const UserManagementPanel: React.FC = () => {
     try {
       setError(null);
       const userToEdit = users.find(u => u.id === editingUser);
-      console.log('💾 Saving user edit:', { 
-        userId: editingUser, 
-        userEmail: userToEdit?.email,
-        editForm,
-        originalValues: {
-          plan: userToEdit?.contracted_plan,
-          leverage: userToEdit?.current_leverage || userToEdit?.leverage_multiplier,
-          active: userToEdit?.is_active
-        }
-      });
+      console.log('💾 Saving user edit for:', userToEdit?.email);
+      console.log('📝 Form data:', editForm);
       
-      // Check if user profile exists, if not create it
-      const hasProfile = userToEdit && userToEdit.has_profile !== false;
+      // Prepare update data
+      const updateData: any = {};
       
-      console.log('🔍 User profile check:', { hasProfile, userExists: !!userToEdit });
-      
-     // Prepare update data with explicit field mapping
-     const updateData = {
-       full_name: editForm.full_name,
-       phone: editForm.phone,
-       current_leverage: editForm.current_leverage || 1,
-       contracted_plan: editForm.contracted_plan,
-       plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive',
-       is_active: editForm.is_active
-     };
-     
-     console.log('📝 Update data being sent:', updateData);
-     
-      if (!hasProfile) {
-        // Create new profile
-        console.log('➕ Creating new profile for user:', userToEdit?.email);
-        const { error } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: editingUser,
-            email: userToEdit?.email || '',
-           ...updateData
-          });
-        
-        if (error) throw error;
-        console.log(`✅ Created profile for user: ${userToEdit?.email}`);
-      } else {
-        // Update existing profile
-        console.log('📝 Updating existing profile for user:', userToEdit?.email);
-        
-       const { data, error } = await supabase
-          .from('user_profiles')
-          .update(updateData)
-          .eq('id', editingUser);
-
-        if (error) throw error;
-       console.log('✅ Updated profile for user:', userToEdit?.email, 'Updated data:', data);
+      if (editForm.full_name !== undefined) {
+        updateData.full_name = editForm.full_name;
       }
+      if (editForm.phone !== undefined) {
+        updateData.phone = editForm.phone;
+      }
+      if (editForm.current_leverage !== undefined) {
+        updateData.current_leverage = Number(editForm.current_leverage);
+      }
+      if (editForm.contracted_plan !== undefined) {
+        updateData.contracted_plan = editForm.contracted_plan;
+        updateData.plan_status = editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive';
+      }
+      if (editForm.is_active !== undefined) {
+        updateData.is_active = editForm.is_active;
+      }
+      
+      console.log('📤 Sending update:', updateData);
+      
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updateData)
+        .eq('id', editingUser)
+        .select();
+
+      if (error) {
+        console.error('❌ Update error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Update successful:', data);
       
       setSuccess('Usuário atualizado com sucesso!');
       setEditingUser(null);
