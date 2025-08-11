@@ -1,8 +1,9 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Check, Star, TrendingUp, Shield, Building2 } from 'lucide-react';
+import { Check, Star, TrendingUp, Shield, Building2, Settings, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import WaitlistModal from './WaitlistModal';
+import { useAuth } from '../hooks/useAuth';
 
 interface Plan {
   id: string;
@@ -30,6 +31,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
   const [portfolioOffers, setPortfolioOffers] = useState<Record<string, any>>({});
   const [showWaitlistModal, setShowWaitlistModal] = useState(false);
   const [selectedPortfolio, setSelectedPortfolio] = useState('');
+  const [showAdminControls, setShowAdminControls] = useState(false);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     fetchPortfolioOffers();
@@ -85,6 +89,31 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     return offer ? offer.is_available : planId !== 'bitcoin'; // Bitcoin padrão como indisponível
   };
   const plans: Plan[] = [
+  const toggleAvailability = async (planId: string, currentAvailability: boolean) => {
+    try {
+      setUpdating(planId);
+      
+      const { error } = await supabase
+        .from('portfolio_offers')
+        .upsert({
+          portfolio_type: planId,
+          is_available: !currentAvailability,
+          stripe_link: portfolioOffers[planId]?.stripe_link || '',
+          button_text: !currentAvailability ? 'Contratar Agora' : 'Entrar na Fila de Espera'
+        }, {
+          onConflict: 'portfolio_type'
+        });
+
+      if (error) throw error;
+      
+      await fetchPortfolioOffers();
+    } catch (error) {
+      console.error('Error updating availability:', error);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
     {
       id: 'bitcoin',
       name: 'Portfólio Bitcoin',
@@ -173,6 +202,26 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             Planos de Portfólios de IA - Quant Broker
           </h2>
+          
+          {/* Admin Controls Toggle */}
+          {isAdmin && (
+            <div className="flex justify-center mb-6">
+              <button
+                onClick={() => setShowAdminControls(!showAdminControls)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                  showAdminControls 
+                    ? 'bg-blue-600 text-white shadow-lg' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {showAdminControls ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showAdminControls ? 'Ocultar Controles Admin' : 'Mostrar Controles Admin'}
+              </button>
+            </div>
+          )}
+          
+          <div className="flex justify-center space-x-8 mb-8">
+          </h2>
           <div className="flex justify-center space-x-8 mb-8">
             <button 
               onClick={() => onToggleBilling('monthly')}
@@ -223,6 +272,44 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   : 'border-gray-200 hover:border-blue-300'
               }`}
             >
+              {/* Admin Switch - Only visible when admin controls are shown */}
+              {isAdmin && showAdminControls && (
+                <div className="absolute -top-3 -right-3 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Settings className="h-4 w-4 text-gray-600" />
+                    <span className="text-xs font-medium text-gray-700">Admin</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">Fila</span>
+                    <button
+                      onClick={() => toggleAvailability(plan.id, isPlanAvailable(plan.id))}
+                      disabled={updating === plan.id}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        isPlanAvailable(plan.id) ? 'bg-green-600' : 'bg-gray-400'
+                      } ${updating === plan.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          isPlanAvailable(plan.id) ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <span className="text-xs text-gray-600">Venda</span>
+                  </div>
+                  
+                  <div className="text-center mt-2">
+                    <span className={`text-xs font-medium ${
+                      isPlanAvailable(plan.id) ? 'text-green-600' : 'text-orange-600'
+                    }`}>
+                      {updating === plan.id ? 'Atualizando...' : (
+                        isPlanAvailable(plan.id) ? 'Disponível' : 'Fila de Espera'
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {(plan.isRecommended || plan.id === recommendedPlan) && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
