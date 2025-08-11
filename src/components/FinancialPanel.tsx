@@ -46,9 +46,11 @@ const FinancialPanel: React.FC = () => {
     plan_type: 'mini-indice',
     billing_period: 'monthly',
     monthly_value: 0,
+    leverage_multiplier: 1,
     contract_start: '',
     contract_end: '',
-    is_active: true
+    is_active: true,
+    contract_pdf_url: ''
   });
 
   const [costForm, setCostForm] = useState({
@@ -322,9 +324,11 @@ const FinancialPanel: React.FC = () => {
       plan_type: contract.plan_type,
       billing_period: contract.billing_period,
       monthly_value: contract.monthly_value,
+      leverage_multiplier: contract.leverage_multiplier || 1,
       contract_start: contract.contract_start,
       contract_end: contract.contract_end,
-      is_active: contract.is_active
+      is_active: contract.is_active,
+      contract_pdf_url: contract.contract_pdf_url || ''
     });
     setShowContractModal(true);
   };
@@ -453,69 +457,6 @@ const FinancialPanel: React.FC = () => {
                 <p className="text-sm font-medium text-gray-600">Contratos Ativos</p>
                 <p className="text-2xl font-bold text-purple-600">{activeContracts.length}</p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Plan Distribution Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Plan Distribution */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Plano</h3>
-            <div className="space-y-4">
-              {Object.entries(planDistribution.counts || {}).map(([plan, count]) => {
-                const revenue = planDistribution.revenue?.[plan] || 0;
-                const percentage = monthlyRevenue > 0 ? (revenue / monthlyRevenue * 100) : 0;
-                
-                return (
-                  <div key={plan} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <span className="font-medium text-gray-900">
-                        {getPlanDisplayName(plan)}
-                      </span>
-                      <div className="text-sm text-gray-600">
-                        {count} contrato{count !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-green-600">
-                        R$ {revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {percentage.toFixed(1)}% da receita
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Leverage Distribution */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Alavancagem</h3>
-            <div className="space-y-4">
-              {Object.entries(leverageDistribution).map(([leverage, count]) => {
-                const percentage = activeContracts.length > 0 ? (Number(count) / activeContracts.length * 100) : 0;
-                
-                return (
-                  <div key={leverage} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <span className="font-medium text-gray-900">
-                        Alavancagem {leverage}x
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-blue-600">
-                        {count} cliente{Number(count) !== 1 ? 's' : ''}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {percentage.toFixed(1)}% dos clientes
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
@@ -807,20 +748,6 @@ const FinancialPanel: React.FC = () => {
                       <p className="text-red-600 text-sm mt-1">Data de fim deve ser posterior ao início</p>
                     )}
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">URL do Contrato PDF</label>
-                  <input
-                    type="url"
-                    value={contractForm.contract_pdf_url || ''}
-                    onChange={(e) => setContractForm({...contractForm, contract_pdf_url: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="https://exemplo.com/contrato.pdf"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Cole aqui o link do PDF do contrato assinado (Google Drive, Dropbox, etc.)
-                  </p>
                 </div>
 
                 <div className="flex items-center">
