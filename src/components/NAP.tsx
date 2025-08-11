@@ -22,7 +22,7 @@ const NAP: React.FC<NAPProps> = ({
       country: "Brasil"
     },
     phone: {
-      primary: "+55 (11) 91156-0276",
+      primary: "+55 (11) 97533-3355",
       btg: "+55 (51) 95483-3140"
     },
     email: "contato@quantbroker.com.br",

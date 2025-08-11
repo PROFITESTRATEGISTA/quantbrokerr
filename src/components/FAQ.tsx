@@ -133,13 +133,13 @@ const FAQ: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+                onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
                 className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Contato WhatsApp
               </button>
               <button
-                onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+                onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
                 className="px-6 py-3 border border-blue-300 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition-colors"
               >
                 Suporte WhatsApp

@@ -77,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
           {/* Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
             <button
-              onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+              onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
               className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
             >
               <MessageCircle className="h-4 w-4" />
@@ -143,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
               <div className="pt-4 border-t border-gray-700">
                 <button
                   onClick={() => {
-                    window.open('https://wa.me/5511911560276', '_blank');
+                    window.open('https://wa.me/5511975333355', '_blank');
                     setIsMenuOpen(false);
                   }}
                   className="block w-full text-left px-3 py-2 bg-green-600 text-white rounded-md mb-2"
