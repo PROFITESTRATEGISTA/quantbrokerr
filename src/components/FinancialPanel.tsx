@@ -723,31 +723,19 @@ const FinancialPanel: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Alavancagem *</label>
-                    <select
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      step="1"
                       value={contractForm.leverage_multiplier}
                       onChange={(e) => setContractForm({...contractForm, leverage_multiplier: parseInt(e.target.value) || 1})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="1"
                       required
-                    >
-                      <option value={1}>1x (Padrão)</option>
-                      <option value={2}>2x</option>
-                      <option value={3}>3x</option>
-                      <option value={4}>4x</option>
-                      <option value={5}>5x</option>
-                      <option value={6}>6x</option>
-                      <option value={7}>7x</option>
-                      <option value={8}>8x</option>
-                      <option value={9}>9x</option>
-                      <option value={10}>10x</option>
-                      <option value={15}>15x</option>
-                      <option value={20}>20x</option>
-                      <option value={25}>25x</option>
-                      <option value={30}>30x</option>
-                      <option value={50}>50x</option>
-                      <option value={100}>100x</option>
-                    </select>
+                    />
                     <p className="text-xs text-gray-500 mt-1">
-                      Multiplicador de alavancagem para o cliente
+                      Digite um valor de 1 a 100 (ex: 1, 2, 5, 10, 25, 50, 100)
                     </p>
                   </div>
                   <div>
