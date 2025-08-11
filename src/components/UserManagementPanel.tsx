@@ -92,12 +92,17 @@ const UserManagementPanel: React.FC = () => {
 
   const handleEditUser = (user: UserProfile) => {
     setEditingUser(user.id);
+    console.log('🔧 Editing user:', user.email, 'Current values:', {
+      plan: user.contracted_plan,
+      leverage: user.leverage_multiplier,
+      active: user.is_active
+    });
     setEditForm({
-      full_name: user.full_name,
-      phone: user.phone,
+      full_name: user.full_name || '',
+      phone: user.phone || '',
       leverage_multiplier: user.leverage_multiplier || 1,
       contracted_plan: user.contracted_plan || 'none',
-      is_active: user.is_active !== undefined ? user.is_active : true
+      is_active: user.is_active !== false // Default to true if undefined
     });
     setError(null);
     setSuccess(null);
@@ -108,37 +113,46 @@ const UserManagementPanel: React.FC = () => {
 
     try {
       setError(null);
-      console.log('💾 Saving user edit:', { editingUser, editForm });
+      const userToEdit = users.find(u => u.id === editingUser);
+      console.log('💾 Saving user edit:', { 
+        userId: editingUser, 
+        userEmail: userToEdit?.email,
+        editForm,
+        originalValues: {
+          plan: userToEdit?.contracted_plan,
+          leverage: userToEdit?.leverage_multiplier,
+          active: userToEdit?.is_active
+        }
+      });
       
       // Check if user profile exists, if not create it
-      const existingUser = users.find(u => u.id === editingUser);
-      const hasProfile = existingUser && existingUser.created_at;
+      const hasProfile = userToEdit && userToEdit.created_at;
       
-      console.log('🔍 User profile check:', { hasProfile, existingUser: !!existingUser });
+      console.log('🔍 User profile check:', { hasProfile, userExists: !!userToEdit });
       
       if (!hasProfile) {
         // Create new profile
-        console.log('➕ Creating new profile for user:', existingUser?.email);
+        console.log('➕ Creating new profile for user:', userToEdit?.email);
         const { error } = await supabase
           .from('user_profiles')
           .insert({
             id: editingUser,
-            email: existingUser?.email || '',
+            email: userToEdit?.email || '',
             ...editForm
           });
         
         if (error) throw error;
-        console.log(`✅ Created profile for user: ${existingUser?.email}`);
+        console.log(`✅ Created profile for user: ${userToEdit?.email}`);
       } else {
         // Update existing profile
-        console.log('📝 Updating existing profile for user:', existingUser?.email);
+        console.log('📝 Updating existing profile for user:', userToEdit?.email);
         const { error } = await supabase
           .from('user_profiles')
           .update(editForm)
           .eq('id', editingUser);
 
         if (error) throw error;
-        console.log('✅ Updated profile for user:', existingUser?.email);
+        console.log('✅ Updated profile for user:', userToEdit?.email);
       }
       
       setSuccess('Usuário atualizado com sucesso!');
@@ -596,9 +610,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.contracted_plan || 'none'}
+                          value={editForm.contracted_plan || user.contracted_plan || 'none'}
                           onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[140px]"
+                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                           <option value="none">Nenhum</option>
                           <option value="bitcoin">Bitcoin</option>
@@ -619,9 +633,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.leverage_multiplier || 1}
+                          value={editForm.leverage_multiplier || user.leverage_multiplier || 1}
                           onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value)})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[70px]"
+                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[80px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                           <option value={1}>1x</option>
                           <option value={2}>2x</option>
