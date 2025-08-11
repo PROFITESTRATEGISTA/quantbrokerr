@@ -8,11 +8,15 @@ interface UserProfile {
   phone: string | null;
   full_name: string | null;
   leverage_multiplier: number;
+  current_leverage?: number;
+  max_leverage?: number;
+  plan_status?: string;
   is_active: boolean;
   contracted_plan: string | null;
   created_at: string;
   updated_at: string;
   phone_confirmed_at?: string | null;
+  has_profile?: boolean;
 }
 
 const UserManagementPanel: React.FC = () => {
@@ -94,14 +98,16 @@ const UserManagementPanel: React.FC = () => {
     setEditingUser(user.id);
     console.log('🔧 Editing user:', user.email, 'Current values:', {
       plan: user.contracted_plan,
-      leverage: user.leverage_multiplier,
+      leverage: user.current_leverage || user.leverage_multiplier,
       active: user.is_active
     });
     setEditForm({
       full_name: user.full_name || '',
       phone: user.phone || '',
-      leverage_multiplier: user.leverage_multiplier || 1,
+      leverage_multiplier: user.current_leverage || user.leverage_multiplier || 1,
+      current_leverage: user.current_leverage || user.leverage_multiplier || 1,
       contracted_plan: user.contracted_plan || 'none',
+      plan_status: user.plan_status || 'inactive',
       is_active: user.is_active !== false // Default to true if undefined
     });
     setError(null);
@@ -120,13 +126,13 @@ const UserManagementPanel: React.FC = () => {
         editForm,
         originalValues: {
           plan: userToEdit?.contracted_plan,
-          leverage: userToEdit?.leverage_multiplier,
+          leverage: userToEdit?.current_leverage || userToEdit?.leverage_multiplier,
           active: userToEdit?.is_active
         }
       });
       
       // Check if user profile exists, if not create it
-      const hasProfile = userToEdit && userToEdit.created_at;
+      const hasProfile = userToEdit && userToEdit.has_profile !== false;
       
       console.log('🔍 User profile check:', { hasProfile, userExists: !!userToEdit });
       
@@ -138,6 +144,9 @@ const UserManagementPanel: React.FC = () => {
           .insert({
             id: editingUser,
             email: userToEdit?.email || '',
+            current_leverage: editForm.leverage_multiplier || 1,
+            max_leverage: 5,
+            plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive',
             ...editForm
           });
         
@@ -146,9 +155,17 @@ const UserManagementPanel: React.FC = () => {
       } else {
         // Update existing profile
         console.log('📝 Updating existing profile for user:', userToEdit?.email);
+        
+        // Prepare update data with proper field mapping
+        const updateData = {
+          ...editForm,
+          current_leverage: editForm.leverage_multiplier,
+          plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive'
+        };
+        
         const { error } = await supabase
           .from('user_profiles')
-          .update(editForm)
+          .update(updateData)
           .eq('id', editingUser);
 
         if (error) throw error;
@@ -611,7 +628,11 @@ const UserManagementPanel: React.FC = () => {
                       {editingUser === user.id ? (
                         <select
                           value={editForm.contracted_plan || user.contracted_plan || 'none'}
-                          onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
+                          onChange={(e) => {
+                            const newPlan = e.target.value;
+                            console.log('🔧 Changing plan to:', newPlan);
+                            setEditForm({...editForm, contracted_plan: newPlan});
+                          }}
                           className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[160px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                           <option value="none">Nenhum</option>
@@ -633,8 +654,12 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.leverage_multiplier || user.leverage_multiplier || 1}
-                          onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value)})}
+                          value={editForm.leverage_multiplier || user.current_leverage || user.leverage_multiplier || 1}
+                          onChange={(e) => {
+                            const newLeverage = parseInt(e.target.value);
+                            console.log('🔧 Changing leverage to:', newLeverage);
+                            setEditForm({...editForm, leverage_multiplier: newLeverage, current_leverage: newLeverage});
+                          }}
                           className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[80px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                           <option value={1}>1x</option>
@@ -645,7 +670,7 @@ const UserManagementPanel: React.FC = () => {
                         </select>
                       ) : (
                         <span className="text-sm font-medium text-gray-900">
-                          {user.leverage_multiplier}x
+                          {user.current_leverage || user.leverage_multiplier || 1}x
                         </span>
                       )}
                     </td>
