@@ -80,29 +80,55 @@ const FinancialPanel: React.FC = () => {
   const fetchContracts = async () => {
     try {
       console.log('🔍 Fetching contracts...');
-      const { data, error } = await supabase
+      
+      // First get contracts
+      const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
-        .select(`
-          *,
-          user_profiles(full_name, email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ Error fetching contracts:', error);
+      if (contractsError) {
+        console.error('❌ Error fetching contracts:', contractsError);
         setContracts([]);
         return;
       }
 
-      console.log('✅ Raw contracts data:', data);
+      console.log('✅ Raw contracts data:', contractsData);
       
-      const formattedContracts = (data || []).map(contract => ({
-        ...contract,
-        user_name: contract.user_profiles?.full_name || 'Nome não informado',
-        user_email: contract.user_profiles?.email || 'Email não informado',
-        leverage_multiplier: contract.leverage_multiplier || 1,
-        contract_pdf_url: contract.contract_pdf_url || null
-      }));
+      // Get auth users via admin function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('❌ No session found');
+        setContracts([]);
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const authUsers = result.success ? result.users : [];
+      
+      // Combine contracts with auth user data
+      const formattedContracts = (contractsData || []).map(contract => {
+        const authUser = authUsers.find((user: any) => user.id === contract.user_id);
+        return {
+          ...contract,
+          user_name: authUser?.full_name || authUser?.email || 'Nome não informado',
+          user_email: authUser?.email || 'Email não informado',
+          leverage_multiplier: contract.leverage_multiplier || 1,
+          contract_pdf_url: contract.contract_pdf_url || null
+        };
+      });
 
       console.log('✅ Formatted contracts:', formattedContracts);
       setContracts(formattedContracts);
@@ -133,18 +159,44 @@ const FinancialPanel: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, full_name, email')
-        .eq('is_active', true)
-        .order('full_name');
-
-      if (error) {
-        console.error('Error fetching users:', error);
+      // Get auth users via admin function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error('❌ No session found');
         setUsers([]);
         return;
       }
-      setUsers(data || []);
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('Error fetching users:', result.error);
+        setUsers([]);
+        return;
+      }
+      
+      // Filter only active users and format for dropdown
+      const activeUsers = (result.users || [])
+        .filter((user: any) => user.is_active !== false)
+        .map((user: any) => ({
+          id: user.id,
+          full_name: user.full_name,
+          email: user.email
+        }));
+      
+      setUsers(activeUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
       setUsers([]);
