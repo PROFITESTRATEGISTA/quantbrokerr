@@ -32,7 +32,6 @@ const UserManagementPanel: React.FC = () => {
     phone: '',
     full_name: '',
     leverage_multiplier: 1,
-    current_leverage: 1,
     contracted_plan: 'none',
     is_active: true
   });
@@ -160,7 +159,7 @@ const UserManagementPanel: React.FC = () => {
         // Prepare update data with proper field mapping
         const updateData = {
           ...editForm,
-          current_leverage: editForm.leverage_multiplier,
+          current_leverage: editForm.current_leverage,
           plan_status: editForm.contracted_plan && editForm.contracted_plan !== 'none' ? 'active' : 'inactive'
         };
         
@@ -600,6 +599,14 @@ const UserManagementPanel: React.FC = () => {
                                   <MessageCircle className="h-3 w-3" />
                                   WhatsApp
                                 </button>
+                                <button
+                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá! Entrando em contato sobre o usuário: ${user.full_name || user.email} (${user.phone})`, '_blank')}
+                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                  title="WhatsApp Suporte Quant Broker"
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                  Suporte
+                                </button>
                               </div>
                             </>
                           ) : (
@@ -607,11 +614,10 @@ const UserManagementPanel: React.FC = () => {
                               <span className="text-sm text-gray-400">Não informado</span>
                               {isAdmin && (
                                 <button
-                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
-                                  className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
+                                  onClick={() => handleEditUser(user)}
+                                  className="block text-xs text-blue-600 hover:text-blue-800"
                                 >
-                                  <MessageCircle className="h-3 w-3" />
-                                  WhatsApp
+                                  + Adicionar telefone
                                 </button>
                               )}
                             </div>
@@ -658,28 +664,24 @@ const UserManagementPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
-                        <div className="space-y-2">
-                          <div>
-                            <label className="block text-xs text-gray-600 mb-1">Alavancagem Atual</label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
-                              onChange={(e) => {
-                                const newLeverage = parseInt(e.target.value) || 1;
-                                console.log('🔧 Changing current leverage to:', newLeverage);
-                                setEditForm({...editForm, current_leverage: newLeverage});
-                              }}
-                              className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="1"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Sem limite máximo</p>
-                          </div>
-                        </div>
-                      ) : (
+                        <input
+                          type="number"
+                          min="1"
+                          value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
+                          onChange={(e) => {
+                            const newLeverage = parseInt(e.target.value) || 1;
+                            console.log('🔧 Changing current leverage to:', newLeverage);
+                            setEditForm({...editForm, current_leverage: newLeverage});
+                          }}
+                          className="w-20 text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          placeholder="1"
+                        />
                         <div className="text-sm">
                           <div className="font-medium text-gray-900">
                             {user.current_leverage || user.leverage_multiplier || 1}x
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Sem limite
                           </div>
                         </div>
                       )}
@@ -780,16 +782,15 @@ const UserManagementPanel: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Alavancagem</label>
-                    <select
+                    <input
+                      type="number"
+                      min="1"
                       value={newUserForm.leverage_multiplier}
-                      onChange={(e) => setNewUserForm({...newUserForm, leverage_multiplier: parseInt(e.target.value)})}
+                      onChange={(e) => setNewUserForm({...newUserForm, leverage_multiplier: parseInt(e.target.value) || 1})}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                     {Array.from({length: 50}, (_, i) => i + 1).map(value => (
-                       <option key={value} value={value}>{value}x</option>
-                     ))}
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">Escolha de 1x até 50x (sem limite máximo)</p>
+                      placeholder="1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Digite qualquer valor (sem limite máximo)</p>
                   </div>
 
                   <div>
@@ -823,8 +824,8 @@ const UserManagementPanel: React.FC = () => {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="font-semibold text-blue-900 mb-2">Controle de Alavancagem</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Alavancagem pode ser definida livremente (sem limite máximo)</li>
-                    <li>• Apenas a alavancagem atual é controlada</li>
+                    <li>• Alavancagem pode ser definida livremente (sem limite)</li>
+                    <li>• Digite qualquer valor numérico desejado</li>
                     <li>• Mudanças são registradas no histórico</li>
                   </ul>
                 </div>
