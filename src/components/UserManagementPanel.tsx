@@ -592,13 +592,23 @@ const UserManagementPanel: React.FC = () => {
                               <div className="text-sm text-gray-900 font-medium">
                                 {user.phone}
                               </div>
-                              <button
-                                onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}`, '_blank')}
-                                className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
-                              >
-                                <MessageCircle className="h-3 w-3" />
-                                WhatsApp
-                              </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => window.open(`https://wa.me/55${user.phone.replace(/\D/g, '')}`, '_blank')}
+                                  className="inline-flex items-center gap-1 text-xs text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 px-2 py-1 rounded transition-colors"
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                  WhatsApp
+                                </button>
+                                <button
+                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá! Entrando em contato sobre o usuário: ${user.full_name || user.email} (${user.phone})`, '_blank')}
+                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                  title="WhatsApp Suporte Quant Broker"
+                                >
+                                  <MessageCircle className="h-3 w-3" />
+                                  Suporte
+                                </button>
+                              </div>
                             </>
                           ) : (
                             <div className="space-y-1">
