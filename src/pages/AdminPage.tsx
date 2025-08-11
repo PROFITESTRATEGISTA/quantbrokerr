@@ -1,10 +1,41 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import ResultsCalendar from '../components/ResultsCalendar';
+import FinancialPanel from '../components/FinancialPanel';
 import WaitlistPanel from '../components/WaitlistPanel';
 import { BarChart3, DollarSign, Settings, TrendingUp, Clock } from 'lucide-react';
 
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'results' | 'financial' | 'statistics' | 'waitlist'>('results');
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'results':
+        return <ResultsCalendar />;
+      case 'financial':
+        return <FinancialPanel />;
+      case 'statistics':
+        return (
+          <div className="min-h-screen bg-gray-50 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center py-12">
+                <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Estatísticas de Trading
+                </h3>
+                <p className="text-gray-600">
+                  Painel de estatísticas avançadas em desenvolvimento
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      case 'waitlist':
+        return <WaitlistPanel />;
+      default:
+        return <ResultsCalendar />;
+    }
+  };
 
   return (
     <Layout>
@@ -22,8 +53,8 @@ const AdminPage: React.FC = () => {
                 onClick={() => setActiveTab('results')}
                 className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === 'results'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <TrendingUp className="h-4 w-4 mr-2" />
@@ -33,8 +64,8 @@ const AdminPage: React.FC = () => {
                 onClick={() => setActiveTab('financial')}
                 className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === 'financial'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <DollarSign className="h-4 w-4 mr-2" />
@@ -44,8 +75,8 @@ const AdminPage: React.FC = () => {
                 onClick={() => setActiveTab('statistics')}
                 className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === 'statistics'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -55,8 +86,8 @@ const AdminPage: React.FC = () => {
                 onClick={() => setActiveTab('waitlist')}
                 className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === 'waitlist'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <Clock className="h-4 w-4 mr-2" />
@@ -66,27 +97,7 @@ const AdminPage: React.FC = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            {activeTab === 'results' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Gerenciar Resultados</h2>
-                <p className="text-gray-600">Painel de resultados em desenvolvimento...</p>
-              </div>
-            )}
-            {activeTab === 'financial' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Gerenciar Finanças</h2>
-                <p className="text-gray-600">Painel financeiro em desenvolvimento...</p>
-              </div>
-            )}
-            {activeTab === 'statistics' && (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Estatísticas de Trading</h2>
-                <p className="text-gray-600">Painel de estatísticas em desenvolvimento...</p>
-              </div>
-            )}
-            {activeTab === 'waitlist' && <WaitlistPanel />}
-          </div>
+          {renderTabContent()}
         </div>
       </div>
     </Layout>
