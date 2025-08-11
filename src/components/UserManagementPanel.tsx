@@ -32,6 +32,8 @@ const UserManagementPanel: React.FC = () => {
     phone: '',
     full_name: '',
     leverage_multiplier: 1,
+    current_leverage: 1,
+    max_leverage: 100,
     contracted_plan: 'none',
     is_active: true
   });
@@ -104,8 +106,8 @@ const UserManagementPanel: React.FC = () => {
     setEditForm({
       full_name: user.full_name || '',
       phone: user.phone || '',
-      leverage_multiplier: Number(user.current_leverage || user.leverage_multiplier || 1),
       current_leverage: Number(user.current_leverage || user.leverage_multiplier || 1),
+      max_leverage: Number(user.max_leverage || 100),
       contracted_plan: user.contracted_plan || 'none',
       plan_status: user.plan_status || 'inactive',
       is_active: user.is_active !== false // Default to true if undefined
@@ -654,26 +656,49 @@ const UserManagementPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
-                        <select
-                          value={editForm.leverage_multiplier || user.current_leverage || user.leverage_multiplier || 1}
-                          onChange={(e) => {
-                            const newLeverage = parseInt(e.target.value);
-                            console.log('🔧 Changing leverage to:', newLeverage);
-                            setEditForm({...editForm, leverage_multiplier: newLeverage, current_leverage: newLeverage});
-                          }}
-                          className="text-sm border border-gray-300 rounded px-3 py-2 w-full min-w-[80px] bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                          disabled={false}
-                        >
-                          <option value={1}>1x</option>
-                          <option value={2}>2x</option>
-                          <option value={3}>3x</option>
-                          <option value={4}>4x</option>
-                          <option value={5}>5x</option>
-                        </select>
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Alavancagem Atual</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={editForm.current_leverage || user.current_leverage || user.leverage_multiplier || 1}
+                              onChange={(e) => {
+                                const newLeverage = parseInt(e.target.value) || 1;
+                                console.log('🔧 Changing current leverage to:', newLeverage);
+                                setEditForm({...editForm, current_leverage: newLeverage});
+                              }}
+                              className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="1"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Alavancagem Máxima</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={editForm.max_leverage || user.max_leverage || 100}
+                              onChange={(e) => {
+                                const newMaxLeverage = parseInt(e.target.value) || 100;
+                                console.log('🔧 Changing max leverage to:', newMaxLeverage);
+                                setEditForm({...editForm, max_leverage: newMaxLeverage});
+                              }}
+                              className="w-full text-sm border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="100"
+                            />
+                          </div>
+                        </div>
                       ) : (
-                        <span className="text-sm font-medium text-gray-900">
-                          {user.current_leverage || user.leverage_multiplier || 1}x
-                        </span>
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">
+                            {user.current_leverage || user.leverage_multiplier || 1}x
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Máx: {user.max_leverage || 100}x
+                          </div>
+                        </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
