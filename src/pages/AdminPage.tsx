@@ -22,5 +22,6 @@ const AdminPage: React.FC = () => {
     </Layout>
   );
   const [activeTab, setActiveTab] = useState<'results' | 'financial' | 'statistics' | 'waitlist'>('results');
+}
 
 export default AdminPage;
