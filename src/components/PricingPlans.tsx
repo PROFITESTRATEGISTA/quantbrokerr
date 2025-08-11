@@ -88,7 +88,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     {
       id: 'bitcoin',
       name: 'Portfólio Bitcoin',
-      description: 'Operações com Bitcoin Futuro na B3 via BTG Pactual — vagas limitadas',
       description: 'Operações com Bitcoin Futuro na B3 via Mosaico BTG — vagas limitadas',
       price: billingPeriod === 'annual' ? 'R$ 2.160,00' : billingPeriod === 'semiannual' ? 'R$ 1.440,00' : 'R$ 300,00',
       originalPrice: billingPeriod === 'annual' ? 'R$ 3.600,00' : billingPeriod === 'semiannual' ? 'R$ 1.800,00' : undefined,
@@ -216,7 +215,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {plans.map((plan) => (
-              onClick={() => handlePlanSelection(plan.id)}
+            <div
               key={plan.id}
               className={`relative bg-white rounded-2xl shadow-lg p-8 border-2 transition-all hover:shadow-xl ${
                 plan.isRecommended || plan.id === recommendedPlan
@@ -224,7 +223,8 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   : 'border-gray-200 hover:border-blue-300'
               }`}
             >
-              {getButtonText(plan.id)}
+              {(plan.isRecommended || plan.id === recommendedPlan) && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
                     <Star className="h-4 w-4 mr-1" />
                     {plan.id === recommendedPlan ? 'RECOMENDADO PARA VOCÊ' : 'RECOMENDADO'}
@@ -266,7 +266,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </ul>
 
               <button
-                onClick={() => onSelectPlan(plan.id)}
+                onClick={() => handlePlanSelection(plan.id)}
                 disabled={!plan.isAvailable}
                 className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
                   plan.isRecommended || plan.id === recommendedPlan
@@ -274,8 +274,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                     : 'bg-gray-900 text-white hover:bg-gray-800'
                 } ${!plan.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {plan.id === 'bitcoin' ? 'Entrar na Fila de Espera' : 
-                 billingPeriod === 'monthly' ? 'Contratar Agora' : 'Falar com Suporte'}
+                {getButtonText(plan.id)}
               </button>
             </div>
           ))}
