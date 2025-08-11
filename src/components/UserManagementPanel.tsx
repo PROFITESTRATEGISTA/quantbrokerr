@@ -95,9 +95,9 @@ const UserManagementPanel: React.FC = () => {
     setEditForm({
       full_name: user.full_name,
       phone: user.phone,
-      leverage_multiplier: user.leverage_multiplier,
-      contracted_plan: user.contracted_plan,
-      is_active: user.is_active
+      leverage_multiplier: user.leverage_multiplier || 1,
+      contracted_plan: user.contracted_plan || 'none',
+      is_active: user.is_active !== undefined ? user.is_active : true
     });
     setError(null);
     setSuccess(null);
@@ -596,9 +596,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.contracted_plan || user.contracted_plan || 'none'}
+                          value={editForm.contracted_plan || 'none'}
                           onChange={(e) => setEditForm({...editForm, contracted_plan: e.target.value})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[140px]"
                         >
                           <option value="none">Nenhum</option>
                           <option value="bitcoin">Bitcoin</option>
@@ -619,9 +619,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.leverage_multiplier || user.leverage_multiplier || 1}
+                          value={editForm.leverage_multiplier || 1}
                           onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value)})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[70px]"
                         >
                           <option value={1}>1x</option>
                           <option value={2}>2x</option>
@@ -638,9 +638,9 @@ const UserManagementPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
                         <select
-                          value={editForm.is_active !== undefined ? (editForm.is_active ? 'active' : 'inactive') : (user.is_active ? 'active' : 'inactive')}
+                          value={editForm.is_active ? 'active' : 'inactive'}
                           onChange={(e) => setEditForm({...editForm, is_active: e.target.value === 'active'})}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 w-full min-w-[80px]"
                         >
                           <option value="active">Ativo</option>
                           <option value="inactive">Inativo</option>
