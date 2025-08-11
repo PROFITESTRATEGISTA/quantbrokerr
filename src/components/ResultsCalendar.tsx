@@ -358,9 +358,9 @@ const ResultsCalendar: React.FC = () => {
       
       // Set initial years to most recent available year
       const mostRecentYear = years[0];
-      const saved = localStorage.getItem(`risk_settings_${chartAsset}`);
       setChartYear(mostRecentYear);
       setCalendarYear(mostRecentYear);
+    }
   }, [monthlyData]);
 
   return (
