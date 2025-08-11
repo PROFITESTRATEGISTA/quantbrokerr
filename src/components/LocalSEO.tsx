@@ -13,7 +13,7 @@ const LocalSEO: React.FC = () => {
             "name": "Quant Broker - Portfólios de IA",
             "description": "Portfólios de IA Quant Broker com Copy Trading automatizado via Mosaico BTG. Robôs inteligentes operando Bitcoin, Mini Índice e Mini Dólar 24/7.",
             "url": "https://quantbroker.com.br",
-            "telephone": "+55-11-91156-0276",
+            "telephone": "+55-11-97533-3355",
             "email": "contato@quantbroker.com.br",
             "address": {
               "@type": "PostalAddress",
@@ -57,7 +57,7 @@ const LocalSEO: React.FC = () => {
             ],
             "openingHours": "Mo-Fr 09:00-18:00",
             "sameAs": [
-              "https://wa.me/5511911560276",
+              "https://wa.me/5511975333355",
               "https://instagram.com/quantbroker",
               "https://linkedin.com/company/quantbroker"
             ],
@@ -136,7 +136,7 @@ const LocalSEO: React.FC = () => {
             "contactPoint": [
               {
                 "@type": "ContactPoint",
-                "telephone": "+55-11-91156-0276",
+                "telephone": "+55-11-97533-3355",
                 "contactType": "customer service",
                 "areaServed": "BR",
                 "availableLanguage": "Portuguese"
@@ -158,7 +158,7 @@ const LocalSEO: React.FC = () => {
               "addressCountry": "BR"
             },
             "sameAs": [
-              "https://wa.me/5511911560276"
+              "https://wa.me/5511975333355"
             ]
           })
         }}

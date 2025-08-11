@@ -646,7 +646,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                   </label>
                   <button 
                     type="button"
-                    onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+                    onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
                     className="text-sm text-blue-600 hover:text-blue-800"
                   >
                     Esqueceu a senha?

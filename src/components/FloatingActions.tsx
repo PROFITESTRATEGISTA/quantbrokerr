@@ -84,7 +84,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
           <button
             onClick={() => {
               console.log('📱 Botão WhatsApp clicado!');
-              window.open('https://wa.me/555195483140?text=Olá%20William%2C%20quero%20abrir%20minha%20conta%20para%20operar%20Copy%20Trade%20com%20BTG%20via%20Profit%20Estrategista.%20Pode%20me%20orientar%20no%20processo%3F', '_blank');
+              window.open('https://wa.me/5511975333355?text=Olá%20William%2C%20quero%20abrir%20minha%20conta%20para%20operar%20Copy%20Trade%20com%20BTG%20via%20Profit%20Estrategista.%20Pode%20me%20orientar%20no%20processo%3F', '_blank');
             }}
             className="flex items-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
           >

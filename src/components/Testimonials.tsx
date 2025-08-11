@@ -178,7 +178,7 @@ const Testimonials: React.FC = () => {
             Resultados passados não garantem resultados futuros. Copy trade envolve riscos.
           </p>
           <button 
-            onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+            onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
           >
             Começar Copy Trade

@@ -186,7 +186,7 @@ const Tutorial: React.FC<TutorialProps> = () => {
             <h4 className="font-semibold text-gray-900">Como enviar os dados:</h4>
             <div className="grid grid-cols-1 gap-4">
               <button 
-                onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+                onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
                 className="flex items-center justify-center p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 <MessageCircle className="h-5 w-5 mr-2" />
@@ -329,14 +329,14 @@ const Tutorial: React.FC<TutorialProps> = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <button 
-              onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+              onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
               className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Contato WhatsApp
             </button>
             <button 
-              onClick={() => window.open('https://wa.me/5511911560276', '_blank')}
+              onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
               className="flex items-center justify-center px-4 py-2 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
