@@ -706,7 +706,14 @@ const UserManagementPanel: React.FC = () => {
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum usuário encontrado</h3>
-              <p className="text-gray-600">Os usuários cadastrados aparecerão aqui</p>
+              <p className="text-gray-600 mb-4">Os usuários cadastrados aparecerão aqui</p>
+              <button
+                onClick={handleSyncUsers}
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                <Users className="w-4 h-4" />
+                Sincronizar Usuários do Auth
+              </button>
             </div>
           )}
         </div>
