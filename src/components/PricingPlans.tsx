@@ -1,5 +1,8 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { Check, Star, TrendingUp, Shield, Building2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import WaitlistModal from './WaitlistModal';
 
 interface Plan {
   id: string;
@@ -24,6 +27,63 @@ interface PricingPlansProps {
 }
 
 const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod, onToggleBilling, recommendedPlan }) => {
+  const [portfolioOffers, setPortfolioOffers] = useState<Record<string, any>>({});
+  const [showWaitlistModal, setShowWaitlistModal] = useState(false);
+  const [selectedPortfolio, setSelectedPortfolio] = useState('');
+
+  useEffect(() => {
+    fetchPortfolioOffers();
+  }, []);
+
+  const fetchPortfolioOffers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_offers')
+        .select('*');
+
+      if (error) throw error;
+
+      const offersMap = (data || []).reduce((acc, offer) => {
+        acc[offer.portfolio_type] = offer;
+        return acc;
+      }, {});
+
+      setPortfolioOffers(offersMap);
+    } catch (error) {
+      console.error('Error fetching portfolio offers:', error);
+    }
+  };
+
+  const handlePlanSelection = (planId: string) => {
+    const offer = portfolioOffers[planId];
+    
+    if (offer && !offer.is_available) {
+      // Abrir modal de fila de espera
+      setSelectedPortfolio(planId);
+      setShowWaitlistModal(true);
+    } else {
+      // Usar função original
+      onSelectPlan(planId);
+    }
+  };
+
+  const getButtonText = (planId: string) => {
+    const offer = portfolioOffers[planId];
+    if (offer) {
+      return offer.button_text;
+    }
+    
+    // Fallback para valores padrão
+    if (planId === 'bitcoin') {
+      return 'Entrar na Fila de Espera';
+    }
+    return billingPeriod === 'monthly' ? 'Contratar Agora' : 'Falar com Suporte';
+  };
+
+  const isPlanAvailable = (planId: string) => {
+    const offer = portfolioOffers[planId];
+    return offer ? offer.is_available : planId !== 'bitcoin'; // Bitcoin padrão como indisponível
+  };
   const plans: Plan[] = [
     {
       id: 'bitcoin',
@@ -43,7 +103,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Compatível com contas Mosaico BTG',
         'Sem necessidade de configurar parâmetros'
       ],
-      isAvailable: true
+      isAvailable: isPlanAvailable('bitcoin')
     },
     {
       id: 'mini-indice',
@@ -63,7 +123,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Plano semestral no Pix ou em até 12x'
       ],
       isRecommended: true,
-      isAvailable: true
+      isAvailable: isPlanAvailable('mini-indice')
     },
     {
       id: 'mini-dolar',
@@ -82,7 +142,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Copy Mini Dólar',
         'Plano semestral no Pix ou em até 12x'
       ],
-      isAvailable: true
+      isAvailable: isPlanAvailable('mini-dolar')
     },
     {
       id: 'portfolio-completo',
@@ -102,12 +162,13 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Plano semestral no Pix ou em até 12x'
       ],
       isRecommended: true,
-      isAvailable: true
+      isAvailable: isPlanAvailable('portfolio-completo')
     }
   ];
 
   return (
-    <div className="bg-gray-50 py-16">
+    <>
+      <div className="bg-gray-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -155,7 +216,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {plans.map((plan) => (
-            <div
+              onClick={() => handlePlanSelection(plan.id)}
               key={plan.id}
               className={`relative bg-white rounded-2xl shadow-lg p-8 border-2 transition-all hover:shadow-xl ${
                 plan.isRecommended || plan.id === recommendedPlan
@@ -163,8 +224,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   : 'border-gray-200 hover:border-blue-300'
               }`}
             >
-              {(plan.isRecommended || plan.id === recommendedPlan) && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              {getButtonText(plan.id)}
                   <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
                     <Star className="h-4 w-4 mr-1" />
                     {plan.id === recommendedPlan ? 'RECOMENDADO PARA VOCÊ' : 'RECOMENDADO'}
@@ -227,7 +287,14 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           </p>
         </div>
       </div>
-    </div>
+      </div>
+
+      <WaitlistModal
+        isOpen={showWaitlistModal}
+        onClose={() => setShowWaitlistModal(false)}
+        portfolioType={selectedPortfolio}
+      />
+    </>
   );
 };
 
