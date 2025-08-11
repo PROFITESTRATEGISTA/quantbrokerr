@@ -602,8 +602,8 @@ const UserManagementPanel: React.FC = () => {
                             <div className="space-y-1">
                               <span className="text-sm text-gray-400">Não informado</span>
                               {isAdmin && (
-                                onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
-                                  onClick={() => handleEditUser(user)}
+                                <button
+                                  onClick={() => window.open(`https://wa.me/5511975333355?text=Olá, sou do Quant Broker e estou aqui para te ajudar a escolher o portfólio de IA preferido. Como posso ajudar?`, '_blank')}
                                   className="block text-xs text-blue-600 hover:text-blue-800"
                                 >
                                   + Adicionar telefone
