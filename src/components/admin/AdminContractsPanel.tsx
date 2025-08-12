@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FileText, Plus, Edit3, Save, X, Trash2, Calendar, DollarSign, User, CheckCircle, AlertCircle, Building2, TrendingUp, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -418,6 +419,7 @@ const AdminContractsPanel: React.FC = () => {
       setError(error.message || 'Erro ao excluir arquivo do contrato');
     }
   };
+
   const getPlanDisplayName = (plan: string) => {
     const plans = {
       'bitcoin': 'Bitcoin',
@@ -455,9 +457,10 @@ const AdminContractsPanel: React.FC = () => {
     acc[contract.plan_type] = (acc[contract.plan_type] || 0) + contract.monthly_value;
     return acc;
   }, {} as Record<string, number>);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -465,24 +468,6 @@ const AdminContractsPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <FileText className="h-8 w-8 text-blue-600 mr-3" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Contratos de Clientes</h2>
-            <p className="text-gray-600">Gestão de contratos e receitas dos clientes</p>
-          </div>
-        </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Novo Contrato
-        </button>
-      </div>
-
       {/* Alerts */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
@@ -621,11 +606,21 @@ const AdminContractsPanel: React.FC = () => {
           </div>
         ))}
       </div>
+
       {/* Contracts Table */}
       <div className="bg-white rounded-lg shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Lista de Contratos</h3>
-          <p className="text-sm text-gray-600">Gerencie todos os contratos de clientes</p>
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Lista de Contratos</h3>
+            <p className="text-sm text-gray-600">Gerencie todos os contratos de clientes</p>
+          </div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Novo Contrato
+          </button>
         </div>
 
         <div className="overflow-x-auto">
