@@ -34,9 +34,10 @@ const AdminLeadsPanel: React.FC = () => {
       setLoading(true);
       
       // Buscar dados de todas as fontes
-      const [usersResult, waitlistResult] = await Promise.all([
+      const [usersResult, waitlistResult, consultationResult] = await Promise.all([
         supabase.from('user_profiles').select('id, email, full_name, phone, created_at'),
-        supabase.from('waitlist_entries').select('id, email, full_name, phone, portfolio_type, status, created_at')
+        supabase.from('waitlist_entries').select('id, email, full_name, phone, portfolio_type, status, created_at'),
+        supabase.from('consultation_forms').select('id, email, full_name, phone, consultation_type, status, created_at')
       ]);
 
       const allLeads: LeadSource[] = [];
@@ -69,6 +70,20 @@ const AdminLeadsPanel: React.FC = () => {
         });
       }
 
+      // Adicionar formulários de consultoria
+      if (consultationResult.data) {
+        consultationResult.data.forEach(form => {
+          allLeads.push({
+            email: form.email.toLowerCase(),
+            full_name: form.full_name,
+            phone: form.phone,
+            source: 'consultation',
+            created_at: form.created_at,
+            status: form.status,
+            consultation_type: form.consultation_type
+          });
+        });
+      }
       setLeads(allLeads);
 
       // Criar lista de leads únicos (sem duplicação por email)
@@ -147,6 +162,7 @@ const AdminLeadsPanel: React.FC = () => {
   const totalUniqueLeads = uniqueLeads.length;
   const userLeads = uniqueLeads.filter(l => l.source === 'user').length;
   const waitlistLeads = uniqueLeads.filter(l => l.source === 'waitlist').length;
+  const consultationLeads = uniqueLeads.filter(l => l.source === 'consultation').length;
 
   // Calculate leads this month
   const currentMonth = new Date().getMonth();
@@ -381,6 +397,7 @@ const AdminLeadsPanel: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Fonte</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <Users className="h-8 w-8 text-blue-600" />
@@ -400,6 +417,17 @@ const AdminLeadsPanel: React.FC = () => {
             <div className="text-sm text-gray-600">Fila de Espera</div>
             <div className="text-xs text-gray-500 mt-1">
               {totalUniqueLeads > 0 ? ((waitlistLeads / totalUniqueLeads) * 100).toFixed(1) : 0}% do total
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Calendar className="h-8 w-8 text-purple-600" />
+            </div>
+            <div className="text-2xl font-bold text-purple-600">{consultationLeads}</div>
+            <div className="text-sm text-gray-600">Formulários Consultoria</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {totalUniqueLeads > 0 ? ((consultationLeads / totalUniqueLeads) * 100).toFixed(1) : 0}% do total
             </div>
           </div>
         </div>
