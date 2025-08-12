@@ -191,18 +191,38 @@ const AdminContractsPanel: React.FC = () => {
   const fetchContracts = async () => {
     try {
       setLoading(true);
-      setError(null);
+      const { data: contractsData, error } = await supabase
       
       console.log('🔍 Buscando contratos...');
       
       // First get contracts
       const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
-        .select('*')
+        .select(`
+          *,
+          user_profiles!inner(
+            id,
+            email,
+            full_name,
+            phone
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (contractsError) {
-        console.error('Error fetching contracts:', contractsError);
+      if (error) {
+        console.error('Error fetching contracts:', error);
+        throw error;
+      }
+
+      // Transform data to include user information
+      const contractsWithUsers = (contractsData || []).map(contract => ({
+        ...contract,
+        user_name: contract.user_profiles?.full_name || 'Nome não cadastrado',
+        user_email: contract.user_profiles?.email || 'Email não encontrado',
+        user_phone: contract.user_profiles?.phone || null
+      }));
+
+      setContracts(contractsWithUsers);
         throw contractsError;
       }
       
