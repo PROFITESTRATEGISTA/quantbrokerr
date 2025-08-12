@@ -660,6 +660,7 @@ const AdminContractsPanel: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Usuário</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alavancagem</th>
@@ -679,6 +680,14 @@ const AdminContractsPanel: React.FC = () => {
                       </div>
                       <div className="text-sm text-gray-500">{contract.user_profiles?.email}</div>
                       <div className="text-sm text-gray-500">{contract.user_profiles?.phone}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {contract.user_profiles?.full_name || 'Nome não informado'}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      ID: {contract.user_id.substring(0, 8)}...
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
