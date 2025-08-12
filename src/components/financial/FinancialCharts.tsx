@@ -158,77 +158,110 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           {activeChart === 'category' && (
-            <PieChart>
-              <Pie
-                data={categoryChartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent, value }) => {
-                  if (!value || value === 0 || !percent || isNaN(percent)) {
-                    return null;
-                  }
-                  return `${name} ${(percent * 100).toFixed(1)}%`;
-                }}
-              >
-                {categoryChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
+            <>
+              {categoryChartData.length > 0 ? (
+                <PieChart>
+                  <Pie
+                    data={categoryChartData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent, value }) => {
+                      if (!value || value === 0 || !percent || isNaN(percent)) {
+                        return null;
+                      }
+                      return `${name} ${(percent * 100).toFixed(1)}%`;
+                    }}
+                  >
+                    {categoryChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <PieChartIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Nenhum dado por categoria</p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {activeChart === 'monthly' && (
-            <LineChart data={monthlyChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="month" 
-                stroke="#64748b"
-                fontSize={12}
-              />
-              <YAxis 
-                stroke="#64748b"
-                fontSize={12}
-                tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                type="monotone" 
-                dataKey="amount" 
-                stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
-              />
-            </LineChart>
+            <>
+              {monthlyChartData.length > 0 ? (
+                <LineChart data={monthlyChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#64748b"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#64748b"
+                    fontSize={12}
+                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="amount" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Nenhum dado mensal</p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {activeChart === 'type' && (
-            <BarChart data={typeChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="name" 
-                stroke="#64748b"
-                fontSize={12}
-              />
-              <YAxis 
-                stroke="#64748b"
-                fontSize={12}
-                tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar 
-                dataKey="value" 
-                radius={[4, 4, 0, 0]}
-              >
-                {typeChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
+            <>
+              {typeChartData.length > 0 && typeChartData.some(item => item.value > 0) ? (
+                <BarChart data={typeChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#64748b"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#64748b"
+                    fontSize={12}
+                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar 
+                    dataKey="value" 
+                    radius={[4, 4, 0, 0]}
+                  >
+                    {typeChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Nenhum dado por tipo</p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </ResponsiveContainer>
       </div>
