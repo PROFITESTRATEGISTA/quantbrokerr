@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle } from 'lucide-react';
+import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface LeadSource {
