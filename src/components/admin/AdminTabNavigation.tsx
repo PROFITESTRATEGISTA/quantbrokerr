@@ -2,18 +2,12 @@ import React from 'react';
 import { TrendingUp, DollarSign, Users, Clock, Building } from 'lucide-react';
 
 interface AdminTabNavigationProps {
-  activeTab: 'results' | 'financial' | 'users' | 'waitlist' | 'suppliers';
-  onTabChange: (tab: 'results' | 'financial' | 'users' | 'waitlist' | 'suppliers') => void;
+  activeTab: 'financial' | 'users' | 'waitlist' | 'suppliers';
+  onTabChange: (tab: 'financial' | 'users' | 'waitlist' | 'suppliers') => void;
 }
 
 const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
-    {
-      id: 'results' as const,
-      label: 'Resultados',
-      icon: TrendingUp,
-      description: 'Calendário de resultados mensais'
-    },
     {
       id: 'financial' as const,
       label: 'Financeiro',
