@@ -64,7 +64,7 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   const netProfit = totalMonthlyRevenue - totalGeneral - totalSupplierCosts;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {/* Revenue Card */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center">
