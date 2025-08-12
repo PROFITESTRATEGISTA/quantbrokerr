@@ -189,6 +189,8 @@ const AdminContractsPanel: React.FC = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🔍 Buscando contratos...');
+      
       // First, get contracts
       const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
@@ -200,13 +202,15 @@ const AdminContractsPanel: React.FC = () => {
         throw contractsError;
       }
       
-      console.log('Raw contracts data:', contractsData);
+      console.log('✅ Contratos encontrados:', contractsData?.length || 0);
       
       // Then get user profiles separately
       const userIds = contractsData?.map(c => c.user_id) || [];
       let userProfiles: any[] = [];
       
       if (userIds.length > 0) {
+        console.log('🔍 Buscando perfis para usuários:', userIds);
+        
         const { data: profilesData, error: profilesError } = await supabase
           .from('user_profiles')
           .select('id, full_name, email, phone')
@@ -216,24 +220,25 @@ const AdminContractsPanel: React.FC = () => {
           console.warn('Warning fetching user profiles:', profilesError);
         } else {
           userProfiles = profilesData || [];
+          console.log('✅ Perfis encontrados:', userProfiles.length);
         }
       }
       
       // Combine contracts with user profiles
       const contractsWithProfiles = contractsData?.map(contract => {
         const userProfile = userProfiles.find(p => p.id === contract.user_id);
-        console.log(`Contract ${contract.id} - User ID: ${contract.user_id}`, {
-          userProfile,
-          fullName: userProfile?.full_name,
-          email: userProfile?.email
-        });
+        
+        if (!userProfile) {
+          console.warn(`⚠️ Perfil não encontrado para usuário ${contract.user_id}`);
+        }
+        
         return {
           ...contract,
           user_profiles: userProfile || null
         };
       }) || [];
       
-      console.log('Contracts with user profiles:', contractsWithProfiles);
+      console.log('✅ Contratos com perfis combinados:', contractsWithProfiles.length);
       setContracts(contractsWithProfiles);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
@@ -277,6 +282,7 @@ const AdminContractsPanel: React.FC = () => {
       
       // Se não há usuário selecionado, precisamos criar um novo usuário primeiro
       let userId = newContract.user_id;
+      let createdNewUser = false;
       
       if (!selectedUser && userForm.email) {
         // Verificar se já existe um usuário com este email
@@ -307,6 +313,7 @@ const AdminContractsPanel: React.FC = () => {
           }
 
           userId = authUser.user.id;
+          createdNewUser = true;
 
           // Criar perfil do usuário
           const { error: profileError } = await supabase
@@ -322,8 +329,8 @@ const AdminContractsPanel: React.FC = () => {
             });
 
           if (profileError) {
-            console.warn('Warning creating profile:', profileError);
-            // Continue even if profile creation fails
+            console.error('Error creating profile:', profileError);
+            throw new Error('Erro ao criar perfil do usuário: ' + profileError.message);
           }
         }
       }
@@ -365,6 +372,21 @@ const AdminContractsPanel: React.FC = () => {
 
       if (error) throw error;
 
+      // Se criou um novo usuário, atualizar também o contracted_plan no perfil
+      if (createdNewUser || selectedUser) {
+        const { error: updateProfileError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            contracted_plan: newContract.plan_type,
+            leverage_multiplier: newContract.leverage_multiplier,
+            plan_status: 'active'
+          })
+          .eq('id', userId);
+
+        if (updateProfileError) {
+          console.warn('Warning updating user profile:', updateProfileError);
+        }
+      }
       setSuccess('Contrato adicionado com sucesso!');
       setShowAddModal(false);
       clearUserSelection();
@@ -378,8 +400,17 @@ const AdminContractsPanel: React.FC = () => {
         leverage_multiplier: 1,
         is_active: true
       });
-      fetchContracts();
+      
+      // Aguardar um pouco para garantir que os dados foram salvos
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Recarregar tanto contratos quanto usuários
+      await Promise.all([
+        fetchContracts(),
+        fetchAvailableUsers()
+      ]);
     } catch (error: any) {
+      console.error('Error creating contract:', error);
       setError(error.message);
     }
   };
@@ -858,6 +889,71 @@ const AdminContractsPanel: React.FC = () => {
                   )}
                 </div>
 
+                {/* Campos de Cliente Separados */}
+                <div className="md:col-span-2">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                    Dados do Cliente
+                  </h4>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Mail className="h-4 w-4 inline mr-1" />
+                    Email do Cliente *
+                  </label>
+                  <input
+                    type="email"
+                    value={userForm.email}
+                    onChange={(e) => setUserForm({...userForm, email: e.target.value})}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      selectedUser ? 'bg-gray-50 text-gray-600' : ''
+                    }`}
+                    placeholder="cliente@email.com"
+                    required
+                    readOnly={!!selectedUser}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Phone className="h-4 w-4 inline mr-1" />
+                    Telefone do Cliente
+                  </label>
+                  <input
+                    type="tel"
+                    value={userForm.phone}
+                    onChange={(e) => setUserForm({...userForm, phone: e.target.value})}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      selectedUser ? 'bg-gray-50 text-gray-600' : ''
+                    }`}
+                    placeholder="(11) 99999-9999"
+                    readOnly={!!selectedUser}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo do Cliente *
+                  </label>
+                  <input
+                    type="text"
+                    value={userForm.full_name}
+                    onChange={(e) => setUserForm({...userForm, full_name: e.target.value})}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      selectedUser ? 'bg-gray-50 text-gray-600' : ''
+                    }`}
+                    placeholder="Nome completo do cliente"
+                    required
+                    readOnly={!!selectedUser}
+                  />
+                </div>
+
+                {/* Separador */}
+                <div className="md:col-span-2">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                    Detalhes do Contrato
+                  </h4>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tipo de Plano *
@@ -961,15 +1057,9 @@ const AdminContractsPanel: React.FC = () => {
                   <div>
                     <span className="text-blue-700 font-medium">Cliente:</span>
                     <div className="text-blue-800">
-                      {selectedUser ? (
-                        <>
-                          <div>{selectedUser.full_name || 'Nome não cadastrado'}</div>
-                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                          {selectedUser.phone && <div className="text-xs">{selectedUser.phone}</div>}
-                        </>
-                      ) : (
-                        'Selecione um usuário'
-                      )}
+                      <div>{userForm.full_name || 'Nome não informado'}</div>
+                      <div className="text-xs text-blue-700">{userForm.email || 'Email não informado'}</div>
+                      {userForm.phone && <div className="text-xs">{userForm.phone}</div>}
                     </div>
                   </div>
                   <div>
@@ -995,7 +1085,7 @@ const AdminContractsPanel: React.FC = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  disabled={!selectedUser || !newContract.contract_start || !newContract.monthly_value}
+                  disabled={!userForm.email || !userForm.full_name || !newContract.contract_start || !newContract.monthly_value}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Criar Contrato
