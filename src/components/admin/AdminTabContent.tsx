@@ -1,11 +1,12 @@
 import React from 'react';
 import AdminFinancialPanel from './AdminFinancialPanel';
+import AdminContractsPanel from './AdminContractsPanel';
 import AdminUsersPanel from './AdminUsersPanel';
 import AdminWaitlistPanel from './AdminWaitlistPanel';
 import AdminSuppliersPanel from './AdminSuppliersPanel';
 
 interface AdminTabContentProps {
-  activeTab: 'financial' | 'users' | 'waitlist' | 'suppliers';
+  activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers';
 }
 
 const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
@@ -13,6 +14,8 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
     switch (activeTab) {
       case 'financial':
         return <AdminFinancialPanel />;
+      case 'contracts':
+        return <AdminContractsPanel />;
       case 'users':
         return <AdminUsersPanel />;
       case 'waitlist':

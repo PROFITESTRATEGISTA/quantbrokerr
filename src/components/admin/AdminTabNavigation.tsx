@@ -2,8 +2,8 @@ import React from 'react';
 import { TrendingUp, DollarSign, Users, Clock, Building } from 'lucide-react';
 
 interface AdminTabNavigationProps {
-  activeTab: 'financial' | 'users' | 'waitlist' | 'suppliers';
-  onTabChange: (tab: 'financial' | 'users' | 'waitlist' | 'suppliers') => void;
+  activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers';
+  onTabChange: (tab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers') => void;
 }
 
 const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTabChange }) => {
@@ -13,6 +13,12 @@ const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTa
       label: 'Financeiro',
       icon: DollarSign,
       description: 'Gestão de custos e despesas'
+    },
+    {
+      id: 'contracts' as const,
+      label: 'Contratos',
+      icon: Building,
+      description: 'Contratos de clientes'
     },
     {
       id: 'users' as const,
@@ -29,7 +35,7 @@ const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTa
     {
       id: 'suppliers' as const,
       label: 'Fornecedores',
-      icon: Building,
+      icon: TrendingUp,
       description: 'Contratos de fornecedores'
     }
   ];

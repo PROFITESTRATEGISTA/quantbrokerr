@@ -2,6 +2,7 @@ import React from 'react';
 import { DollarSign, Plus, AlertCircle, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import FinancialDashboard from '../financial/FinancialDashboard';
 import FinancialSummaryCards from '../financial/FinancialSummaryCards';
 import FinancialFilters from '../financial/FinancialFilters';
 import FinancialCostForm from '../financial/FinancialCostForm';
@@ -225,6 +226,9 @@ const AdminFinancialPanel: React.FC = () => {
 
       {/* Summary Cards */}
       <FinancialSummaryCards costs={costs} />
+
+      {/* Financial Dashboard with Charts */}
+      <FinancialDashboard />
 
       {/* Filters */}
       <FinancialFilters
