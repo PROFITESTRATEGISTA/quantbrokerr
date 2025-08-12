@@ -35,7 +35,6 @@ const AdminContractsPanel: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
 
   const [newContract, setNewContract] = useState({
     plan_type: 'bitcoin',
@@ -256,68 +255,6 @@ const AdminContractsPanel: React.FC = () => {
     } catch (error: any) {
       setError(error.message);
     }
-  };
-
-  const handleFileUpload = async (contractId: string) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.doc,.docx';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      try {
-        setUploading(contractId);
-        setError(null);
-
-        // Generate unique filename
-        const timestamp = Date.now();
-        const randomString = Math.random().toString(36).substring(2, 15);
-        const fileExtension = file.name.split('.').pop();
-        const fileName = `${timestamp}-${randomString}.${fileExtension}`;
-        const filePath = `client-contracts/${fileName}`;
-
-        // Upload file to Supabase Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('contracts')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) {
-          throw new Error(`Erro no upload: ${uploadError.message}`);
-        }
-
-        // Get public URL
-        const { data: urlData } = supabase.storage
-          .from('contracts')
-          .getPublicUrl(filePath);
-
-        if (!urlData?.publicUrl) {
-          throw new Error('Erro ao obter URL do arquivo');
-        }
-
-        // Update contract with file URL
-        const { error: updateError } = await supabase
-          .from('client_contracts')
-          .update({ contract_file_url: urlData.publicUrl })
-          .eq('id', contractId);
-
-        if (updateError) {
-          throw new Error(`Erro ao salvar URL: ${updateError.message}`);
-        }
-
-        setSuccess('Contrato anexado com sucesso!');
-        fetchContracts();
-      } catch (error: any) {
-        console.error('Upload error:', error);
-        setError(error.message || 'Erro ao fazer upload do arquivo');
-      } finally {
-        setUploading(null);
-      }
-    };
-    input.click();
   };
 
   const getPlanDisplayName = (plan: string) => {
@@ -570,43 +507,7 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      {contract.contract_file_url ? (
-                        <div className="flex items-center space-x-2">
-                          <a
-                            href={contract.contract_file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            <FileText className="h-4 w-4" />
-                            Ver Contrato
-                          </a>
-                          <button
-                            onClick={() => handleFileUpload(contract.id)}
-                            className="inline-flex items-center gap-1 text-green-600 hover:text-green-800 text-sm"
-                            title="Substituir arquivo"
-                          >
-                            <Upload className="h-4 w-4" />
-                            Substituir
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => handleFileUpload(contract.id)}
-                          className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                        >
-                          <Upload className="h-4 w-4" />
-                          Anexar
-                        </button>
-                      )}
-                      {uploading === contract.id && (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                          <span className="text-xs text-blue-600">Enviando...</span>
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-sm text-gray-500">Não disponível</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingContract === contract.id ? (
