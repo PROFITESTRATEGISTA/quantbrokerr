@@ -878,15 +878,6 @@ const AdminContractsPanel: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => {
-                                console.log('🔄 Recarregando lista de usuários...');
-                                fetchAvailableUsers();
-                              }}
-                              className="text-xs text-blue-600 hover:text-blue-800"
-                            >
-                              Atualizar Lista
-                            </button>
-                          </div>
-                        </div>
                         
                         {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
@@ -905,13 +896,18 @@ const AdminContractsPanel: React.FC = () => {
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
                                   {user.full_name || 'Nome não cadastrado'}
-                                </div>
+                              {(user.full_name || user.email).charAt(0).toUpperCase()}
                                 <div className="text-xs text-gray-500">{user.email}</div>
                                 {user.phone && (
                                   <div className="text-xs text-gray-500">{user.phone}</div>
-                                )}
-                              </div>
+                            <div className="text-sm font-medium text-gray-900 truncate">
+                              {user.full_name || user.email}
                             </div>
+                            {user.full_name && (
+                              <div className="text-xs text-gray-500 truncate">
+                                {user.email}
+                              </div>
+                            )}
                           </button>
                         ))}
                         
@@ -968,7 +964,7 @@ const AdminContractsPanel: React.FC = () => {
                             <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
                           </div>
                           <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                          {selectedUser.phone && (
+                              {user.phone || user.id.substring(0, 13) + '...'}
                             <div className="text-xs text-blue-700">{selectedUser.phone}</div>
                           )}
                         </div>
