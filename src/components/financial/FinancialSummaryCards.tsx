@@ -21,6 +21,7 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   const [contracts, setContracts] = React.useState<any[]>([]);
   const [supplierContracts, setSupplierContracts] = React.useState<any[]>([]);
   const [waitlistEntries, setWaitlistEntries] = React.useState<any[]>([]);
+  const [users, setUsers] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -29,15 +30,17 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
 
   const fetchContractsData = async () => {
     try {
-      const [clientContractsResult, supplierContractsResult, waitlistResult] = await Promise.all([
+      const [clientContractsResult, supplierContractsResult, waitlistResult, usersResult] = await Promise.all([
         supabase.from('client_contracts').select('*').eq('is_active', true),
         supabase.from('supplier_contracts').select('*').eq('is_active', true),
-        supabase.from('waitlist_entries').select('*')
+        supabase.from('waitlist_entries').select('*'),
+        supabase.from('user_profiles').select('id, email, created_at')
       ]);
 
       setContracts(clientContractsResult.data || []);
       setSupplierContracts(supplierContractsResult.data || []);
       setWaitlistEntries(waitlistResult.data || []);
+      setUsers(usersResult.data || []);
     } catch (error) {
       console.error('Error fetching contracts:', error);
     } finally {
@@ -69,8 +72,13 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   // Calculate marketing costs
   const marketingCosts = costs.filter(cost => cost.category === 'marketing').reduce((sum, cost) => sum + cost.amount, 0);
   
-  // Calculate CAL (Cost per Lead) - Total leads from waitlist
-  const totalLeads = waitlistEntries.length;
+  // Calculate CAL (Cost per Lead) - Unique leads from multiple sources
+  const uniqueLeads = new Set([
+    ...users.map(user => user.email.toLowerCase()),
+    ...waitlistEntries.map(entry => entry.email.toLowerCase()),
+    // Add other lead sources here if needed (forms, etc.)
+  ]);
+  const totalLeads = uniqueLeads.size;
   const cal = totalLeads > 0 ? marketingCosts / totalLeads : 0;
   
   // Calculate CAC (Customer Acquisition Cost) - New customers this month
