@@ -1025,5 +1025,3 @@ const AdminContractsPanel: React.FC = () => {
 };
 
 export default AdminContractsPanel;
-
-export default AdminContractsPanel
