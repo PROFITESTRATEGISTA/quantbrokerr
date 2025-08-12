@@ -8,7 +8,7 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [userProfile, setUserProfile] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -39,6 +39,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
   };
 
   const hasActivePlan = userProfile?.contracted_plan && userProfile.contracted_plan !== 'none';
+  const canAccessTridar = hasActivePlan || isAdmin;
 
   const handleRedirectToResults = () => {
     window.open('https://tridar.log.br/login', '_blank');
@@ -65,7 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
           </h2>
         </div>
 
-        <div className={`grid grid-cols-1 ${hasActivePlan ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-8 mb-8`}>
+        <div className={`grid grid-cols-1 ${canAccessTridar ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-8 mb-8`}>
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <BookOpen className="h-10 w-10 text-green-600" />
@@ -133,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
           </div>
 
           {/* Tridar Registration Card - Only for active plan members */}
-          {hasActivePlan && (
+          {canAccessTridar && (
             <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
               <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <UserPlus className="h-10 w-10 text-cyan-600" />
@@ -156,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
               </button>
               
               <div className="mt-4 text-xs text-gray-500">
-                Disponível apenas para membros com plano ativo
+                {isAdmin ? 'Acesso administrativo' : 'Disponível apenas para membros com plano ativo'}
               </div>
             </div>
           )}
