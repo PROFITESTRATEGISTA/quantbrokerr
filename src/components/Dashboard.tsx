@@ -160,6 +160,34 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
               </div>
             </div>
           )}
+          {/* Tridar Registration Card - Only for active plan members */}
+          {hasActivePlan && (
+            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+              <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <UserPlus className="h-10 w-10 text-cyan-600" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Cadastro Tridar
+              </h3>
+              
+              <p className="text-gray-600 mb-8">
+                Complete seu cadastro na plataforma Tridar para acompanhar seus resultados detalhados e métricas avançadas.
+              </p>
+
+              <button
+                onClick={() => window.open('https://form.respondi.app/MnbrQZ6E', '_blank')}
+                className="inline-flex items-center px-8 py-4 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <UserPlus className="h-5 w-5 mr-2" />
+                Cadastrar no Tridar
+              </button>
+              
+              <div className="mt-4 text-xs text-gray-500">
+                Disponível apenas para membros com plano ativo
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="bg-white rounded-2xl shadow-lg p-8">
