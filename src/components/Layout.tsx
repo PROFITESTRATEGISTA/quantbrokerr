@@ -31,7 +31,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     window.addEventListener('openConsultationForm', handleOpenConsultationForm);
     return () => window.removeEventListener('openConsultationForm', handleOpenConsultationForm);
   }, []);
-  const [isConsultationFormOpen, setIsConsultationFormOpen] = useState(false);
 
   const getCurrentView = () => {
     const path = location.pathname;
