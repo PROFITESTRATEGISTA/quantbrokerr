@@ -67,19 +67,17 @@ const AdminContractsPanel: React.FC = () => {
 
   // Filter users based on search term
   useEffect(() => {
-    if (searchTerm.length >= 1 && !selectedUser) {
+    if (searchTerm.length > 0 && !selectedUser) {
       const filtered = availableUsers.filter(user => 
         (user.full_name && user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (user.phone && user.phone.includes(searchTerm))
       );
       setFilteredUsers(filtered);
-      setShowUserDropdown(true);
     } else {
       setFilteredUsers([]);
-      setShowUserDropdown(false);
     }
-  }, [searchTerm, availableUsers]);
+  }, [searchTerm, availableUsers, selectedUser]);
 
   // Calculate contract end date automatically
   useEffect(() => {
@@ -521,12 +519,20 @@ const AdminContractsPanel: React.FC = () => {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onFocus={() => {
-                        if (searchTerm.length >= 1 && !selectedUser) {
+                        if (!selectedUser) {
                           setShowUserDropdown(true);
                         }
                       }}
+                      onBlur={(e) => {
+                        // Delay hiding dropdown to allow clicks
+                        setTimeout(() => {
+                          if (!e.currentTarget.contains(document.activeElement)) {
+                            setShowUserDropdown(false);
+                          }
+                        }, 200);
+                      }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Digite nome, email ou telefone..."
+                      placeholder={selectedUser ? selectedUser.full_name || selectedUser.email : "Digite para buscar usuários..."}
                       required={!selectedUser}
                     />
                     
@@ -541,13 +547,14 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                     
                     {/* User Dropdown */}
-                    {showUserDropdown && (
+                    {showUserDropdown && !selectedUser && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {filteredUsers.length > 0 ? filteredUsers.map((user) => (
+                        {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
                             key={user.id}
                             type="button"
                             onClick={() => handleSelectUser(user)}
+                            onMouseDown={(e) => e.preventDefault()} // Prevent blur
                             className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                           >
                             <div className="flex items-center">
@@ -558,28 +565,27 @@ const AdminContractsPanel: React.FC = () => {
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
-                                  {user.full_name || user.email}
+                                  {user.full_name || 'Nome não cadastrado'}
                                 </div>
-                                {user.full_name && <div className="text-xs text-gray-500">{user.email}</div>}
+                                <div className="text-xs text-gray-500">{user.email}</div>
                                 {user.phone && (
                                   <div className="text-xs text-gray-500">{user.phone}</div>
                                 )}
                               </div>
                             </div>
                           </button>
-                        )) : (
+                        ))}
+                        
+                        {(searchTerm.length > 0 ? filteredUsers : availableUsers).length === 0 && (
                           <div className="p-4 text-center">
                             <p className="text-sm text-gray-500">
-                              {searchTerm.length < 1 
-                                ? 'Digite para buscar usuários...' 
-                                : `Nenhum usuário encontrado para "${searchTerm}"`
+                              {availableUsers.length === 0 
+                                ? 'Nenhum usuário disponível no sistema'
+                                : searchTerm.length > 0 
+                                  ? `Nenhum usuário encontrado para "${searchTerm}"`
+                                  : 'Digite para filtrar usuários...'
                               }
                             </p>
-                            {availableUsers.length === 0 && (
-                              <p className="text-xs text-red-500 mt-2">
-                                Nenhum usuário disponível no sistema
-                              </p>
-                            )}
                           </div>
                         )}
                       </div>
@@ -592,7 +598,7 @@ const AdminContractsPanel: React.FC = () => {
                         <CheckCircle className="h-4 w-4 text-blue-600 mr-2" />
                         <div>
                           <div className="text-sm font-medium text-blue-900">
-                            {selectedUser.full_name || 'Nome não cadastrado'}
+                            <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
                           </div>
                           <div className="text-xs text-blue-700">{selectedUser.email}</div>
                           {selectedUser.phone && (
