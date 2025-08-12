@@ -36,6 +36,90 @@ const AdminContractsPanel: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
+  const [uploadingContract, setUploadingContract] = useState<string | null>(null);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  const handleFileUpload = (contractId: string) => {
+    const fileInput = fileInputRefs.current[contractId];
+    if (fileInput) {
+      fileInput.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, contractId: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Apenas arquivos PDF, DOC e DOCX são permitidos');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Arquivo muito grande. Máximo 10MB permitido');
+      return;
+    }
+
+    try {
+      setUploadingContract(contractId);
+      setError(null);
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `client-contracts/${timestamp}-${randomString}.${fileExtension}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('contracts')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('contracts')
+        .getPublicUrl(fileName);
+
+      if (!urlData?.publicUrl) {
+        throw new Error('Erro ao obter URL do arquivo');
+      }
+
+      // Update contract with file URL
+      const { error: updateError } = await supabase
+        .from('client_contracts')
+        .update({ contract_file_url: urlData.publicUrl })
+        .eq('id', contractId);
+
+      if (updateError) {
+        // If database update fails, try to delete the uploaded file
+        await supabase.storage.from('contracts').remove([fileName]);
+        throw updateError;
+      }
+
+      setSuccess('Contrato anexado com sucesso!');
+      fetchContracts();
+
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      setError(error.message || 'Erro ao fazer upload do arquivo');
+    } finally {
+      setUploadingContract(null);
+      // Reset file input
+      if (fileInputRefs.current[contractId]) {
+        fileInputRefs.current[contractId]!.value = '';
+      }
+    }
+  };
 
   const [newContract, setNewContract] = useState({
     plan_type: 'bitcoin',
@@ -508,7 +592,41 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-500">Não disponível</span>
+                    <div className="flex items-center space-x-2">
+                      {contract.contract_file_url ? (
+                        <a
+                          href={contract.contract_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          Ver Contrato
+                        </a>
+                      ) : (
+                        <span className="text-sm text-gray-500">Não anexado</span>
+                      )}
+                      
+                      <button
+                        onClick={() => handleFileUpload(contract.id)}
+                        disabled={uploadingContract === contract.id}
+                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                        title="Anexar contrato"
+                      >
+                        {uploadingContract === contract.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                      </button>
+                      
+                      <input
+                        ref={(el) => fileInputRefs.current[contract.id] = el}
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleFileChange(e, contract.id)}
+                        className="hidden"
+                      />
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingContract === contract.id ? (
