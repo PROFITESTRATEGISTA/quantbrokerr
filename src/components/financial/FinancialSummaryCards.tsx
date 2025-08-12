@@ -105,18 +105,6 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
 
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center">
-          <Calendar className="h-8 w-8 text-green-600" />
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">Este Mês</p>
-            <p className="text-2xl font-bold text-green-600">
-              R$ {totalThisMonth.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center">
           <TrendingUp className="h-8 w-8 text-purple-600" />
           <div className="ml-4">
             <p className="text-sm font-medium text-gray-600">Custos Recorrentes</p>
