@@ -29,8 +29,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
-      setUserProfile(data);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No profile found for this user - this is okay
+          setUserProfile(null);
+        } else {
+          throw error;
+        }
+      } else {
+        setUserProfile(data);
+      }
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
