@@ -223,42 +223,42 @@ const FinancialDashboard: React.FC = () => {
     switch (dataType) {
       case 'users':
         return {
-          title: 'Novos Usuários por Mês',
+          title: 'Crescimento de Usuários',
           color: '#3b82f6',
           icon: Users,
           unit: 'usuários'
         };
       case 'clients':
         return {
-          title: 'Evolução de Clientes ao Longo do Tempo',
+          title: 'Evolução de Clientes',
           color: '#3b82f6',
           icon: Building,
           unit: 'clientes'
         };
       case 'revenue':
         return {
-          title: 'Receita por Mês',
+          title: 'Receita Mensal',
           color: '#22c55e',
           icon: DollarSign,
           unit: 'R$'
         };
       case 'costs':
         return {
-          title: 'Custos por Mês',
+          title: 'Custos Operacionais',
           color: '#ef4444',
-          icon: TrendingUp,
+          icon: TrendingDown,
           unit: 'R$'
         };
       case 'profit':
         return {
-          title: 'Lucro Líquido por Mês',
+          title: 'Lucro Líquido Mensal',
           color: '#8b5cf6',
           icon: TrendingUp,
           unit: 'R$'
         };
       default:
         return {
-          title: 'Dados por Mês',
+          title: 'Dashboard Financeiro',
           color: '#6b7280',
           icon: BarChart3,
           unit: ''
