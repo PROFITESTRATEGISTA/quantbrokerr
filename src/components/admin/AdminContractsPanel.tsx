@@ -513,16 +513,84 @@ const AdminContractsPanel: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ID do Usuário *
+                    Buscar Usuário *
                   </label>
-                  <input
-                    type="text"
-                    value={newContract.user_id}
-                    onChange={(e) => setNewContract({...newContract, user_id: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="UUID do usuário"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Digite nome, email ou telefone..."
+                      required={!selectedUser}
+                    />
+                    
+                    {selectedUser && (
+                      <button
+                        type="button"
+                        onClick={clearUserSelection}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    )}
+                    
+                    {/* User Dropdown */}
+                    {showUserDropdown && filteredUsers.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredUsers.map((user) => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            onClick={() => handleSelectUser(user)}
+                            className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <span className="text-blue-600 font-medium text-sm">
+                                  {(user.full_name || user.email).charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {user.full_name || 'Nome não cadastrado'}
+                                </div>
+                                <div className="text-xs text-gray-500">{user.email}</div>
+                                {user.phone && (
+                                  <div className="text-xs text-gray-500">{user.phone}</div>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {searchTerm.length >= 2 && filteredUsers.length === 0 && showUserDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                        <p className="text-sm text-gray-500 text-center">
+                          Nenhum usuário encontrado para "{searchTerm}"
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedUser && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-blue-600 mr-2" />
+                        <div>
+                          <div className="text-sm font-medium text-blue-900">
+                            {selectedUser.full_name || 'Nome não cadastrado'}
+                          </div>
+                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
+                          {selectedUser.phone && (
+                            <div className="text-xs text-blue-700">{selectedUser.phone}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -601,18 +669,78 @@ const AdminContractsPanel: React.FC = () => {
                     required
                   />
                 </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Fim *
+                  </label>
+                  <input
+                    type="date"
+                    value={newContract.contract_end}
+                    onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-blue-50"
+                    required
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {newContract.billing_period === 'monthly' && 'Calculado automaticamente: +1 mês'}
+                    {newContract.billing_period === 'semiannual' && 'Calculado automaticamente: +6 meses'}
+                    {newContract.billing_period === 'annual' && 'Calculado automaticamente: +1 ano'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Resumo do Contrato</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-blue-700 font-medium">Cliente:</span>
+                    <div className="text-blue-800">
+                      {selectedUser ? (
+                        <>
+                          <div>{selectedUser.full_name || 'Nome não cadastrado'}</div>
+                          <div className="text-xs">{selectedUser.email}</div>
+                          {selectedUser.phone && <div className="text-xs">{selectedUser.phone}</div>}
+                        </>
+                      ) : (
+                        'Selecione um usuário'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 font-medium">Plano:</span>
+                    <div className="text-blue-800">{getPlanDisplayName(newContract.plan_type)}</div>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 font-medium">Período:</span>
+                    <div className="text-blue-800">
+                      {newContract.contract_start} até {newContract.contract_end}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 font-medium">Valor:</span>
+                    <div className="text-blue-800">
+                      R$ {newContract.monthly_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} 
+                      ({getBillingPeriodDisplayName(newContract.billing_period)})
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
+                  disabled={!selectedUser || !newContract.contract_start || !newContract.monthly_value}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Criar Contrato
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    clearUserSelection();
+                  }}
                   className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
                 >
                   Cancelar
