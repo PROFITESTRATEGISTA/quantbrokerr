@@ -609,13 +609,16 @@ const AdminContractsPanel: React.FC = () => {
                       <button
                         onClick={() => handleFileUpload(contract.id)}
                         disabled={uploadingContract === contract.id}
-                        className="text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                        className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors disabled:opacity-50"
                         title="Anexar contrato"
                       >
                         {uploadingContract === contract.id ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                         ) : (
-                          <Upload className="h-4 w-4" />
+                          <>
+                            <Upload className="h-3 w-3" />
+                            <span>Anexar</span>
+                          </>
                         )}
                       </button>
                       
