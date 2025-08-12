@@ -60,36 +60,6 @@ const SupplierContractsPanel: React.FC = () => {
       if (!result.success) {
         console.warn('Storage setup warning:', result.error);
       } else {
-        console.log('Storage buckets initialized:', result.buckets);
-      }
-    } catch (error) {
-      console.warn('Storage initialization warning:', error);
-    }
-  };
-
-  // Initialize storage buckets on component mount
-  useEffect(() => {
-    initializeStorageBuckets();
-  }, []);
-
-  const initializeStorageBuckets = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-storage-bucket`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'setup'
-        })
-      });
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        console.warn('Storage setup warning:', result.error);
-      } else {
         console.log('Storage buckets initialized:', result.results);
       }
     } catch (error) {
