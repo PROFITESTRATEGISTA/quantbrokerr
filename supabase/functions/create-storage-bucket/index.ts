@@ -74,113 +74,117 @@ Deno.serve(async (req: Request) => {
     const { action, bucketName }: RequestBody = await req.json();
 
     if (action === 'setup') {
-      // Setup both contract buckets
-      const bucketsToCreate = ['client-contracts', 'supplier-contracts'];
-      const results = [];
+      // Run the migration to ensure buckets and policies are properly set up
+      try {
+        await supabaseAdmin.sql`
+          -- Create storage buckets if they don't exist
+          INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+          VALUES 
+            ('client-contracts', 'client-contracts', true, 10485760, ARRAY['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']),
+            ('supplier-contracts', 'supplier-contracts', true, 10485760, ARRAY['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+          ON CONFLICT (id) DO UPDATE SET
+            public = EXCLUDED.public,
+            file_size_limit = EXCLUDED.file_size_limit,
+            allowed_mime_types = EXCLUDED.allowed_mime_types;
+        `;
 
-      for (const bucket of bucketsToCreate) {
-        try {
-          // Check if bucket exists
-          const { data: existingBuckets } = await supabaseAdmin.storage.listBuckets();
-          const bucketExists = existingBuckets?.some(b => b.name === bucket);
+        // Drop existing policies to avoid conflicts
+        await supabaseAdmin.sql`
+          DELETE FROM storage.policies WHERE bucket_id IN (
+            SELECT id FROM storage.buckets WHERE name IN ('client-contracts', 'supplier-contracts')
+          );
+        `;
 
-          if (!bucketExists) {
-            // Create bucket
-            const { data: bucketData, error: bucketError } = await supabaseAdmin.storage.createBucket(bucket, {
-              public: true,
-              allowedMimeTypes: [
-                'application/pdf',
-                'application/msword', 
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-              ],
-              fileSizeLimit: 10485760 // 10MB
-            });
+        // Create policies for client-contracts
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+          SELECT 
+            'Authenticated users can upload',
+            id,
+            'INSERT',
+            'auth.role() = ''authenticated''',
+            'auth.role() = ''authenticated'''
+          FROM storage.buckets WHERE name = 'client-contracts';
+        `;
 
-            if (bucketError) {
-              throw new Error(`Failed to create ${bucket}: ${bucketError.message}`);
-            }
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition)
+          SELECT 
+            'Public can view files',
+            id,
+            'SELECT',
+            'true'
+          FROM storage.buckets WHERE name = 'client-contracts';
+        `;
 
-            results.push({ bucket, status: 'created', data: bucketData });
-          } else {
-            results.push({ bucket, status: 'exists' });
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+          SELECT 
+            'Authenticated users can delete',
+            id,
+            'DELETE',
+            'auth.role() = ''authenticated''',
+            'auth.role() = ''authenticated'''
+          FROM storage.buckets WHERE name = 'client-contracts';
+        `;
+
+        // Create policies for supplier-contracts
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+          SELECT 
+            'Authenticated users can upload',
+            id,
+            'INSERT',
+            'auth.role() = ''authenticated''',
+            'auth.role() = ''authenticated'''
+          FROM storage.buckets WHERE name = 'supplier-contracts';
+        `;
+
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition)
+          SELECT 
+            'Public can view files',
+            id,
+            'SELECT',
+            'true'
+          FROM storage.buckets WHERE name = 'supplier-contracts';
+        `;
+
+        await supabaseAdmin.sql`
+          INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+          SELECT 
+            'Authenticated users can delete',
+            id,
+            'DELETE',
+            'auth.role() = ''authenticated''',
+            'auth.role() = ''authenticated'''
+          FROM storage.buckets WHERE name = 'supplier-contracts';
+        `;
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'Storage setup completed successfully',
+            buckets: ['client-contracts', 'supplier-contracts']
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
+        );
 
-          // Create/update RLS policies for the bucket using direct SQL
-          try {
-            // Remove existing policies to prevent conflicts
-            await supabaseAdmin.sql`
-              DELETE FROM storage.policies 
-              WHERE bucket_id = (SELECT id FROM storage.buckets WHERE name = ${bucket});
-            `;
-
-            // Create INSERT policy for admin
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 
-                'Admin can upload to ${bucket}',
-                id,
-                'INSERT',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
-              FROM storage.buckets WHERE name = ${bucket};
-            `;
-
-            // Create SELECT policy for admin
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 
-                'Admin can view ${bucket}',
-                id,
-                'SELECT',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
-              FROM storage.buckets WHERE name = ${bucket};
-            `;
-
-            // Create DELETE policy for admin
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 
-                'Admin can delete from ${bucket}',
-                id,
-                'DELETE',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
-                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
-              FROM storage.buckets WHERE name = ${bucket};
-            `;
-
-            // Create public SELECT policy for viewing files
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 
-                'Public can view ${bucket}',
-                id,
-                'SELECT',
-                'true',
-                'true'
-              FROM storage.buckets WHERE name = ${bucket};
-            `;
-
-          } catch (policyError) {
-            console.warn(`Policy creation warning for ${bucket}:`, policyError);
-            // Continue even if policies fail - they might already exist
+      } catch (error: any) {
+        console.error('Storage setup error:', error);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: error.message,
+            message: 'Storage setup completed with warnings'
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
-
-        } catch (error) {
-          results.push({ bucket, status: 'error', error: error.message });
-        }
+        );
       }
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Storage setup completed',
-          results 
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
     }
 
     if (action === 'create' && bucketName) {

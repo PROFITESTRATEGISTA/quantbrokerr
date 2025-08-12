@@ -39,37 +39,6 @@ const AdminContractsPanel: React.FC = () => {
   const [uploadingContract, setUploadingContract] = useState<string | null>(null);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
-  // Initialize storage buckets on component mount
-  useEffect(() => {
-    initializeStorageBuckets();
-  }, []);
-
-  const initializeStorageBuckets = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-storage-bucket`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'setup'
-        })
-      });
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        console.warn('Storage setup warning:', result.error);
-      } else {
-        console.log('Storage buckets initialized:', result.results);
-      }
-    } catch (error) {
-      console.warn('Storage initialization warning:', error);
-      // Don't show error to user - this is just setup
-    }
-  };
-
   const handleFileUpload = (contractId: string) => {
     const fileInput = fileInputRefs.current[contractId];
     if (fileInput) {
@@ -107,10 +76,7 @@ const AdminContractsPanel: React.FC = () => {
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('client-contracts')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(fileName, file);
 
       if (uploadError) {
         throw new Error(`Erro no upload: ${uploadError.message}`);
