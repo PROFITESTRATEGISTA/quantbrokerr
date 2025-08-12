@@ -63,7 +63,12 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
-              onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
+              onClick={() => {
+                const formSection = document.getElementById('consultation-form-section');
+                if (formSection) {
+                  formSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
               className="group px-8 py-4 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all flex items-center justify-center backdrop-blur-sm"
             >
               <Calendar className="mr-2 h-5 w-5" />

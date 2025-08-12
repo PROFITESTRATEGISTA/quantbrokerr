@@ -133,7 +133,9 @@ const QuantBrokerSection: React.FC = () => {
         </div>
 
         {/* Call-to-Action Section */}
-        <ConsultationFormSection />
+        <div id="consultation-form-section">
+          <ConsultationFormSection />
+        </div>
 
       </div>
     </div>
