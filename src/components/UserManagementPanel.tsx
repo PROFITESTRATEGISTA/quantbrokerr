@@ -30,8 +30,6 @@ const UserManagementPanel: React.FC = () => {
     email: '',
     phone: '',
     full_name: '',
-    leverage_multiplier: 1,
-    contracted_plan: 'none',
     is_active: true
   });
   const [isAdmin] = useState(true);
@@ -264,8 +262,6 @@ const UserManagementPanel: React.FC = () => {
           email: newUserForm.email,
           phone: newUserForm.phone,
           full_name: newUserForm.full_name,
-          leverage_multiplier: newUserForm.leverage_multiplier,
-          contracted_plan: newUserForm.contracted_plan,
           is_active: newUserForm.is_active
         })
       });
@@ -287,8 +283,6 @@ const UserManagementPanel: React.FC = () => {
         email: '',
         phone: '',
         full_name: '',
-        leverage_multiplier: 1,
-        contracted_plan: 'none',
         is_active: true
       });
       await fetchUsers();
@@ -655,33 +649,6 @@ const UserManagementPanel: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Alavancagem</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={newUserForm.leverage_multiplier}
-                      onChange={(e) => setNewUserForm({...newUserForm, leverage_multiplier: parseInt(e.target.value) || 1})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="1"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Plano Contratado</label>
-                    <select
-                      value={newUserForm.contracted_plan}
-                      onChange={(e) => setNewUserForm({...newUserForm, contracted_plan: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="none">Nenhum</option>
-                      <option value="bitcoin">Bitcoin</option>
-                      <option value="mini-indice">Mini Índice</option>
-                      <option value="mini-dolar">Mini Dólar</option>
-                      <option value="portfolio-completo">Portfólio Completo</option>
-                    </select>
-                  </div>
-
-                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                     <select
                       value={newUserForm.is_active ? 'active' : 'inactive'}
@@ -698,7 +665,7 @@ const UserManagementPanel: React.FC = () => {
                   <h4 className="font-semibold text-blue-900 mb-2">Informações sobre a tabela user_profiles</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
                     <li>• Conectada à tabela de autenticação via foreign key</li>
-                    <li>• Controle de planos e alavancagem integrado</li>
+                    <li>• Planos e alavancagem gerenciados via contratos</li>
                     <li>• Policies de segurança configuradas</li>
                     <li>• Triggers automáticos para atualizações</li>
                   </ul>
