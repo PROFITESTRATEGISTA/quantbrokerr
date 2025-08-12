@@ -6,6 +6,7 @@ import FloatingActions from './FloatingActions';
 import LoginModal from './LoginModal';
 import PortfolioQuestionnaire from './PortfolioQuestionnaire';
 import LocalSEO from './LocalSEO';
+import ConsultationForm from './ConsultationForm';
 import { useAuth } from '../hooks/useAuth';
 
 interface LayoutProps {
@@ -19,6 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isQuestionnaireOpen, setIsQuestionnaireOpen] = useState(false);
   const [recommendedPlan, setRecommendedPlan] = useState<string | null>(null);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
+  const [isConsultationFormOpen, setIsConsultationFormOpen] = useState(false);
 
   const getCurrentView = () => {
     const path = location.pathname;
@@ -75,6 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         onOpenQuestionnaire={() => setIsQuestionnaireOpen(true)}
         onNavigateToPlans={() => window.location.href = '/planos'}
         onOpenLogin={handleOpenLoginForResults}
+        onOpenConsultation={() => setIsConsultationFormOpen(true)}
       />
       
       <LoginModal
@@ -91,6 +94,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </div>
       )}
+      
+      <ConsultationForm
+        isOpen={isConsultationFormOpen}
+        onClose={() => setIsConsultationFormOpen(false)}
+      />
     </div>
   );
 };

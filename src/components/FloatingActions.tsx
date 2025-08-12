@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { MessageCircle, Calendar, X, Zap, Bell, HelpCircle } from 'lucide-react';
+import { MessageCircle, Calendar, X, Zap, Bell, HelpCircle, Users } from 'lucide-react';
 
 interface FloatingActionsProps {
   onOpenQuestionnaire: () => void;
   onNavigateToPlans: () => void;
   onOpenLogin?: () => void;
+  onOpenConsultation?: () => void;
 }
 
-const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, onNavigateToPlans, onOpenLogin }) => {
+const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, onNavigateToPlans, onOpenLogin, onOpenConsultation }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleScheduleMeeting = () => {
@@ -28,6 +29,13 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
   const handlePlansClick = () => {
     onNavigateToPlans();
     setIsExpanded(false);
+  };
+
+  const handleConsultationClick = () => {
+    if (onOpenConsultation) {
+      onOpenConsultation();
+      setIsExpanded(false);
+    }
   };
 
   const toggleExpanded = () => {
@@ -79,6 +87,14 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
           >
             <Calendar className="h-5 w-5 mr-2" />
             <span className="font-medium">Conhecer Resultados</span>
+          </button>
+          
+          <button
+            onClick={handleConsultationClick}
+            className="flex items-center px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
+          >
+            <Users className="h-5 w-5 mr-2" />
+            <span className="font-medium">Agendar Consultoria</span>
           </button>
           
           <button
