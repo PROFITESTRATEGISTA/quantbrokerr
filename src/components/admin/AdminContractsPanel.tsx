@@ -442,6 +442,16 @@ const AdminContractsPanel: React.FC = () => {
     ? activeContracts.reduce((sum, c) => sum + (c.leverage_multiplier || 1), 0) / activeContracts.length 
     : 0;
 
+  // Calculate contracts by plan type
+  const contractsByPlan = activeContracts.reduce((acc, contract) => {
+    acc[contract.plan_type] = (acc[contract.plan_type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const revenueByPlan = activeContracts.reduce((acc, contract) => {
+    acc[contract.plan_type] = (acc[contract.plan_type] || 0) + contract.monthly_value;
+    return acc;
+  }, {} as Record<string, number>);
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -548,6 +558,66 @@ const AdminContractsPanel: React.FC = () => {
         </div>
       </div>
 
+      {/* Plan Type Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {['bitcoin', 'mini-indice', 'mini-dolar', 'portfolio-completo'].map((planType) => (
+          <div key={planType} className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${
+                  planType === 'bitcoin' ? 'bg-orange-100' :
+                  planType === 'mini-indice' ? 'bg-blue-100' :
+                  planType === 'mini-dolar' ? 'bg-green-100' : 'bg-purple-100'
+                }`}>
+                  <span className={`text-sm font-bold ${
+                    planType === 'bitcoin' ? 'text-orange-600' :
+                    planType === 'mini-indice' ? 'text-blue-600' :
+                    planType === 'mini-dolar' ? 'text-green-600' : 'text-purple-600'
+                  }`}>
+                    {planType === 'bitcoin' ? '₿' :
+                     planType === 'mini-indice' ? 'IND' :
+                     planType === 'mini-dolar' ? '$' : 'ALL'}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-600">
+                    {getPlanDisplayName(planType)}
+                  </h4>
+                  <p className="text-xs text-gray-500">Contratos ativos</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Clientes:</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {contractsByPlan[planType] || 0}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Receita:</span>
+                <span className={`text-sm font-semibold ${
+                  planType === 'bitcoin' ? 'text-orange-600' :
+                  planType === 'mini-indice' ? 'text-blue-600' :
+                  planType === 'mini-dolar' ? 'text-green-600' : 'text-purple-600'
+                }`}>
+                  R$ {(revenueByPlan[planType] || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">Ticket Médio:</span>
+                <span className="text-xs font-medium text-gray-700">
+                  R$ {contractsByPlan[planType] > 0 
+                    ? ((revenueByPlan[planType] || 0) / contractsByPlan[planType]).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                    : '0,00'
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
       {/* Contracts Table */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b border-gray-200">
