@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
                   className="flex items-center space-x-1 lg:space-x-2 px-2 lg:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
                 >
                   <User className="h-4 w-4" />
-                  <span className="hidden lg:inline">{user?.user_metadata?.full_name ? `${user.user_metadata.full_name.split(' ')[0]}` : 'Dashboard'}</span>
+                  <span>Área do Cliente</span>
                 </button>
                 <button
                   onClick={onLogout}
@@ -161,7 +161,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
                       }}
                       className="block w-full text-left px-3 py-2 bg-blue-600 text-white rounded-md mb-2 text-sm sm:text-base"
                     >
-                      Dashboard
+                      Área do Cliente
                     </button>
                     <button
                       onClick={() => {
