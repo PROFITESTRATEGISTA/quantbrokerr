@@ -49,6 +49,13 @@ const AdminContractsPanel: React.FC = () => {
     is_active: true
   });
 
+  // User form fields
+  const [userForm, setUserForm] = useState({
+    email: '',
+    phone: '',
+    full_name: ''
+  });
+
   // Fetch available users for contract creation
   const fetchAvailableUsers = async () => {
     try {
@@ -241,6 +248,11 @@ const AdminContractsPanel: React.FC = () => {
     console.log('👤 Usuário selecionado:', user);
     setSelectedUser(user);
     setNewContract(prev => ({ ...prev, user_id: user.id }));
+    setUserForm({
+      email: user.email || '',
+      phone: user.phone || '',
+      full_name: user.full_name || ''
+    });
     setSearchTerm(user.full_name || user.email);
     setShowUserDropdown(false);
   };
@@ -249,6 +261,11 @@ const AdminContractsPanel: React.FC = () => {
     console.log('🗑️ Limpando seleção de usuário');
     setSelectedUser(null);
     setNewContract(prev => ({ ...prev, user_id: '' }));
+    setUserForm({
+      email: '',
+      phone: '',
+      full_name: ''
+    });
     setSearchTerm('');
     setShowUserDropdown(false);
   };
