@@ -165,7 +165,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
               </button>
               
               <div className="mt-4 text-xs text-gray-500">
-                {isAdmin ? 'Acesso administrativo' : 'Disponível apenas para membros com plano ativo'}
+                Disponível apenas para membros com plano ativo
               </div>
             </div>
           )}
