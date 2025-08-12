@@ -107,24 +107,26 @@ Deno.serve(async (req: Request) => {
 
           // Create/update RLS policies for the bucket
           try {
-            // Admin can upload and delete
-            const { error: insertPolicyError } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(`test-${Date.now()}.pdf`);
-            
-            // If we can't create signed URL, the bucket needs proper policies
-            if (insertPolicyError) {
-              // Use SQL to create storage policies directly
-              await supabaseAdmin.sql`
-                INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-                SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
-                FROM storage.buckets WHERE name = '${bucket}'
-                ON CONFLICT (name, bucket_id) DO NOTHING;
-              `;
-            }
+            // Create INSERT policy for authenticated users
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 'Authenticated users can upload to ${bucket}', id, 'INSERT', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
+              FROM storage.buckets WHERE name = '${bucket}'
+              ON CONFLICT (name, bucket_id) DO NOTHING;
+            `;
 
-            // Create policies using direct SQL
+            // Create SELECT policy for public read access
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
               SELECT 'Public can view ${bucket}', id, 'SELECT', 'true', 'true'
+              FROM storage.buckets WHERE name = '${bucket}'
+              ON CONFLICT (name, bucket_id) DO NOTHING;
+            `;
+
+            // Create DELETE policy for authenticated users
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
               FROM storage.buckets WHERE name = '${bucket}'
               ON CONFLICT (name, bucket_id) DO NOTHING;
             `;
