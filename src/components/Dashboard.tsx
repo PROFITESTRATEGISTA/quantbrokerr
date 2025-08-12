@@ -1,11 +1,45 @@
 import React from 'react';
-import { ExternalLink, BarChart3, TrendingUp, Shield, Settings, BookOpen, Building2 } from 'lucide-react';
+import { ExternalLink, BarChart3, TrendingUp, Shield, Settings, BookOpen, Building2, UserPlus } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 
 interface DashboardProps {
   onNavigateToTutorial?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
+  const { user } = useAuth();
+  const [userProfile, setUserProfile] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchUserProfile();
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const hasActivePlan = userProfile?.contracted_plan && userProfile.contracted_plan !== 'none';
+
   const handleRedirectToResults = () => {
     window.open('https://tridar.log.br/login', '_blank');
   };
@@ -31,7 +65,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className={`grid grid-cols-1 ${hasActivePlan ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'} gap-8 mb-8`}>
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <BookOpen className="h-10 w-10 text-green-600" />
@@ -97,7 +131,37 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
               Contratar Alavancagem
             </button>
           </div>
+
+          {/* Tridar Registration Card - Only for active plan members */}
+          {hasActivePlan && (
+            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+              <div className="w-20 h-20 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <UserPlus className="h-10 w-10 text-cyan-600" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Cadastro Tridar
+              </h3>
+              
+              <p className="text-gray-600 mb-8">
+                Complete seu cadastro na plataforma Tridar para acompanhar seus resultados detalhados e métricas avançadas.
+              </p>
+
+              <button
+                onClick={() => window.open('https://form.respondi.app/MnbrQZ6E', '_blank')}
+                className="inline-flex items-center px-8 py-4 bg-cyan-600 text-white font-semibold rounded-lg hover:bg-cyan-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <UserPlus className="h-5 w-5 mr-2" />
+                Cadastrar no Tridar
+              </button>
+              
+              <div className="mt-4 text-xs text-gray-500">
+                Disponível apenas para membros com plano ativo
+              </div>
+            </div>
+          )}
         </div>
+        
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Recursos Disponíveis</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
