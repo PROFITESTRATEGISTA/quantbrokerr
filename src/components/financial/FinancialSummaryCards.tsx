@@ -142,3 +142,5 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
     </div>
   );
 }
+
+export default FinancialSummaryCards;
