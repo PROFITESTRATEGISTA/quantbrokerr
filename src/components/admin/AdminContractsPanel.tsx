@@ -195,7 +195,7 @@ const AdminContractsPanel: React.FC = () => {
       console.log('🔍 Buscando contratos...');
       
       // First get contracts
-      const { data: contractsWithUsers, error: contractsError } = await supabase
+      const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
         .select(`
           *,
@@ -208,9 +208,108 @@ const AdminContractsPanel: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (contractsError) throw contractsError;
+      if (contractsError) {
+        console.error('Error fetching contracts:', contractsError);
+        throw contractsError;
+      }
+      
+      // Then get user profiles for each contract
+      const contractsWithProfiles = await Promise.all(
+        (contractsData || []).map(async (contract) => {
+          try {
+            // Try to get user profile
+            const { data: profile, error: profileError } = await supabase
+              .from('user_profiles')
+              .select('id, full_name, email, phone')
+              .eq('id', contract.user_id)
+              .single();
 
-      setContracts(contractsWithUsers || []);
+            if (profileError && profileError.code === 'PGRST116') {
+              // Profile not found - try to get from auth and create profile
+              console.log('⚠️ Perfil não encontrado para usuário:', contract.user_id);
+              
+              try {
+                // Get user from auth
+                const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(contract.user_id);
+                
+                if (authUser && !authError) {
+                  console.log('👤 Usuário encontrado no auth:', authUser.email);
+                  
+                  // Create missing profile
+                  const { error: createError } = await supabase
+                    .from('user_profiles')
+                    .insert({
+                      id: authUser.id,
+                      email: authUser.email!,
+                      phone: authUser.phone || authUser.user_metadata?.phone || null,
+                      full_name: authUser.user_metadata?.full_name || null,
+                      leverage_multiplier: contract.leverage_multiplier || 1,
+                      is_active: true,
+                      contracted_plan: contract.plan_type
+                    });
+
+                  if (!createError) {
+                    console.log('✅ Perfil criado automaticamente para:', authUser.email);
+                    
+                    // Return contract with newly created profile data
+                    return {
+                      ...contract,
+                      user_profiles: {
+                        id: authUser.id,
+                        full_name: authUser.user_metadata?.full_name || null,
+                        email: authUser.email!,
+                        phone: authUser.phone || authUser.user_metadata?.phone || null
+                      }
+                    };
+                  }
+                }
+              } catch (authError) {
+                console.error('❌ Erro ao buscar usuário no auth:', authError);
+              }
+              
+              // Return contract without profile if all fails
+              return {
+                ...contract,
+                user_profiles: null
+              };
+            }
+            
+            if (profileError) {
+              console.error('❌ Erro ao buscar perfil:', profileError);
+              return {
+                ...contract,
+                user_profiles: null
+              };
+            }
+            
+            // Return contract with profile
+            return {
+              ...contract,
+              user_profiles: profile
+            };
+          } catch (error) {
+            console.error('❌ Erro ao processar contrato:', contract.id, error);
+            return {
+              ...contract,
+              user_profiles: null
+            };
+          }
+        })
+      );
+      
+      console.log('✅ Contratos encontrados:', contractsData?.length || 0);
+      console.log('📋 Contratos com perfis:', contractsWithProfiles?.map(c => ({
+        id: c.id,
+        user_id: c.user_id,
+        plan_type: c.plan_type,
+        user_profile: c.user_profiles ? {
+          email: c.user_profiles.email,
+          full_name: c.user_profiles.full_name,
+          phone: c.user_profiles.phone
+        } : null
+      })));
+      
+      setContracts(contractsWithProfiles || []);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       setError(error.message);
@@ -940,8 +1039,8 @@ const AdminContractsPanel: React.FC = () => {
                           <div className="text-sm font-medium text-blue-900">
                             <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
                           </div>
-                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                          {selectedUser.phone && <div className="text-xs text-blue-700">{selectedUser.phone}</div>}
+                          <div className="text-sm text-blue-700">{selectedUser.email}</div>
+                          <div className="text-xs text-blue-600">ID: {selectedUser.id.substring(0, 8)}...</div>
                         </div>
                       </div>
                     </div>
