@@ -275,6 +275,63 @@ const AdminContractsPanel: React.FC = () => {
     try {
       setError(null);
       
+      // Se não há usuário selecionado, precisamos criar um novo usuário primeiro
+      let userId = newContract.user_id;
+      
+      if (!selectedUser && userForm.email) {
+        // Verificar se já existe um usuário com este email
+        const { data: existingUser } = await supabase
+          .from('user_profiles')
+          .select('id')
+          .eq('email', userForm.email)
+          .single();
+
+        if (existingUser) {
+          userId = existingUser.id;
+        } else {
+          // Criar novo usuário no sistema de auth
+          const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+            email: userForm.email,
+            password: 'TempPassword123!', // Senha temporária
+            email_confirm: true,
+            user_metadata: {
+              full_name: userForm.full_name,
+              phone: userForm.phone
+            }
+          });
+
+          if (authError) throw authError;
+          
+          if (!authUser.user) {
+            throw new Error('Erro ao criar usuário no sistema de autenticação');
+          }
+
+          userId = authUser.user.id;
+
+          // Criar perfil do usuário
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert({
+              id: userId,
+              email: userForm.email,
+              phone: userForm.phone || null,
+              full_name: userForm.full_name,
+              leverage_multiplier: 1,
+              is_active: true,
+              contracted_plan: newContract.plan_type
+            });
+
+          if (profileError) {
+            console.warn('Warning creating profile:', profileError);
+            // Continue even if profile creation fails
+          }
+        }
+      }
+
+      if (!userId) {
+        throw new Error('Usuário deve ser selecionado ou dados preenchidos');
+      }
+
       // Calculate contract end date
       const startDate = new Date(newContract.contract_start);
       let endDate = new Date(startDate);
@@ -292,7 +349,7 @@ const AdminContractsPanel: React.FC = () => {
       }
 
       const contractData = {
-        user_id: newContract.user_id,
+        user_id: userId,
         plan_type: newContract.plan_type,
         billing_period: newContract.billing_period,
         monthly_value: newContract.monthly_value,
@@ -310,6 +367,7 @@ const AdminContractsPanel: React.FC = () => {
 
       setSuccess('Contrato adicionado com sucesso!');
       setShowAddModal(false);
+      clearUserSelection();
       setNewContract({
         user_id: '',
         plan_type: 'bitcoin',
@@ -903,14 +961,14 @@ const AdminContractsPanel: React.FC = () => {
                   <div>
                     <span className="text-blue-700 font-medium">Cliente:</span>
                     <div className="text-blue-800">
-                      {selectedUser || userForm.full_name ? (
+                      {selectedUser ? (
                         <>
-                          <div>{userForm.full_name || 'Nome não informado'}</div>
-                          <div className="text-xs text-blue-700">{userForm.email}</div>
-                          {userForm.phone && <div className="text-xs">{userForm.phone}</div>}
+                          <div>{selectedUser.full_name || 'Nome não cadastrado'}</div>
+                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
+                          {selectedUser.phone && <div className="text-xs">{selectedUser.phone}</div>}
                         </>
                       ) : (
-                        'Preencha os dados do cliente'
+                        'Selecione um usuário'
                       )}
                     </div>
                   </div>
