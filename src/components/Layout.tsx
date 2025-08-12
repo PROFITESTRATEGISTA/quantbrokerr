@@ -22,6 +22,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
   const [isConsultationFormOpen, setIsConsultationFormOpen] = useState(false);
 
+  // Listen for consultation form trigger
+  React.useEffect(() => {
+    const handleOpenConsultationForm = () => {
+      setIsConsultationFormOpen(true);
+    };
+
+    window.addEventListener('openConsultationForm', handleOpenConsultationForm);
+    return () => window.removeEventListener('openConsultationForm', handleOpenConsultationForm);
+  }, []);
+  const [isConsultationFormOpen, setIsConsultationFormOpen] = useState(false);
+
   const getCurrentView = () => {
     const path = location.pathname;
     if (path === '/') return 'home';
@@ -78,6 +89,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         onNavigateToPlans={() => window.location.href = '/planos'}
         onOpenLogin={handleOpenLoginForResults}
         onOpenConsultation={() => setIsConsultationFormOpen(true)}
+        onOpenConsultation={() => setIsConsultationFormOpen(true)}
       />
       
       <LoginModal
@@ -94,6 +106,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </div>
       )}
+      
+      <ConsultationForm
+        isOpen={isConsultationFormOpen}
+        onClose={() => setIsConsultationFormOpen(false)}
+      />
       
       <ConsultationForm
         isOpen={isConsultationFormOpen}

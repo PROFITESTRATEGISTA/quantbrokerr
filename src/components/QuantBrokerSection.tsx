@@ -132,6 +132,41 @@ const QuantBrokerSection: React.FC = () => {
           </div>
         </div>
 
+        {/* Call-to-Action Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+            <h3 className="text-3xl font-bold mb-4">
+              Quer Conhecer os Resultados no Detalhe?
+            </h3>
+            <p className="text-xl mb-8 text-blue-100 max-w-3xl mx-auto">
+              Agende uma reunião gratuita com nosso Consultor Quant e veja análises detalhadas 
+              de performance, estratégias personalizadas e demonstrações ao vivo
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {
+                  // Trigger consultation form
+                  const event = new CustomEvent('openConsultationForm');
+                  window.dispatchEvent(event);
+                }}
+                className="group px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center"
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                Agendar Reunião Gratuita
+              </button>
+              
+              <button
+                onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
+                className="group px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-all flex items-center justify-center"
+              >
+                <MessageCircle className="mr-2 h-5 w-5" />
+                WhatsApp Direto
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
