@@ -30,7 +30,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     window.addEventListener('openConsultationForm', handleOpenConsultationForm);
     return () => window.removeEventListener('openConsultationForm', handleOpenConsultationForm);
-  }, []);
 
   const getCurrentView = () => {
     const path = location.pathname;
