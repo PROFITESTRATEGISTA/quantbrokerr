@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { BarChart3, TrendingUp, Users, DollarSign, Calendar, ToggleLeft, ToggleRight, TrendingDown } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, DollarSign, Calendar, ToggleLeft, ToggleRight, TrendingDown, Building } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FinancialCost {
@@ -45,7 +45,7 @@ interface SupplierContract {
 
 const FinancialDashboard: React.FC = () => {
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'comparison'>('comparison');
+  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'comparison' | 'clients'>('comparison');
   const [costs, setCosts] = useState<FinancialCost[]>([]);
   const [contracts, setContracts] = useState<ClientContract[]>([]);
   const [supplierContracts, setSupplierContracts] = useState<SupplierContract[]>([]);
@@ -158,6 +158,14 @@ const FinancialDashboard: React.FC = () => {
           }).length;
           break;
 
+        case 'clients':
+          // Count total active clients (contracts) up to this month
+          value = contracts.filter(contract => {
+            const contractDate = new Date(contract.created_at);
+            return contractDate <= new Date(monthKey + '-31');
+          }).length;
+          break;
+
         case 'revenue':
           // Sum revenue from active contracts in this month
           value = contracts.filter(contract => {
@@ -232,7 +240,7 @@ const FinancialDashboard: React.FC = () => {
         operationalCosts: totalCosts,
         supplierCosts,
         profit,
-        formattedValue: dataType === 'users' ? value.toString() : `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        formattedValue: dataType === 'users' || dataType === 'clients' ? value.toString() : `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
       };
     });
   };
@@ -247,6 +255,13 @@ const FinancialDashboard: React.FC = () => {
           color: '#3b82f6',
           icon: Users,
           unit: 'usuários'
+        };
+      case 'clients':
+        return {
+          title: 'Evolução de Clientes ao Longo do Tempo',
+          color: '#3b82f6',
+          icon: Building,
+          unit: 'clientes'
         };
       case 'revenue':
         return {
@@ -368,7 +383,7 @@ const FinancialDashboard: React.FC = () => {
           stroke="#64748b"
           fontSize={12}
           tickFormatter={(value) => 
-            dataType === 'users' 
+            dataType === 'clients' 
               ? value.toString() 
               : `R$ ${(value / 1000).toFixed(0)}k`
           }
@@ -392,7 +407,7 @@ const FinancialDashboard: React.FC = () => {
           stroke="#64748b"
           fontSize={12}
           tickFormatter={(value) => 
-            dataType === 'users' 
+            dataType === 'clients' 
               ? value.toString() 
               : `R$ ${(value / 1000).toFixed(0)}k`
           }
@@ -442,7 +457,7 @@ const FinancialDashboard: React.FC = () => {
               <option value="profit">Lucro Líquido</option>
               <option value="revenue">Receita</option>
               <option value="costs">Custos Operacionais</option>
-              <option value="users">Usuários</option>
+              <option value="clients">Evolução de Clientes</option>
             </select>
           </div>
 
@@ -524,18 +539,18 @@ const FinancialDashboard: React.FC = () => {
           <div className="text-center">
             <div className="text-lg font-bold" style={{ color: config.color }}>
               {chartData.reduce((sum, item) => sum + item.value, 0).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' ? 0 : 2 
+                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
               })}
             </div>
             <div className="text-sm text-gray-600">
-              Total {dataType === 'users' ? 'Usuários' : dataType === 'revenue' ? 'Receita' : dataType === 'profit' ? 'Lucro' : 'Custos'}
+              Total {dataType === 'users' ? 'Usuários' : dataType === 'clients' ? 'Clientes' : dataType === 'revenue' ? 'Receita' : dataType === 'profit' ? 'Lucro' : 'Custos'}
             </div>
           </div>
           
           <div className="text-center">
             <div className="text-lg font-bold text-blue-600">
               {(chartData.reduce((sum, item) => sum + item.value, 0) / Math.max(chartData.filter(d => d.value > 0).length, 1)).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' ? 0 : 2 
+                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
               })}
             </div>
             <div className="text-sm text-gray-600">Média Mensal</div>
@@ -544,7 +559,7 @@ const FinancialDashboard: React.FC = () => {
           <div className="text-center">
             <div className="text-lg font-bold text-green-600">
               {Math.max(...chartData.map(d => d.value)).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' ? 0 : 2 
+                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
               })}
             </div>
             <div className="text-sm text-gray-600">Maior Valor</div>

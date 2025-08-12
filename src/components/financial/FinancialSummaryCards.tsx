@@ -139,6 +139,22 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
           </div>
         </div>
       </div>
+
+      {/* Average Leverage Card */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center">
+          <TrendingUp className="h-8 w-8 text-indigo-600" />
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">Alavancagem Média por Cliente</p>
+            <p className="text-2xl font-bold text-indigo-600">
+              {contracts.length > 0 
+                ? (contracts.reduce((sum, contract) => sum + (contract.leverage_multiplier || 1), 0) / contracts.length).toFixed(1)
+                : '0.0'
+              }x
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
