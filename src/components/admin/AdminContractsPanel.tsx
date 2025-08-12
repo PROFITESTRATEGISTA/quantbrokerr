@@ -36,6 +36,7 @@ const AdminContractsPanel: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
+  const [uploading, setUploading] = useState<string | null>(null);
 
   const [newContract, setNewContract] = useState({
     plan_type: 'bitcoin',
@@ -508,7 +509,43 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-gray-400 text-sm">Não disponível</span>
+                    <div className="flex items-center space-x-2">
+                      {contract.contract_file_url ? (
+                        <div className="flex items-center space-x-2">
+                          <a
+                            href={contract.contract_file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            <FileText className="h-4 w-4" />
+                            Ver Contrato
+                          </a>
+                          <button
+                            onClick={() => handleFileUpload(contract.id)}
+                            className="inline-flex items-center gap-1 text-green-600 hover:text-green-800 text-sm"
+                            title="Substituir arquivo"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Substituir
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleFileUpload(contract.id)}
+                          className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                        >
+                          <Upload className="h-4 w-4" />
+                          Anexar
+                        </button>
+                      )}
+                      {uploading === contract.id && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs text-blue-600">Enviando...</span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingContract === contract.id ? (
