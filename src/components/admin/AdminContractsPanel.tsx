@@ -52,31 +52,47 @@ const AdminContractsPanel: React.FC = () => {
   // Fetch available users for contract creation
   const fetchAvailableUsers = async () => {
     try {
-      console.log('🔍 Buscando usuários disponíveis...');
+      console.log('🔍 Buscando usuários do site...');
+      setError(null);
       
-      // First try to get from user_profiles
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, full_name, email, phone')
-        .order('full_name', { ascending: true });
+      // Use the admin edge function to get all users (auth + profiles)
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      if (error) {
-        console.error('❌ Erro ao buscar user_profiles:', error);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      console.log('✅ Usuários encontrados:', data?.length || 0);
-      console.log('📋 Lista de usuários:', data);
+      const result = await response.json();
       
-      setAvailableUsers(data || []);
-      
-      // Se não há usuários em user_profiles, tentar buscar do auth
-      if (!data || data.length === 0) {
-        console.log('⚠️ Nenhum usuário em user_profiles, tentando buscar do auth...');
-        await fetchUsersFromAuth();
+      if (result.success && result.users) {
+        console.log('✅ Usuários carregados:', result.users.length);
+        console.log('📋 Lista completa:', result.users);
+        
+        // Sort users by name or email
+        const sortedUsers = result.users.sort((a: any, b: any) => {
+          const nameA = a.full_name || a.email || '';
+          const nameB = b.full_name || b.email || '';
+          return nameA.localeCompare(nameB);
+        });
+        
+        setAvailableUsers(sortedUsers);
+        
+        if (sortedUsers.length === 0) {
+          setError('Nenhum usuário encontrado no sistema. Verifique se há usuários cadastrados.');
+        }
+      } else {
+        throw new Error(result.error || 'Erro ao carregar usuários');
       }
+      
     } catch (error) {
-      console.error('❌ Erro ao buscar usuários:', error);
+      console.error('❌ Erro ao carregar usuários:', error);
+      setError('Erro ao carregar lista de usuários. Tente novamente.');
       setAvailableUsers([]);
     }
   };
@@ -616,6 +632,25 @@ const AdminContractsPanel: React.FC = () => {
                           </div>
                         </div>
                         
+                        {/* Header com total de usuários */}
+                        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-700">
+                              {availableUsers.length} usuários disponíveis
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log('🔄 Recarregando lista de usuários...');
+                                fetchAvailableUsers();
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              Atualizar Lista
+                            </button>
+                          </div>
+                        </div>
+                        
                         {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
                             key={user.id}
@@ -653,6 +688,20 @@ const AdminContractsPanel: React.FC = () => {
                                   : 'Digite para filtrar usuários...'
                               }
                             </p>
+                            {availableUsers.length === 0 && (
+                              <div className="mt-3">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    console.log('🔄 Tentando sincronizar usuários...');
+                                    fetchUsersFromAuth();
+                                  }}
+                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
+                                >
+                                  Carregar Usuários do Sistema
+                                </button>
+                              </div>
+                            )}
                             {availableUsers.length === 0 && (
                               <div className="mt-3">
                                 <button
