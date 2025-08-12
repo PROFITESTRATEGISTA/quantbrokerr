@@ -14,9 +14,6 @@ interface LeadSource {
   lead_status?: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost' | 'no_contact';
   notes?: string;
   last_contact?: string;
-  lead_status?: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost' | 'no_contact';
-  notes?: string;
-  last_contact?: string;
 }
 
 const AdminLeadsPanel: React.FC = () => {
@@ -25,19 +22,9 @@ const AdminLeadsPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [filterSource, setFilterSource] = useState<'all' | 'user' | 'waitlist' | 'consultation'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'new' | 'contacted' | 'qualified' | 'converted' | 'lost' | 'no_contact'>('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'new' | 'contacted' | 'qualified' | 'converted' | 'lost' | 'no_contact'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingLead, setEditingLead] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<{
-    lead_status: string;
-    notes: string;
-  }>({
-    lead_status: 'new',
-    notes: ''
-  });
   const [editingLead, setEditingLead] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     lead_status: string;
@@ -78,7 +65,6 @@ const AdminLeadsPanel: React.FC = () => {
             source: 'user',
             created_at: user.created_at,
             lead_status: 'new'
-            lead_status: 'new'
           });
         });
       }
@@ -95,7 +81,6 @@ const AdminLeadsPanel: React.FC = () => {
             status: form.status,
             consultation_type: form.consultation_type,
             lead_status: 'new'
-            lead_status: 'new'
           });
         });
       }
@@ -111,7 +96,6 @@ const AdminLeadsPanel: React.FC = () => {
             created_at: entry.created_at,
             status: entry.status,
             portfolio_type: entry.portfolio_type,
-            lead_status: 'new'
             lead_status: 'new'
           });
         });
@@ -147,11 +131,6 @@ const AdminLeadsPanel: React.FC = () => {
     // Filter by source
     if (filterSource !== 'all') {
       filtered = filtered.filter(lead => lead.source === filterSource);
-    }
-
-    // Filter by lead status
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(lead => (lead.lead_status || 'new') === filterStatus);
     }
 
     // Filter by lead status
@@ -259,94 +238,7 @@ const AdminLeadsPanel: React.FC = () => {
     };
     return names[status as keyof typeof names] || 'Novo';
   };
-  const updateLeadStatus = async (email: string, leadStatus: string, notes: string = '') => {
-    try {
-      setError(null);
-      
-      // Store lead status in localStorage (since we don't have a dedicated leads table)
-      const leadStatusKey = `lead_status_${email}`;
-      const leadData = {
-        lead_status: leadStatus,
-        notes: notes,
-        last_contact: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      localStorage.setItem(leadStatusKey, JSON.stringify(leadData));
-      
-      // Update the leads array with new status
-      setUniqueLeads(prevLeads => 
-        prevLeads.map(lead => 
-          lead.email === email 
-            ? { 
-                ...lead, 
-                lead_status: leadStatus as any,
-                notes: notes,
-                last_contact: new Date().toISOString()
-              }
-            : lead
-        )
-      );
-      
-      setSuccess('Status do lead atualizado com sucesso!');
-      setEditingLead(null);
-    } catch (error: any) {
-      setError(error.message);
-    }
-  };
 
-  const getLeadStatusFromStorage = (email: string) => {
-    try {
-      const stored = localStorage.getItem(`lead_status_${email}`);
-      return stored ? JSON.parse(stored) : { lead_status: 'new', notes: '', last_contact: null };
-    } catch {
-      return { lead_status: 'new', notes: '', last_contact: null };
-    }
-  };
-
-  const handleEditLead = (lead: LeadSource) => {
-    const storedData = getLeadStatusFromStorage(lead.email);
-    setEditingLead(lead.email);
-    setEditForm({
-      lead_status: storedData.lead_status || 'new',
-      notes: storedData.notes || ''
-    });
-  };
-
-  const handleSaveLead = async () => {
-    if (!editingLead) return;
-    
-    await updateLeadStatus(editingLead, editForm.lead_status, editForm.notes);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingLead(null);
-    setEditForm({ lead_status: 'new', notes: '' });
-  };
-
-  const getLeadStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800';
-      case 'contacted': return 'bg-yellow-100 text-yellow-800';
-      case 'qualified': return 'bg-purple-100 text-purple-800';
-      case 'converted': return 'bg-green-100 text-green-800';
-      case 'lost': return 'bg-red-100 text-red-800';
-      case 'no_contact': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-blue-100 text-blue-800';
-    }
-  };
-
-  const getLeadStatusDisplayName = (status: string) => {
-    const names = {
-      'new': 'Novo',
-      'contacted': 'Contatado',
-      'qualified': 'Qualificado',
-      'converted': 'Convertido',
-      'lost': 'Perdido',
-      'no_contact': 'Sem Contato'
-    };
-    return names[status as keyof typeof names] || 'Novo';
-  };
   const filteredLeads = applyFilters();
 
   const getSourceDisplayName = (source: string) => {
@@ -400,16 +292,7 @@ const AdminLeadsPanel: React.FC = () => {
   const contactedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'contacted').length;
   const convertedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'converted').length;
   const conversionRate = totalUniqueLeads > 0 ? (convertedLeads / totalUniqueLeads) * 100 : 0;
-  // Calculate status metrics
-  const leadsWithStoredStatus = uniqueLeads.map(lead => ({
-    ...lead,
-    ...getLeadStatusFromStorage(lead.email)
-  }));
 
-  const newLeads = leadsWithStoredStatus.filter(l => (l.lead_status || 'new') === 'new').length;
-  const contactedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'contacted').length;
-  const convertedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'converted').length;
-  const conversionRate = totalUniqueLeads > 0 ? (convertedLeads / totalUniqueLeads) * 100 : 0;
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -437,14 +320,6 @@ const AdminLeadsPanel: React.FC = () => {
           <AlertCircle className="h-5 w-5 mr-2" />
           {error}
           <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700">×</button>
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
-          <CheckCircle className="h-5 w-5 mr-2" />
-          {success}
-          <button onClick={() => setSuccess(null)} className="ml-auto text-green-500 hover:text-green-700">×</button>
         </div>
       )}
 
@@ -484,36 +359,6 @@ const AdminLeadsPanel: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Fila de Espera</p>
               <p className="text-2xl font-bold text-orange-600">{waitlistLeads}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <UserCheck className="h-8 w-8 text-green-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Taxa de Conversão</p>
-              <p className="text-2xl font-bold text-green-600">{conversionRate.toFixed(1)}%</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <MessageCircle className="h-8 w-8 text-yellow-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Leads Contatados</p>
-              <p className="text-2xl font-bold text-yellow-600">{contactedLeads}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <Target className="h-8 w-8 text-blue-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Leads Novos</p>
-              <p className="text-2xl font-bold text-blue-600">{newLeads}</p>
             </div>
           </div>
         </div>
@@ -604,23 +449,6 @@ const AdminLeadsPanel: React.FC = () => {
               <option value="no_contact">Sem Contato</option>
             </select>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status do Lead</label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">Todos os Status</option>
-              <option value="new">Novos</option>
-              <option value="contacted">Contatados</option>
-              <option value="qualified">Qualificados</option>
-              <option value="converted">Convertidos</option>
-              <option value="lost">Perdidos</option>
-              <option value="no_contact">Sem Contato</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -642,7 +470,6 @@ const AdminLeadsPanel: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonte</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Lead</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Lead</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -651,8 +478,6 @@ const AdminLeadsPanel: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLeads.map((lead, index) => {
                 const SourceIcon = getSourceIcon(lead.source);
-                const storedData = getLeadStatusFromStorage(lead.email);
-                const leadStatus = storedData.lead_status || 'new';
                 const storedData = getLeadStatusFromStorage(lead.email);
                 const leadStatus = storedData.lead_status || 'new';
                 
@@ -772,19 +597,6 @@ const AdminLeadsPanel: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEditLead(lead)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="Editar status do lead"
-                        >
-                          <Edit3 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            window.open(`https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${lead.full_name}, sou da Quant Broker. Vi seu interesse em nossos Portfólios de IA. Como posso ajudar?`, '_blank');
-                            // Auto-update status to contacted when WhatsApp is opened
-                            updateLeadStatus(lead.email, 'contacted', 'Contato via WhatsApp');
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleEditLead(lead)}
