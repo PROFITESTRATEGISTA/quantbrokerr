@@ -146,6 +146,50 @@ const SupplierContractsPanel: React.FC = () => {
     }
   };
 
+  const handleDeleteContractFile = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir o arquivo do contrato?')) return;
+
+    try {
+      setError(null);
+      
+      // Get contract to find file URL
+      const contract = contracts.find(c => c.id === contractId);
+      if (!contract?.contract_file_url) {
+        setError('Nenhum arquivo encontrado para excluir');
+        return;
+      }
+
+      // Extract file path from URL
+      const url = new URL(contract.contract_file_url);
+      const filePath = url.pathname.split('/').pop();
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: deleteError } = await supabase.storage
+          .from('supplier-contracts')
+          .remove([`supplier-contracts/${filePath}`]);
+
+        if (deleteError) {
+          console.warn('Warning deleting file:', deleteError);
+        }
+      }
+
+      // Update contract to remove file URL
+      const { error: updateError } = await supabase
+        .from('supplier_contracts')
+        .update({ contract_file_url: null })
+        .eq('id', contractId);
+
+      if (updateError) throw updateError;
+
+      setSuccess('Arquivo do contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Delete file error:', error);
+      setError(error.message || 'Erro ao excluir arquivo do contrato');
+    }
+  };
+
   const [newContract, setNewContract] = useState({
     supplier_name: '',
     supplier_email: '',
@@ -540,14 +584,23 @@ const SupplierContractsPanel: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         {contract.contract_file_url ? (
-                          <a
-                            href={contract.contract_file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm"
-                          >
-                            Ver Contrato
-                          </a>
+                          <>
+                            <a
+                              href={contract.contract_file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              Ver Contrato
+                            </a>
+                            <button
+                              onClick={() => handleDeleteContractFile(contract.id)}
+                              className="text-red-600 hover:text-red-800 text-xs"
+                              title="Excluir arquivo do contrato"
+                            >
+                              Excluir Arquivo
+                            </button>
+                          </>
                         ) : (
                           <span className="text-sm text-gray-500">Não anexado</span>
                         )}
@@ -921,4 +974,3 @@ const SupplierContractsPanel: React.FC = () => {
 };
 
 export default SupplierContractsPanel;
-
