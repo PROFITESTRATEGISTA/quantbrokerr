@@ -427,6 +427,7 @@ const UserManagementPanel: React.FC = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Usuário</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contato</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Login</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Usuário</th>
@@ -481,22 +482,25 @@ const UserManagementPanel: React.FC = () => {
                           </span>
                         </div>
                         <div className="ml-4">
-                          {editingUser === user.id ? (
-                            <input
-                              type="text"
-                              value={editForm.full_name || ''}
-                              onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                              className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 min-w-[150px]"
-                              placeholder="Nome completo"
-                            />
-                          ) : (
-                            <div className="text-sm font-medium text-gray-900">
-                              {user.full_name || 'Nome não informado'}
-                            </div>
-                          )}
                           <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="text-xs text-gray-400">ID: {user.id.substring(0, 8)}...</div>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingUser === user.id ? (
+                        <input
+                          type="text"
+                          value={editForm.full_name || ''}
+                          onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
+                          className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 min-w-[150px]"
+                          placeholder="Nome completo"
+                        />
+                      ) : (
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.full_name || 'Nome não informado'}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUser === user.id ? (
