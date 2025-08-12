@@ -661,6 +661,26 @@ const AdminContractsPanel: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
+                      {/* Toggle Status */}
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-gray-500">
+                          {contract.is_active ? 'Ativo' : 'Inativo'}
+                        </span>
+                        <button
+                          onClick={() => handleToggleContractStatus(contract.id, contract.is_active)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            contract.is_active ? 'bg-green-600' : 'bg-gray-400'
+                          }`}
+                          title={contract.is_active ? 'Desativar contrato' : 'Ativar contrato'}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              contract.is_active ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      
                       <button
                         onClick={() => {
                           setEditingContract(contract.id);
@@ -672,11 +692,7 @@ const AdminContractsPanel: React.FC = () => {
                         <Edit3 className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm('Tem certeza que deseja excluir este contrato?')) {
-                            handleDeleteContract(contract.id);
-                          }
-                        }}
+                        onClick={() => handleDeleteContract(contract.id)}
                         className="text-red-600 hover:text-red-800"
                         title="Excluir contrato"
                       >
@@ -1057,9 +1073,9 @@ const AdminContractsPanel: React.FC = () => {
                   <div>
                     <span className="text-blue-700 font-medium">Cliente:</span>
                     <div className="text-blue-800">
-                      <div>{userForm.full_name || selectedUser?.full_name || 'Nome não informado'}</div>
-                      <div className="text-xs text-blue-700">{userForm.email || selectedUser?.email || 'Email não informado'}</div>
-                      {(userForm.phone || selectedUser?.phone) && <div className="text-xs">{userForm.phone || selectedUser?.phone}</div>}
+                      <div>{userForm.full_name || 'Nome não informado'}</div>
+                      <div className="text-xs text-blue-700">{userForm.email || 'Email não informado'}</div>
+                      {userForm.phone && <div className="text-xs">{userForm.phone}</div>}
                     </div>
                   </div>
                   <div>
