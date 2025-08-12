@@ -324,7 +324,7 @@ const AdminContractsPanel: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {contract.user_profiles?.full_name || 'Nome não cadastrado'}
-                      {contract.user_profiles?.full_name || 'Nome não cadastrado'}
+                    </div>
                     <div className="text-sm text-gray-500">
                       ID: {contract.user_id.substring(0, 8)}...
                     </div>
