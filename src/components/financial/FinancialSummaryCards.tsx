@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Building, Users } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Building, Users, Target, UserCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FinancialCost {

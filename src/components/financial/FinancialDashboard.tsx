@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { BarChart3, TrendingUp, Users, DollarSign, Calendar, ToggleLeft, ToggleRight, TrendingDown, Building } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, DollarSign, Calendar, ToggleLeft, ToggleRight, TrendingDown, Building, Target, UserCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FinancialCost {
@@ -45,10 +45,11 @@ interface SupplierContract {
 
 const FinancialDashboard: React.FC = () => {
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'clients'>('revenue');
+  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'clients' | 'cal' | 'cac' | 'churn'>('revenue');
   const [costs, setCosts] = useState<FinancialCost[]>([]);
   const [contracts, setContracts] = useState<ClientContract[]>([]);
   const [supplierContracts, setSupplierContracts] = useState<SupplierContract[]>([]);
+  const [waitlistEntries, setWaitlistEntries] = useState<any[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,6 +64,7 @@ const FinancialDashboard: React.FC = () => {
         fetchCosts(),
         fetchContracts(),
         fetchSupplierContracts(),
+        fetchWaitlistEntries(),
         fetchUsers()
       ]);
     } catch (error) {
@@ -116,6 +118,20 @@ const FinancialDashboard: React.FC = () => {
     }
   };
 
+  const fetchWaitlistEntries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('waitlist_entries')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setWaitlistEntries(data || []);
+    } catch (error) {
+      console.error('Error fetching waitlist entries:', error);
+    }
+  };
+
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase
@@ -147,6 +163,10 @@ const FinancialDashboard: React.FC = () => {
       let totalCosts = 0;
       let supplierCosts = 0;
       let profit = 0;
+      let marketingCosts = 0;
+      let newLeads = 0;
+      let newCustomers = 0;
+      let cancelledCustomers = 0;
 
       switch (dataType) {
         case 'users':
@@ -207,12 +227,67 @@ const FinancialDashboard: React.FC = () => {
 
           value = revenue - totalCosts - supplierCosts;
           break;
+
+        case 'cal':
+          // CAL (Cost per Lead) - Marketing costs / New leads in this month
+          marketingCosts = costs.filter(cost => {
+            const costDate = new Date(cost.cost_date);
+            const costMonthKey = `${costDate.getFullYear()}-${String(costDate.getMonth() + 1).padStart(2, '0')}`;
+            return costMonthKey === monthKey && cost.category === 'marketing';
+          }).reduce((sum, cost) => sum + cost.amount, 0);
+
+          newLeads = waitlistEntries.filter(entry => {
+            const entryDate = new Date(entry.created_at);
+            const entryMonthKey = `${entryDate.getFullYear()}-${String(entryDate.getMonth() + 1).padStart(2, '0')}`;
+            return entryMonthKey === monthKey;
+          }).length;
+
+          value = newLeads > 0 ? marketingCosts / newLeads : 0;
+          break;
+
+        case 'cac':
+          // CAC (Customer Acquisition Cost) - Marketing costs / New customers in this month
+          marketingCosts = costs.filter(cost => {
+            const costDate = new Date(cost.cost_date);
+            const costMonthKey = `${costDate.getFullYear()}-${String(costDate.getMonth() + 1).padStart(2, '0')}`;
+            return costMonthKey === monthKey && cost.category === 'marketing';
+          }).reduce((sum, cost) => sum + cost.amount, 0);
+
+          newCustomers = contracts.filter(contract => {
+            const contractDate = new Date(contract.created_at);
+            const contractMonthKey = `${contractDate.getFullYear()}-${String(contractDate.getMonth() + 1).padStart(2, '0')}`;
+            return contractMonthKey === monthKey;
+          }).length;
+
+          value = newCustomers > 0 ? marketingCosts / newCustomers : 0;
+          break;
+
+        case 'churn':
+          // Churn Rate - Cancelled contracts in this month / Total active contracts at start of month
+          const contractsAtStartOfMonth = contracts.filter(contract => {
+            const contractDate = new Date(contract.created_at);
+            return contractDate < new Date(monthKey + '-01');
+          }).length;
+
+          cancelledCustomers = contracts.filter(contract => {
+            if (!contract.updated_at || contract.is_active) return false;
+            const updateDate = new Date(contract.updated_at);
+            const updateMonthKey = `${updateDate.getFullYear()}-${String(updateDate.getMonth() + 1).padStart(2, '0')}`;
+            return updateMonthKey === monthKey;
+          }).length;
+
+          value = contractsAtStartOfMonth > 0 ? (cancelledCustomers / contractsAtStartOfMonth) * 100 : 0;
+          break;
       }
 
       return {
         month,
         value,
-        formattedValue: dataType === 'users' || dataType === 'clients' ? value.toString() : `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+        formattedValue: dataType === 'users' || dataType === 'clients' 
+          ? value.toString() 
+          : dataType === 'churn'
+          ? `${value.toFixed(1)}%`
+          : `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
       };
     });
   };
@@ -256,6 +331,27 @@ const FinancialDashboard: React.FC = () => {
           icon: TrendingUp,
           unit: 'R$'
         };
+      case 'cal':
+        return {
+          title: 'CAL - Custo por Lead',
+          color: '#eab308',
+          icon: Target,
+          unit: 'R$'
+        };
+      case 'cac':
+        return {
+          title: 'CAC - Custo por Cliente',
+          color: '#f97316',
+          icon: UserCheck,
+          unit: 'R$'
+        };
+      case 'churn':
+        return {
+          title: 'Taxa de Churn',
+          color: '#ef4444',
+          icon: TrendingDown,
+          unit: '%'
+        };
       case 'comparison':
         return {
           title: 'Comparativo Financeiro',
@@ -265,9 +361,9 @@ const FinancialDashboard: React.FC = () => {
         };
       default:
         return {
-          title: 'Lucro Líquido Mensal',
-          color: '#8b5cf6',
-          icon: TrendingUp,
+          title: 'Receita Mensal',
+          color: '#22c55e',
+          icon: DollarSign,
           unit: 'R$'
         };
     }
@@ -307,6 +403,8 @@ const FinancialDashboard: React.FC = () => {
           tickFormatter={(value) => 
             dataType === 'clients' 
               ? value.toString() 
+              : dataType === 'churn'
+              ? `${value.toFixed(1)}%`
               : `R$ ${(value / 1000).toFixed(0)}k`
           }
         />
@@ -331,6 +429,8 @@ const FinancialDashboard: React.FC = () => {
           tickFormatter={(value) => 
             dataType === 'clients' 
               ? value.toString() 
+              : dataType === 'churn'
+              ? `${value.toFixed(1)}%`
               : `R$ ${(value / 1000).toFixed(0)}k`
           }
         />
@@ -381,6 +481,9 @@ const FinancialDashboard: React.FC = () => {
               <option value="profit">Lucro Líquido Mensal</option>
               <option value="costs">Custos Operacionais</option>
               <option value="clients">Evolução de Clientes</option>
+              <option value="cal">CAL - Custo por Lead</option>
+              <option value="cac">CAC - Custo por Cliente</option>
+              <option value="churn">Taxa de Churn</option>
             </select>
           </div>
 
@@ -422,19 +525,26 @@ const FinancialDashboard: React.FC = () => {
         <div className="text-center">
           <div className="text-lg font-bold" style={{ color: config.color }}>
             {chartData.reduce((sum, item) => sum + item.value, 0).toLocaleString('pt-BR', { 
-              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+              minimumFractionDigits: dataType === 'clients' || dataType === 'churn' ? 0 : 2 
             })}
+            {dataType === 'churn' ? '%' : ''}
           </div>
           <div className="text-sm text-gray-600">
-            Total {dataType === 'clients' ? 'Clientes' : dataType === 'revenue' ? 'Receita' : dataType === 'profit' ? 'Lucro' : 'Custos'}
+            Total {dataType === 'clients' ? 'Clientes' : 
+                   dataType === 'revenue' ? 'Receita' : 
+                   dataType === 'profit' ? 'Lucro' : 
+                   dataType === 'cal' ? 'CAL' :
+                   dataType === 'cac' ? 'CAC' :
+                   dataType === 'churn' ? 'Churn' : 'Custos'}
           </div>
         </div>
         
         <div className="text-center">
           <div className="text-lg font-bold text-blue-600">
             {(chartData.reduce((sum, item) => sum + item.value, 0) / Math.max(chartData.filter(d => d.value > 0).length, 1)).toLocaleString('pt-BR', { 
-              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+              minimumFractionDigits: dataType === 'clients' || dataType === 'churn' ? 0 : 2 
             })}
+            {dataType === 'churn' ? '%' : ''}
           </div>
           <div className="text-sm text-gray-600">Média Mensal</div>
         </div>
@@ -442,8 +552,9 @@ const FinancialDashboard: React.FC = () => {
         <div className="text-center">
           <div className="text-lg font-bold text-green-600">
             {Math.max(...chartData.map(d => d.value)).toLocaleString('pt-BR', { 
-              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+              minimumFractionDigits: dataType === 'clients' || dataType === 'churn' ? 0 : 2 
             })}
+            {dataType === 'churn' ? '%' : ''}
           </div>
           <div className="text-sm text-gray-600">Maior Valor</div>
         </div>
