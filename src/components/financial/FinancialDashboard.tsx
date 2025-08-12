@@ -453,7 +453,6 @@ const FinancialDashboard: React.FC = () => {
               onChange={(e) => setDataType(e.target.value as any)}
               className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="comparison">Comparativo Completo</option>
               <option value="profit">Lucro Líquido</option>
               <option value="revenue">Receita</option>
               <option value="costs">Custos Operacionais</option>
