@@ -159,7 +159,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
         <ResponsiveContainer width="100%" height="100%">
           {activeChart === 'category' && (
             <>
-              {categoryChartData.length > 0 ? (
+              {categoryChartData.length > 0 && categoryChartData.some(item => item.value > 0) ? (
                 <PieChart>
                   <Pie
                     data={categoryChartData}
@@ -168,14 +168,9 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent, value }) => {
-                      if (!value || value === 0 || !percent || isNaN(percent)) {
-                        return null;
-                      }
-                      return `${name} ${(percent * 100).toFixed(1)}%`;
-                    }}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
                   >
-                    {categoryChartData.map((entry, index) => (
+                    {categoryChartData.filter(entry => entry.value > 0).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
