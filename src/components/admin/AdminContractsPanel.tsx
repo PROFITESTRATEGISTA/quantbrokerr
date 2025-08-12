@@ -31,6 +31,9 @@ const AdminContractsPanel: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [contractToCancel, setContractToCancel] = useState<string | null>(null);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   // User search states
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
@@ -524,6 +527,41 @@ const AdminContractsPanel: React.FC = () => {
     }
   };
 
+  const handleCancelContract = (contractId: string) => {
+    setContractToCancel(contractId);
+    setShowCancelModal(true);
+  };
+
+  const confirmCancelContract = async () => {
+    if (!contractToCancel || !cancellationReason.trim()) {
+      setError('Motivo do cancelamento é obrigatório');
+      return;
+    }
+
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({ 
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contractToCancel);
+
+      if (error) throw error;
+
+      setSuccess(`Contrato cancelado com sucesso! Motivo: ${cancellationReason}`);
+      setShowCancelModal(false);
+      setContractToCancel(null);
+      setCancellationReason('');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Error cancelling contract:', error);
+      setError(error.message);
+    }
+  };
+
   const getPlanDisplayName = (plan: string) => {
     const plans = {
       'bitcoin': 'Bitcoin',
@@ -542,6 +580,35 @@ const AdminContractsPanel: React.FC = () => {
     };
     return periods[period as keyof typeof periods] || period;
   };
+
+  // Calculate churn metrics
+  const calculateChurnMetrics = () => {
+    const totalContracts = contracts.length;
+    const activeContracts = contracts.filter(c => c.is_active).length;
+    const cancelledContracts = contracts.filter(c => !c.is_active).length;
+    const churnRate = totalContracts > 0 ? (cancelledContracts / totalContracts) * 100 : 0;
+    
+    // Calculate monthly churn (contracts cancelled in last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentlyCancelled = contracts.filter(c => 
+      !c.is_active && new Date(c.updated_at) > thirtyDaysAgo
+    ).length;
+    
+    const monthlyChurnRate = activeContracts > 0 ? (recentlyCancelled / (activeContracts + recentlyCancelled)) * 100 : 0;
+    
+    return {
+      totalContracts,
+      activeContracts,
+      cancelledContracts,
+      churnRate,
+      monthlyChurnRate,
+      recentlyCancelled
+    };
+  };
+
+  const churnMetrics = calculateChurnMetrics();
 
   if (loading) {
     return (
@@ -627,17 +694,31 @@ const AdminContractsPanel: React.FC = () => {
           </div>
         </div>
 
+        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
+          <div className="flex items-center">
+            <X className="h-8 w-8 text-red-600" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Taxa de Churn</p>
+              <p className="text-2xl font-bold text-red-600">
+                {churnMetrics.churnRate.toFixed(1)}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {churnMetrics.cancelledContracts} de {churnMetrics.totalContracts} cancelados
+              </p>
+            </div>
+          </div>
+        </div>
+        
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
             <Calendar className="h-8 w-8 text-orange-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Novos (30 dias)</p>
+              <p className="text-sm font-medium text-gray-600">Churn Mensal</p>
               <p className="text-2xl font-bold text-orange-600">
-                {contracts.filter(c => {
-                  const thirtyDaysAgo = new Date();
-                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                  return new Date(c.created_at) > thirtyDaysAgo;
-                }).length}
+                {churnMetrics.monthlyChurnRate.toFixed(1)}%
+              </p>
+              <p className="text-xs text-gray-500">
+                {churnMetrics.recentlyCancelled} cancelados (30 dias)
               </p>
             </div>
           </div>
@@ -772,6 +853,17 @@ const AdminContractsPanel: React.FC = () => {
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
+                      
+                      {/* Cancel Contract Button */}
+                      {contract.is_active && (
+                        <button
+                          onClick={() => handleCancelContract(contract.id)}
+                          className="text-orange-600 hover:text-orange-800"
+                          title="Cancelar contrato (para cálculo de churn)"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -1159,6 +1251,64 @@ const AdminContractsPanel: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Contract Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Cancelar Contrato</h2>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-orange-600 mr-2" />
+                  <p className="text-orange-800 text-sm">
+                    Esta ação marcará o contrato como cancelado para cálculo de churn. 
+                    O contrato permanecerá no histórico.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motivo do Cancelamento *
+                </label>
+                <textarea
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Descreva o motivo do cancelamento..."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmCancelContract}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Confirmar Cancelamento
+                </button>
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
