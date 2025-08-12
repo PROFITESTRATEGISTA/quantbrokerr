@@ -256,12 +256,19 @@ const FinancialDashboard: React.FC = () => {
           icon: TrendingUp,
           unit: 'R$'
         };
-      default:
+      case 'comparison':
         return {
-          title: 'Dashboard Financeiro',
+          title: 'Comparativo Financeiro',
           color: '#6b7280',
           icon: BarChart3,
           unit: ''
+        };
+      default:
+        return {
+          title: 'Lucro Líquido Mensal',
+          color: '#8b5cf6',
+          icon: TrendingUp,
+          unit: 'R$'
         };
     }
   };
@@ -356,7 +363,9 @@ const FinancialDashboard: React.FC = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
         <div className="flex items-center">
           <config.icon className="h-6 w-6 text-gray-600 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900">{config.title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {config.title}
+          </h3>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3">
@@ -368,7 +377,7 @@ const FinancialDashboard: React.FC = () => {
               onChange={(e) => setDataType(e.target.value as any)}
               className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="profit">Lucro Líquido</option>
+              <option value="profit">Lucro Líquido Mensal</option>
               <option value="revenue">Receita</option>
               <option value="costs">Custos Operacionais</option>
               <option value="clients">Evolução de Clientes</option>
@@ -376,31 +385,29 @@ const FinancialDashboard: React.FC = () => {
           </div>
 
           {/* Chart Type Toggle - Hide for comparison view */}
-          {dataType !== 'comparison' && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Tipo:</span>
-              <button
-                onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                  chartType === 'bar' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {chartType === 'bar' ? (
-                  <>
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="text-sm">Barras</span>
-                  </>
-                ) : (
-                  <>
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-sm">Linha</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Tipo:</span>
+            <button
+              onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                chartType === 'bar' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              {chartType === 'bar' ? (
+                <>
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="text-sm">Barras</span>
+                </>
+              ) : (
+                <>
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="text-sm">Linha</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
