@@ -272,6 +272,9 @@ const AdminContractsPanel: React.FC = () => {
         throw new Error('Selecione um usuário para o contrato');
       }
 
+      if (newContract.monthly_value <= 0) {
+        throw new Error('O valor mensal deve ser maior que zero');
+      }
       // Calculate contract end date
       const startDate = new Date(newContract.contract_start);
       let endDate = new Date(startDate);
@@ -342,6 +345,9 @@ const AdminContractsPanel: React.FC = () => {
     if (!editingContract) return;
 
     try {
+      if (editForm.monthly_value !== undefined && editForm.monthly_value <= 0) {
+        throw new Error('O valor mensal deve ser maior que zero');
+      }
       const { error } = await supabase
         .from('client_contracts')
         .update(editForm)
