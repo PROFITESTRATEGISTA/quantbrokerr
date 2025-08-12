@@ -35,6 +35,7 @@ const AdminContractsPanel: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
 
   const [newContract, setNewContract] = useState({
     plan_type: 'bitcoin',
@@ -45,6 +46,95 @@ const AdminContractsPanel: React.FC = () => {
     contract_end: '',
     is_active: true
   });
+
+  const handleFileUpload = async (contractId: string) => {
+    try {
+      // Create file input element
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.pdf,.doc,.docx';
+      fileInput.style.display = 'none';
+      
+      fileInput.onchange = async (event) => {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        try {
+          setUploading(contractId);
+          setError(null);
+
+          // Validate file type
+          const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+          if (!allowedTypes.includes(file.type)) {
+            throw new Error('Tipo de arquivo não permitido. Use PDF, DOC ou DOCX.');
+          }
+
+          // Validate file size (10MB)
+          if (file.size > 10 * 1024 * 1024) {
+            throw new Error('Arquivo muito grande. Máximo 10MB.');
+          }
+
+          // Generate unique filename
+          const timestamp = Date.now();
+          const randomString = Math.random().toString(36).substring(2, 15);
+          const fileExtension = file.name.split('.').pop();
+          const fileName = `client-contracts/${timestamp}-${randomString}.${fileExtension}`;
+
+          // Upload file to Supabase storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('contracts')
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (uploadError) {
+            throw new Error(`Erro no upload: ${uploadError.message}`);
+          }
+
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from('contracts')
+            .getPublicUrl(fileName);
+
+          if (!urlData?.publicUrl) {
+            throw new Error('Erro ao obter URL do arquivo');
+          }
+
+          // Update contract with file URL
+          const { error: updateError } = await supabase
+            .from('client_contracts')
+            .update({ contract_file_url: urlData.publicUrl })
+            .eq('id', contractId);
+
+          if (updateError) {
+            // If update fails, try to delete the uploaded file
+            await supabase.storage.from('contracts').remove([fileName]);
+            throw new Error(`Erro ao salvar URL do contrato: ${updateError.message}`);
+          }
+
+          setSuccess('Contrato anexado com sucesso!');
+          await fetchContracts();
+
+        } catch (error: any) {
+          console.error('Upload error:', error);
+          setError(error.message || 'Erro no upload do arquivo');
+        } finally {
+          setUploading(null);
+          // Clean up file input
+          document.body.removeChild(fileInput);
+        }
+      };
+
+      // Add to DOM and trigger click
+      document.body.appendChild(fileInput);
+      fileInput.click();
+
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      setError(error.message || 'Erro ao iniciar upload');
+    }
+  };
 
   useEffect(() => {
     fetchContracts();
