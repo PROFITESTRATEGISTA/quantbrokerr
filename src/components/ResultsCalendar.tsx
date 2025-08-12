@@ -424,7 +424,7 @@ const ResultsCalendar: React.FC = () => {
 
         {/* Risk Management Section */}
         {isAdmin && (
-          <div className="mb-12">
+          <div className="mb-12 mt-16">
             <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
               <Shield className="w-6 h-6 text-red-400" />
               Gerenciamento de Risco - {getAssetDisplayName(chartAsset)}
