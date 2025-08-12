@@ -191,12 +191,11 @@ const AdminContractsPanel: React.FC = () => {
   const fetchContracts = async () => {
     try {
       setLoading(true);
-      const { data: contractsData, error } = await supabase
       
       console.log('🔍 Buscando contratos...');
       
       // First get contracts
-      const { data: contractsData, error: contractsError } = await supabase
+      const { data: contractsWithUsers, error: contractsError } = await supabase
         .from('client_contracts')
         .select(`
           *,
@@ -209,120 +208,9 @@ const AdminContractsPanel: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching contracts:', error);
-        throw error;
-      }
+      if (contractsError) throw contractsError;
 
-      // Transform data to include user information
-      const contractsWithUsers = (contractsData || []).map(contract => ({
-        ...contract,
-        user_name: contract.user_profiles?.full_name || 'Nome não cadastrado',
-        user_email: contract.user_profiles?.email || 'Email não encontrado',
-        user_phone: contract.user_profiles?.phone || null
-      }));
-
-      setContracts(contractsWithUsers);
-        throw contractsError;
-      }
-      
-      // Then get user profiles for each contract
-      const contractsWithProfiles = await Promise.all(
-        (contractsData || []).map(async (contract) => {
-          try {
-            // Try to get user profile
-            const { data: profile, error: profileError } = await supabase
-              .from('user_profiles')
-              .select('id, full_name, email, phone')
-              .eq('id', contract.user_id)
-              .single();
-
-            if (profileError && profileError.code === 'PGRST116') {
-              // Profile not found - try to get from auth and create profile
-              console.log('⚠️ Perfil não encontrado para usuário:', contract.user_id);
-              
-              try {
-                // Get user from auth
-                const { data: { user: authUser }, error: authError } = await supabase.auth.admin.getUserById(contract.user_id);
-                
-                if (authUser && !authError) {
-                  console.log('👤 Usuário encontrado no auth:', authUser.email);
-                  
-                  // Create missing profile
-                  const { error: createError } = await supabase
-                    .from('user_profiles')
-                    .insert({
-                      id: authUser.id,
-                      email: authUser.email!,
-                      phone: authUser.phone || authUser.user_metadata?.phone || null,
-                      full_name: authUser.user_metadata?.full_name || null,
-                      leverage_multiplier: contract.leverage_multiplier || 1,
-                      is_active: true,
-                      contracted_plan: contract.plan_type
-                    });
-
-                  if (!createError) {
-                    console.log('✅ Perfil criado automaticamente para:', authUser.email);
-                    
-                    // Return contract with newly created profile data
-                    return {
-                      ...contract,
-                      user_profiles: {
-                        id: authUser.id,
-                        full_name: authUser.user_metadata?.full_name || null,
-                        email: authUser.email!,
-                        phone: authUser.phone || authUser.user_metadata?.phone || null
-                      }
-                    };
-                  }
-                }
-              } catch (authError) {
-                console.error('❌ Erro ao buscar usuário no auth:', authError);
-              }
-              
-              // Return contract without profile if all fails
-              return {
-                ...contract,
-                user_profiles: null
-              };
-            }
-            
-            if (profileError) {
-              console.error('❌ Erro ao buscar perfil:', profileError);
-              return {
-                ...contract,
-                user_profiles: null
-              };
-            }
-            
-            // Return contract with profile
-            return {
-              ...contract,
-              user_profiles: profile
-            };
-          } catch (error) {
-            console.error('❌ Erro ao processar contrato:', contract.id, error);
-            return {
-              ...contract,
-              user_profiles: null
-            };
-          }
-        })
-      );
-      
-      console.log('✅ Contratos encontrados:', contractsData?.length || 0);
-      console.log('📋 Contratos com perfis:', contractsWithProfiles?.map(c => ({
-        id: c.id,
-        user_id: c.user_id,
-        plan_type: c.plan_type,
-        user_profile: c.user_profiles ? {
-          email: c.user_profiles.email,
-          full_name: c.user_profiles.full_name,
-          phone: c.user_profiles.phone
-        } : null
-      })));
-      
-      setContracts(contractsWithProfiles || []);
+      setContracts(contractsWithUsers || []);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       setError(error.message);
@@ -1043,12 +931,17 @@ const AdminContractsPanel: React.FC = () => {
                   {selectedUser && (
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center">
-                            {(contract.user_name || contract.user_email)?.charAt(0).toUpperCase() || 'U'}
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-blue-600 font-medium text-sm">
+                            {(selectedUser.full_name || selectedUser.email).charAt(0).toUpperCase()}
+                          </span>
+                        </div>
                         <div>
                           <div className="text-sm font-medium text-blue-900">
                             <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
-                          <div className="text-sm text-gray-500">{contract.user_email}</div>
-                          <div className="text-xs text-gray-400">ID: {contract.user_id.substring(0, 8)}...</div>
+                          </div>
+                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
+                          {selectedUser.phone && <div className="text-xs text-blue-700">{selectedUser.phone}</div>}
                         </div>
                       </div>
                     </div>
