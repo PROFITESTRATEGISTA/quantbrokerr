@@ -637,21 +637,23 @@ const AdminContractsPanel: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       {contract.contract_file_url ? (
-                        <a
-                          href={contract.contract_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          Ver Contrato
-                        </a>
-                        <button
-                          onClick={() => handleDeleteContractFile(contract.id)}
-                          className="text-red-600 hover:text-red-800 text-xs"
-                          title="Excluir arquivo do contrato"
-                        >
-                          Excluir Arquivo
-                        </button>
+                        <>
+                          <a
+                            href={contract.contract_file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            Ver Contrato
+                          </a>
+                          <button
+                            onClick={() => handleDeleteContractFile(contract.id)}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                            title="Excluir arquivo do contrato"
+                          >
+                            Excluir Arquivo
+                          </button>
+                        </>
                       ) : (
                         <span className="text-sm text-gray-500">Não anexado</span>
                       )}
