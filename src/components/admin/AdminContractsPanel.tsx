@@ -211,7 +211,17 @@ const AdminContractsPanel: React.FC = () => {
       }
       
       console.log('✅ Contratos encontrados:', contractsData?.length || 0);
-      console.log('✅ Contratos com perfis:', contractsData);
+      console.log('📋 Contratos com perfis:', contractsData?.map(c => ({
+        id: c.id,
+        user_id: c.user_id,
+        plan_type: c.plan_type,
+        user_profile: c.user_profiles ? {
+          email: c.user_profiles.email,
+          full_name: c.user_profiles.full_name,
+          phone: c.user_profiles.phone
+        } : null
+      })));
+      
       setContracts(contractsData || []);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
@@ -265,17 +275,22 @@ const AdminContractsPanel: React.FC = () => {
           .eq('email', userForm.email)
           .single();
 
+            console.log('🔄 Atualizando perfil do usuário:', userId);
+            
         if (existingUser) {
           userId = existingUser.id;
         } else {
           // Criar novo usuário no sistema de auth
           const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-            email: userForm.email,
+                plan_status: 'active',
+                updated_at: new Date().toISOString()
             password: 'TempPassword123!', // Senha temporária
             email_confirm: true,
             user_metadata: {
               full_name: userForm.full_name,
-              phone: userForm.phone
+              console.error('❌ Erro ao atualizar perfil:', updateProfileError);
+            } else {
+              console.log('✅ Perfil atualizado com sucesso');
             }
           });
 
@@ -287,6 +302,9 @@ const AdminContractsPanel: React.FC = () => {
 
           userId = authUser.user.id;
           createdNewUser = true;
+
+          // Aguardar um pouco para garantir que o usuário foi criado no auth
+          await new Promise(resolve => setTimeout(resolve, 1000));
 
           // Criar perfil do usuário
           const { error: profileError } = await supabase
@@ -305,6 +323,8 @@ const AdminContractsPanel: React.FC = () => {
             console.error('Error creating profile:', profileError);
             throw new Error('Erro ao criar perfil do usuário: ' + profileError.message);
           }
+
+          console.log('✅ Perfil criado para usuário:', userId, userForm.email);
         }
       }
 
@@ -374,8 +394,8 @@ const AdminContractsPanel: React.FC = () => {
         is_active: true
       });
       
-      // Aguardar um pouco para garantir que os dados foram salvos
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Aguardar mais tempo para garantir que os dados foram salvos e sincronizados
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Recarregar contratos e usuários
       await fetchContracts();
@@ -584,9 +604,12 @@ const AdminContractsPanel: React.FC = () => {
                         <div className="text-sm font-medium text-gray-900">
                           {contract.user_profiles?.email || `Usuário ID: ${contract.user_id.substring(0, 8)}...`}
                         </div>
+                        <div className="text-xs text-gray-500">
+                          ID: {contract.user_id.substring(0, 8)}...
+                        </div>
                         {!contract.user_profiles && (
-                          <div className="text-xs text-red-500">
-                            Perfil não encontrado
+                          <div className="text-xs text-red-500 font-medium">
+                            ⚠️ Perfil não encontrado - Verificar user_profiles
                           </div>
                         )}
                       </div>
