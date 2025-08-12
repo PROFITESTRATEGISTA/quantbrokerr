@@ -36,7 +36,6 @@ const AdminContractsPanel: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContract, setEditingContract] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
-  const [uploading, setUploading] = useState<string | null>(null);
 
   const [newContract, setNewContract] = useState({
     plan_type: 'bitcoin',
@@ -257,6 +256,68 @@ const AdminContractsPanel: React.FC = () => {
     } catch (error: any) {
       setError(error.message);
     }
+  };
+
+  const handleFileUpload = async (contractId: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        setUploading(contractId);
+        setError(null);
+
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomString = Math.random().toString(36).substring(2, 15);
+        const fileExtension = file.name.split('.').pop();
+        const fileName = `${timestamp}-${randomString}.${fileExtension}`;
+        const filePath = `client-contracts/${fileName}`;
+
+        // Upload file to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('contracts')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          throw new Error(`Erro no upload: ${uploadError.message}`);
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('contracts')
+          .getPublicUrl(filePath);
+
+        if (!urlData?.publicUrl) {
+          throw new Error('Erro ao obter URL do arquivo');
+        }
+
+        // Update contract with file URL
+        const { error: updateError } = await supabase
+          .from('client_contracts')
+          .update({ contract_file_url: urlData.publicUrl })
+          .eq('id', contractId);
+
+        if (updateError) {
+          throw new Error(`Erro ao salvar URL: ${updateError.message}`);
+        }
+
+        setSuccess('Contrato anexado com sucesso!');
+        fetchContracts();
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        setError(error.message || 'Erro ao fazer upload do arquivo');
+      } finally {
+        setUploading(null);
+      }
+    };
+    input.click();
   };
 
   const getPlanDisplayName = (plan: string) => {
