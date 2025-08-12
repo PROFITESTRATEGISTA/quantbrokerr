@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle, Edit3, Save, X, CheckCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 interface LeadSource {
   email: string;
@@ -238,7 +238,6 @@ const AdminLeadsPanel: React.FC = () => {
     };
     return names[status as keyof typeof names] || 'Novo';
   };
-
   const filteredLeads = applyFilters();
 
   const getSourceDisplayName = (source: string) => {
@@ -292,7 +291,6 @@ const AdminLeadsPanel: React.FC = () => {
   const contactedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'contacted').length;
   const convertedLeads = leadsWithStoredStatus.filter(l => l.lead_status === 'converted').length;
   const conversionRate = totalUniqueLeads > 0 ? (convertedLeads / totalUniqueLeads) * 100 : 0;
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
