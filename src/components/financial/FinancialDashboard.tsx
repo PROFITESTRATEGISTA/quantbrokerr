@@ -206,40 +206,11 @@ const FinancialDashboard: React.FC = () => {
 
           value = revenue - totalCosts - supplierCosts;
           break;
-
-        case 'comparison':
-          // Show revenue, costs, and profit in the same chart
-          revenue = contracts.filter(contract => {
-            const contractDate = new Date(contract.created_at);
-            const contractMonthKey = `${contractDate.getFullYear()}-${String(contractDate.getMonth() + 1).padStart(2, '0')}`;
-            return contractMonthKey === monthKey;
-          }).reduce((sum, contract) => sum + contract.monthly_value, 0);
-
-          totalCosts = costs.filter(cost => {
-            const costDate = new Date(cost.cost_date);
-            const costMonthKey = `${costDate.getFullYear()}-${String(costDate.getMonth() + 1).padStart(2, '0')}`;
-            return costMonthKey === monthKey;
-          }).reduce((sum, cost) => sum + cost.amount, 0);
-
-          supplierCosts = supplierContracts.filter(contract => {
-            const contractDate = new Date(contract.created_at);
-            const contractMonthKey = `${contractDate.getFullYear()}-${String(contractDate.getMonth() + 1).padStart(2, '0')}`;
-            return contractMonthKey === monthKey;
-          }).reduce((sum, contract) => sum + contract.monthly_value, 0);
-
-          profit = revenue - totalCosts - supplierCosts;
-          value = revenue; // Default value for single-line charts
-          break;
       }
 
       return {
         month,
         value,
-        revenue,
-        totalCosts: totalCosts + supplierCosts,
-        operationalCosts: totalCosts,
-        supplierCosts,
-        profit,
         formattedValue: dataType === 'users' || dataType === 'clients' ? value.toString() : `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
       };
     });
@@ -284,13 +255,6 @@ const FinancialDashboard: React.FC = () => {
           icon: TrendingUp,
           unit: 'R$'
         };
-      case 'comparison':
-        return {
-          title: 'Comparativo Financeiro Completo',
-          color: '#6366f1',
-          icon: BarChart3,
-          unit: 'R$'
-        };
       default:
         return {
           title: 'Dados por Mês',
@@ -305,72 +269,22 @@ const FinancialDashboard: React.FC = () => {
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      if (dataType === 'comparison') {
-        const data = payload[0].payload;
-        return (
-          <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-            <p className="font-medium text-gray-900 mb-2">{label}</p>
-            <div className="space-y-1">
-              <p className="text-sm text-green-600">
-                <span className="font-bold">Receita:</span> R$ {data.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-sm text-orange-600">
-                <span className="font-bold">Custos Operacionais:</span> R$ {data.operationalCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-sm text-red-600">
-                <span className="font-bold">Custos Fornecedores:</span> R$ {data.supplierCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-sm text-gray-600">
-                <span className="font-bold">Total Custos:</span> R$ {data.totalCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-              <hr className="my-2" />
-              <p className={`text-sm font-bold ${data.profit >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                <span>Lucro Líquido:</span> R$ {data.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
-        );
-      } else {
-        const data = payload[0];
-        return (
-          <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-            <p className="font-medium text-gray-900">{label}</p>
-            <p className="text-sm text-gray-600">
-              {config.title}: <span className="font-bold" style={{ color: config.color }}>
-                {data.payload.formattedValue}
-              </span>
-            </p>
-          </div>
-        );
-      }
+      const data = payload[0];
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{label}</p>
+          <p className="text-sm text-gray-600">
+            {config.title}: <span className="font-bold" style={{ color: config.color }}>
+              {data.payload.formattedValue}
+            </span>
+          </p>
+        </div>
+      );
     }
     return null;
   };
 
   const renderChart = () => {
-    if (dataType === 'comparison') {
-      return (
-        <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="month" 
-            stroke="#64748b"
-            fontSize={12}
-          />
-          <YAxis 
-            stroke="#64748b"
-            fontSize={12}
-            tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="revenue" fill="#22c55e" name="Receita" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="operationalCosts" fill="#f97316" name="Custos Operacionais" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="supplierCosts" fill="#ef4444" name="Custos Fornecedores" radius={[2, 2, 0, 0]} />
-          <Bar dataKey="profit" fill="#8b5cf6" name="Lucro Líquido" radius={[2, 2, 0, 0]} />
-        </BarChart>
-      );
-    }
-
     return chartType === 'bar' ? (
       <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -496,82 +410,43 @@ const FinancialDashboard: React.FC = () => {
       </div>
 
       {/* Chart Summary */}
-      {dataType === 'comparison' ? (
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="text-center">
-            <div className="text-lg font-bold text-green-600">
-              R$ {chartData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-gray-600">Total Receita</div>
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="text-center">
+          <div className="text-lg font-bold" style={{ color: config.color }}>
+            {chartData.reduce((sum, item) => sum + item.value, 0).toLocaleString('pt-BR', { 
+              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+            })}
           </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-orange-600">
-              R$ {chartData.reduce((sum, item) => sum + item.operationalCosts, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-gray-600">Custos Operacionais</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-red-600">
-              R$ {chartData.reduce((sum, item) => sum + item.supplierCosts, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-gray-600">Custos Fornecedores</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-gray-600">
-              R$ {chartData.reduce((sum, item) => sum + item.totalCosts, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-gray-600">Total Custos</div>
-          </div>
-          
-          <div className="text-center">
-            <div className={`text-lg font-bold ${chartData.reduce((sum, item) => sum + item.profit, 0) >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
-              R$ {chartData.reduce((sum, item) => sum + item.profit, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-sm text-gray-600">Lucro Líquido</div>
+          <div className="text-sm text-gray-600">
+            Total {dataType === 'clients' ? 'Clientes' : dataType === 'revenue' ? 'Receita' : dataType === 'profit' ? 'Lucro' : 'Custos'}
           </div>
         </div>
-      ) : (
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-lg font-bold" style={{ color: config.color }}>
-              {chartData.reduce((sum, item) => sum + item.value, 0).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
-              })}
-            </div>
-            <div className="text-sm text-gray-600">
-              Total {dataType === 'users' ? 'Usuários' : dataType === 'clients' ? 'Clientes' : dataType === 'revenue' ? 'Receita' : dataType === 'profit' ? 'Lucro' : 'Custos'}
-            </div>
+        
+        <div className="text-center">
+          <div className="text-lg font-bold text-blue-600">
+            {(chartData.reduce((sum, item) => sum + item.value, 0) / Math.max(chartData.filter(d => d.value > 0).length, 1)).toLocaleString('pt-BR', { 
+              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+            })}
           </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-blue-600">
-              {(chartData.reduce((sum, item) => sum + item.value, 0) / Math.max(chartData.filter(d => d.value > 0).length, 1)).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
-              })}
-            </div>
-            <div className="text-sm text-gray-600">Média Mensal</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-green-600">
-              {Math.max(...chartData.map(d => d.value)).toLocaleString('pt-BR', { 
-                minimumFractionDigits: dataType === 'users' || dataType === 'clients' ? 0 : 2 
-              })}
-            </div>
-            <div className="text-sm text-gray-600">Maior Valor</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-lg font-bold text-orange-600">
-              {chartData.filter(d => d.value > 0).length}
-            </div>
-            <div className="text-sm text-gray-600">Meses Ativos</div>
-          </div>
+          <div className="text-sm text-gray-600">Média Mensal</div>
         </div>
-      )}
+        
+        <div className="text-center">
+          <div className="text-lg font-bold text-green-600">
+            {Math.max(...chartData.map(d => d.value)).toLocaleString('pt-BR', { 
+              minimumFractionDigits: dataType === 'clients' ? 0 : 2 
+            })}
+          </div>
+          <div className="text-sm text-gray-600">Maior Valor</div>
+        </div>
+        
+        <div className="text-center">
+          <div className="text-lg font-bold text-orange-600">
+            {chartData.filter(d => d.value > 0).length}
+          </div>
+          <div className="text-sm text-gray-600">Meses Ativos</div>
+        </div>
+      </div>
     </div>
   );
 };
