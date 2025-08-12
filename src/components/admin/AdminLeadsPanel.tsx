@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock } from 'lucide-react';
+import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface LeadSource {
@@ -396,7 +396,6 @@ const AdminLeadsPanel: React.FC = () => {
       {/* Lead Sources Breakdown */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Fonte</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
