@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bot, Brain, Zap, Target, TrendingUp, Shield, BarChart3, Cpu, Database, Eye, Calendar, MessageCircle } from 'lucide-react';
 
 const QuantBrokerSection: React.FC = () => {
