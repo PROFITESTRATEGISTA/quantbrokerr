@@ -345,9 +345,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             {showSMSVerification ? 'Verificação SMS' : isRegister ? 'Criar Conta' : 'Fazer Login'}
           </h2>
           <button
@@ -360,16 +360,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
         {showSMSVerification ? (
           // SMS Verification Form
-          <form onSubmit={handleSMSVerification} className="p-4 space-y-4">
+          <form onSubmit={handleSMSVerification} className="p-4 sm:p-6 space-y-4">
             <div className="text-center">
-              <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <MessageCircle className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                 Verificação por SMS
               </h3>
-              <p className="text-gray-600 mb-2 text-sm">
+              <p className="text-gray-600 mb-2 text-xs sm:text-sm">
                 Enviamos um código de 6 dígitos para:
               </p>
-              <p className="font-medium text-gray-900 mb-4">
+              <p className="font-medium text-gray-900 mb-4 text-sm sm:text-base">
                 {pendingUserData?.phone}
               </p>
             </div>
@@ -395,18 +395,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                 id="smsCode"
                 value={smsCode}
                 onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-center text-xl font-mono tracking-widest"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-center text-lg sm:text-xl font-mono tracking-widest"
                 placeholder="000000"
                 maxLength={6}
                 required
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 type="submit"
                 disabled={smsLoading || smsCode.length !== 6}
-                className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {smsLoading ? 'Verificando...' : 'Verificar Código'}
               </button>
@@ -415,7 +415,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
                 type="button"
                 onClick={resendSMS}
                 disabled={smsLoading}
-                className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm sm:text-base"
               >
                 Reenviar
               </button>
@@ -424,7 +424,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
             <button
               type="button"
               onClick={() => setShowSMSVerification(false)}
-              className="w-full text-sm text-gray-600 hover:text-gray-800"
+              className="w-full text-xs sm:text-sm text-gray-600 hover:text-gray-800"
             >
               ← Voltar ao cadastro
             </button>
@@ -434,7 +434,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
           <form 
             name={isRegister ? "registro-usuario" : "login-usuario"}
             onSubmit={handleSubmit} 
-            className="p-4 space-y-4"
+            className="p-4 sm:p-6 space-y-4"
           >
             {/* Hidden RD Station fields */}
             <input type="hidden" name="identificador" value={isRegister ? "registro-usuario" : "login-usuario"} />

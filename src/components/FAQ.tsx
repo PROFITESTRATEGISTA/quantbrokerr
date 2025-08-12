@@ -65,10 +65,10 @@ const FAQ: React.FC = () => {
             <HelpCircle className="h-4 w-4 mr-2" />
             Perguntas Frequentes
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 px-4">
             FAQ - Perguntas Frequentes sobre Portfólios de IA
           </h2>
-          <h3 className="text-xl text-gray-600">
+          <h3 className="text-lg sm:text-xl text-gray-600 px-4">
             Encontre respostas para as principais questões sobre nossos serviços
           </h3>
         </div>
@@ -77,21 +77,21 @@ const FAQ: React.FC = () => {
           {faqItems.map((item, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mx-2 sm:mx-0"
             >
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center mr-3 sm:mr-4 ${
                     item.color === 'blue' ? 'bg-blue-100' :
                     item.color === 'green' ? 'bg-green-100' :
                     item.color === 'purple' ? 'bg-purple-100' :
                     item.color === 'orange' ? 'bg-orange-100' :
                     item.color === 'red' ? 'bg-red-100' : 'bg-indigo-100'
                   }`}>
-                    <item.icon className={`h-5 w-5 ${
+                    <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${
                       item.color === 'blue' ? 'text-blue-600' :
                       item.color === 'green' ? 'text-green-600' :
                       item.color === 'purple' ? 'text-purple-600' :
@@ -99,21 +99,23 @@ const FAQ: React.FC = () => {
                       item.color === 'red' ? 'text-red-600' : 'text-indigo-600'
                     }`} />
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900">
+                  <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900 pr-2">
                     {item.question}
                   </h4>
                 </div>
-                {openItems.includes(index) ? (
-                  <ChevronUp className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                )}
+                <div className="flex-shrink-0">
+                  {openItems.includes(index) ? (
+                    <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
+                  )}
+                </div>
               </button>
               
               {openItems.includes(index) && (
-                <div className="px-6 pb-4">
-                  <div className="pl-14">
-                    <p className="text-gray-600 leading-relaxed">
+                <div className="px-4 sm:px-6 pb-3 sm:pb-4">
+                  <div className="pl-11 sm:pl-14">
+                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                       {item.answer}
                     </p>
                   </div>
@@ -123,24 +125,24 @@ const FAQ: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8">
-            <h3 className="text-xl font-bold text-blue-900 mb-4">
+        <div className="mt-8 sm:mt-12 text-center mx-2 sm:mx-0">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 lg:p-8">
+            <h3 className="text-lg sm:text-xl font-bold text-blue-900 mb-4">
               Ainda tem dúvidas?
             </h3>
-            <p className="text-blue-800 mb-6">
+            <p className="text-sm sm:text-base text-blue-800 mb-4 sm:mb-6">
               Nossa equipe de especialistas está pronta para esclarecer todas as suas questões
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
-                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
               >
                 Contato WhatsApp
               </button>
               <button
                 onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
-                className="px-6 py-3 border border-blue-300 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition-colors"
+                className="px-4 sm:px-6 py-2 sm:py-3 border border-blue-300 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition-colors text-sm sm:text-base"
               >
                 Suporte WhatsApp
               </button>

@@ -369,20 +369,20 @@ const ResultsCalendar: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Chart Section */}
         <div className="mb-12">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4 px-4 sm:px-0">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
               <BarChart3 className="w-6 h-6" />
               Gráfico de Performance
             </h2>
             
             {/* Chart Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-blue-400 flex-shrink-0" />
                 <select
                   value={chartYear}
                   onChange={(e) => setChartYear(Number(e.target.value))}
-                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm min-w-[100px] focus:border-blue-500 focus:outline-none"
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm min-w-[80px] sm:min-w-[100px] focus:border-blue-500 focus:outline-none"
                 >
                   {availableYears.map(year => (
                     <option key={year} value={year}>{year}</option>
@@ -395,7 +395,7 @@ const ResultsCalendar: React.FC = () => {
                 <select
                   value={chartAsset}
                   onChange={(e) => setChartAsset(e.target.value as any)}
-                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm min-w-[150px] focus:border-blue-500 focus:outline-none"
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm min-w-[120px] sm:min-w-[150px] focus:border-blue-500 focus:outline-none"
                 >
                   <option value="bitcoin">Bitcoin</option>
                   <option value="miniIndice">Mini Índice</option>
@@ -616,20 +616,21 @@ const ResultsCalendar: React.FC = () => {
 
         {/* Calendar Section */}
         <div>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-12 mt-8 gap-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 sm:mb-12 mt-8 gap-4 px-4 sm:px-0">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
               <Calendar className="w-6 h-6" />
-              Calendário de Resultados {calendarYear} - {getAssetDisplayName(calendarAsset)}
+              <span className="hidden sm:inline">Calendário de Resultados {calendarYear} - {getAssetDisplayName(calendarAsset)}</span>
+              <span className="sm:hidden">Resultados {calendarYear}</span>
             </h2>
             
             {/* Calendar Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-blue-400 flex-shrink-0" />
                 <select
                   value={calendarYear}
                   onChange={(e) => setCalendarYear(Number(e.target.value))}
-                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm min-w-[100px] focus:border-blue-500 focus:outline-none"
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm min-w-[80px] sm:min-w-[100px] focus:border-blue-500 focus:outline-none"
                 >
                   {availableYears.map(year => (
                     <option key={year} value={year}>{year}</option>
@@ -642,7 +643,7 @@ const ResultsCalendar: React.FC = () => {
                 <select
                   value={calendarAsset}
                   onChange={(e) => setCalendarAsset(e.target.value as any)}
-                  className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm min-w-[150px] focus:border-blue-500 focus:outline-none"
+                  className="bg-slate-800 border border-slate-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm min-w-[120px] sm:min-w-[150px] focus:border-blue-500 focus:outline-none"
                 >
                   <option value="bitcoin">Bitcoin</option>
                   <option value="miniIndice">Mini Índice</option>
@@ -654,10 +655,11 @@ const ResultsCalendar: React.FC = () => {
               {isAdmin && (
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[140px]"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 px-3 sm:px-4 py-2 rounded-lg transition-colors text-xs sm:text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105 min-w-[120px] sm:min-w-[140px]"
                 >
                   <Plus className="w-4 h-4" />
-                  Adicionar Mês
+                  <span className="hidden sm:inline">Adicionar Mês</span>
+                  <span className="sm:hidden">Adicionar</span>
                 </button>
               )}
             </div>
@@ -698,7 +700,7 @@ const ResultsCalendar: React.FC = () => {
           ) : (
             <>
               {/* Calendar Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 mb-8 px-2 sm:px-0">
                 {months.map((month) => {
                   const monthData = calendarData.find(d => d.month === month);
                   const value = monthData ? getAssetValue(monthData, calendarAsset) : null;
@@ -708,7 +710,7 @@ const ResultsCalendar: React.FC = () => {
                   return (
                     <div
                       key={month}
-                      className={`relative p-6 rounded-xl border transition-all duration-200 ${
+                      className={`relative p-3 sm:p-4 lg:p-6 rounded-xl border transition-all duration-200 ${
                         hasData && isAdmin ? 'hover:scale-105 cursor-pointer' : hasData ? 'hover:scale-105' : ''
                       } ${
                         value === null
@@ -789,19 +791,25 @@ const ResultsCalendar: React.FC = () => {
                       )}
                       
                       <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-1">{month}</h3>
-                        <p className="text-sm text-gray-400 mb-3">{calendarYear}</p>
+                        <h3 className="text-sm sm:text-base lg:text-lg font-semibold mb-1">
+                          <span className="sm:hidden">{month.substring(0, 3)}</span>
+                          <span className="hidden sm:inline">{month}</span>
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-400 mb-2 sm:mb-3">{calendarYear}</p>
                         
                         {editingMonth === `${month}-${calendarYear}` ? (
-                          <div className="space-y-3">
+                          <div className="space-y-2 sm:space-y-3">
                             <div>
-                              <label className="block text-xs text-slate-400 mb-1">Tipo de Resultado</label>
+                              <label className="block text-xs text-slate-400 mb-1">
+                                <span className="hidden sm:inline">Tipo de Resultado</span>
+                                <span className="sm:hidden">Tipo</span>
+                              </label>
                               <select
                                 value={editResultType}
                                 onChange={(e) => setEditResultType(e.target.value as 'backtest' | 'live')}
-                                className="w-full px-3 py-2 text-sm bg-slate-700 border border-slate-500 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                                className="w-full px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm bg-slate-700 border border-slate-500 rounded-lg text-white focus:border-blue-500 focus:outline-none"
                               >
-                                <option value="live">Mercado ao Vivo</option>
+                                <option value="live">Ao Vivo</option>
                                 <option value="backtest">Backtest</option>
                               </select>
                             </div>
@@ -812,7 +820,7 @@ const ResultsCalendar: React.FC = () => {
                               step="0.1"
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="w-full px-3 py-3 bg-slate-700 border border-slate-500 rounded-lg text-white text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-lg"
+                              className="w-full px-2 sm:px-3 py-2 sm:py-3 bg-slate-700 border border-slate-500 rounded-lg text-white text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm sm:text-lg"
                               placeholder={hasData ? value?.toString() : "0.0"}
                               autoFocus
                               onKeyPress={(e) => {
@@ -830,13 +838,23 @@ const ResultsCalendar: React.FC = () => {
                               }}
                             />
                             </div>
-                            <div className="flex gap-2 justify-center flex-wrap">
+                            <div className="flex gap-1 sm:gap-2 justify-center flex-wrap">
                               <button
                                 onClick={() => handleQuickEdit(month, calendarYear)}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors text-sm font-medium flex items-center min-w-[80px] justify-center"
+                                className="px-2 sm:px-4 py-1 sm:py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors text-xs sm:text-sm font-medium flex items-center min-w-[60px] sm:min-w-[80px] justify-center"
                                 title="Salvar"
                               >
-                                {hasData ? 'Atualizar' : 'Adicionar'}
+                                {hasData ? (
+                                  <>
+                                    <span className="sm:hidden">Salvar</span>
+                                    <span className="hidden sm:inline">Atualizar</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="sm:hidden">Add</span>
+                                    <span className="hidden sm:inline">Adicionar</span>
+                                  </>
+                                )}
                               </button>
                               {hasData && (
                                 <button
@@ -845,10 +863,11 @@ const ResultsCalendar: React.FC = () => {
                                       handleDeleteResult(month, calendarYear, calendarAsset);
                                     }
                                   }}
-                                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm font-medium min-w-[70px] justify-center"
+                                  className="px-2 sm:px-4 py-1 sm:py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-xs sm:text-sm font-medium min-w-[50px] sm:min-w-[70px] justify-center"
                                   title="Excluir resultado"
                                 >
-                                  Excluir
+                                  <span className="sm:hidden">Del</span>
+                                  <span className="hidden sm:inline">Excluir</span>
                                 </button>
                               )}
                               <button
@@ -858,10 +877,11 @@ const ResultsCalendar: React.FC = () => {
                                   setEditResultType('live');
                                   setError(null);
                                 }}
-                                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium min-w-[80px] justify-center"
+                                className="px-2 sm:px-4 py-1 sm:py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors text-xs sm:text-sm font-medium min-w-[60px] sm:min-w-[80px] justify-center"
                                 title="Cancelar"
                               >
-                                Cancelar
+                                <span className="sm:hidden">X</span>
+                                <span className="hidden sm:inline">Cancelar</span>
                               </button>
                             </div>
                             {error && (
@@ -873,13 +893,13 @@ const ResultsCalendar: React.FC = () => {
                         ) : hasData ? (
                           <>
                             <div className="group">
-                            <div className={`text-2xl font-bold transition-colors ${
+                            <div className={`text-lg sm:text-xl lg:text-2xl font-bold transition-colors ${
                               value >= 0 ? 'text-green-400' : 'text-red-400'
                             } ${isAdmin ? 'group-hover:text-blue-400' : ''}`}>
                               {value >= 0 ? '+' : ''}{value.toFixed(1)}%
                             </div>
                             {isAdmin && (
-                              <div className="text-xs text-slate-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="text-xs text-slate-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
                                 Clique para editar
                               </div>
                             )}
@@ -887,10 +907,10 @@ const ResultsCalendar: React.FC = () => {
                           </>
                         ) : (
                           <>
-                            <div className="text-gray-500 text-lg group">
+                            <div className="text-gray-500 text-sm sm:text-base lg:text-lg group">
                             <div>Sem dados</div>
                             {isAdmin && (
-                              <div className="text-xs text-slate-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="text-xs text-slate-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
                                 Clique no + para adicionar
                               </div>
                             )}
@@ -904,45 +924,45 @@ const ResultsCalendar: React.FC = () => {
               </div>
 
               {/* Performance Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 px-2 sm:px-0">
+                <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-blue-400" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                     <span className="text-xs md:text-sm text-gray-400">Total Acumulado</span>
                   </div>
-                  <div className={`text-2xl font-bold ${
+                  <div className={`text-lg sm:text-xl lg:text-2xl font-bold ${
                     metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {metrics.totalReturn >= 0 ? '+' : ''}{metrics.totalReturn.toFixed(1)}%
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+                <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-green-400" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                     <span className="text-xs md:text-sm text-gray-400">Taxa de Acerto</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-400">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-400">
                     {metrics.winRate.toFixed(1)}%
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+                <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-yellow-400" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
                     <span className="text-xs md:text-sm text-gray-400">Melhor Mês</span>
                   </div>
-                  <div className="text-2xl font-bold text-yellow-400">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-yellow-400">
                     +{metrics.bestMonth.toFixed(1)}%
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-600">
+                <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-5 h-5 text-red-400" />
+                    <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
                     <span className="text-xs md:text-sm text-gray-400">Pior Mês</span>
                   </div>
-                  <div className="text-2xl font-bold text-red-400">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-red-400">
                     {metrics.worstMonth.toFixed(1)}%
                   </div>
                 </div>

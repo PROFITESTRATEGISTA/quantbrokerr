@@ -60,62 +60,63 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
   };
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <Building2 className="h-8 w-8 text-blue-600 mr-3" />
-            <span className="text-lg font-semibold text-gray-700">Parceria Exclusiva Mosaico BTG</span>
+            <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2 sm:mr-3" />
+            <span className="text-sm sm:text-lg font-semibold text-gray-700">Parceria Exclusiva Mosaico BTG</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 px-2">
             Dashboard - Área do Cliente Portfólios de IA Quant Broker
           </h1>
-          <h2 className="text-xl text-gray-600">
+          <h2 className="text-base sm:text-lg lg:text-xl text-gray-600 px-2">
             Configure seu Copy Trade Quant Broker e acompanhe sua performance
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <BookOpen className="h-10 w-10 text-green-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <BookOpen className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />
             </div>
             
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
               Tutorial de Ativação
             </h3>
             
-            <p className="text-gray-600 mb-8">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
               Aprenda como ativar seu Copy Trade Quant Broker no Mosaico BTG + MetaTrader 5 em poucos passos simples.
             </p>
 
             <button
               onClick={handleTutorial}
-              className="inline-flex items-center px-8 py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
             >
               <BookOpen className="h-5 w-5 mr-2" />
               Iniciar Tutorial
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <BarChart3 className="h-10 w-10 text-blue-600" />
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 text-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <BarChart3 className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
             </div>
             
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
               Dashboard de Resultados
             </h3>
             
-            <p className="text-gray-600 mb-8">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
               Acompanhe suas operações, performance e resultados em tempo real através da nossa plataforma especializada.
             </p>
 
             <button
               onClick={handleRedirectToResults}
-              className="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
             >
               <ExternalLink className="h-5 w-5 mr-2" />
-              Acessar Dashboard de Resultados
+              <span className="hidden sm:inline">Acessar Dashboard de Resultados</span>
+              <span className="sm:hidden">Dashboard Resultados</span>
             </button>
           </div>
 
@@ -227,25 +228,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
           )}
         </div>
         
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Recursos Disponíveis</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">Performance</h4>
-              <p className="text-sm text-gray-600">Acompanhe seus resultados e métricas de performance</p>
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">Recursos Disponíveis</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center sm:text-left">
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto sm:mx-0 mb-2 sm:mb-3" />
+              <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Performance</h4>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Acompanhe seus resultados e métricas de performance</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <Shield className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">Controle de Risco</h4>
-              <p className="text-sm text-gray-600">Monitore o gerenciamento de risco automatizado</p>
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center sm:text-left">
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mx-auto sm:mx-0 mb-2 sm:mb-3" />
+              <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Controle de Risco</h4>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Monitore o gerenciamento de risco automatizado</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <Settings className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">Configurações</h4>
-              <p className="text-sm text-gray-600">Ajuste suas preferências e parâmetros</p>
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-xl text-center sm:text-left">
+              <Settings className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mx-auto sm:mx-0 mb-2 sm:mb-3" />
+              <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Configurações</h4>
+              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Ajuste suas preferências e parâmetros</p>
             </div>
           </div>
         </div>

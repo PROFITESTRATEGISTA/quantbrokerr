@@ -221,10 +221,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </div>
             )}
             
-            <div className="flex justify-center space-x-8 mb-8">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-8">
               <button 
                 onClick={() => onToggleBilling('monthly')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                   billingPeriod === 'monthly' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
@@ -232,22 +232,24 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </button>
               <button 
                 onClick={() => onToggleBilling('semiannual')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors relative ${
+                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base ${
                   billingPeriod === 'semiannual' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                Plano Semestral (PIX ou 12x)
+                <span className="hidden sm:inline">Plano Semestral (PIX)</span>
+                <span className="sm:hidden">Semestral (PIX)</span>
                 <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
                   20% OFF
                 </span>
               </button>
               <button 
                 onClick={() => onToggleBilling('annual')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors relative ${
+                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base ${
                   billingPeriod === 'annual' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                Plano Anual (PIX ou 12x)
+                <span className="hidden sm:inline">Plano Anual (PIX)</span>
+                <span className="sm:hidden">Anual (PIX)</span>
                 <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
                   40% OFF
                 </span>
@@ -255,17 +257,17 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             </div>
             
             <div className="text-center mb-8">
-              <p className="text-lg text-gray-700 font-medium">
+              <p className="text-sm sm:text-lg text-gray-700 font-medium px-4">
                 💳 <span className="text-blue-600">Planos Semestrais e Anuais:</span> Pagamento apenas no PIX
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`relative bg-white rounded-2xl shadow-lg p-8 border-2 transition-all hover:shadow-xl ${
+                className={`relative bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border-2 transition-all hover:shadow-xl ${
                   plan.isRecommended || plan.id === recommendedPlan
                     ? 'border-blue-500 transform scale-105' 
                     : 'border-gray-200 hover:border-blue-300'
@@ -320,40 +322,40 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
                 <div className="text-center mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                    <span className="text-xs sm:text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded">
                       {plan.leverage}
                     </span>
                     <span className="text-xs text-gray-500">{plan.riskControl}</span>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">{plan.description}</p>
                   
                   <div className="mb-4">
-                    <span className="text-sm text-gray-500">A partir de</span>
+                    <span className="text-xs sm:text-sm text-gray-500">A partir de</span>
                     {plan.originalPrice && (
-                      <div className="text-lg text-gray-400 line-through">{plan.originalPrice}</div>
+                      <div className="text-sm sm:text-lg text-gray-400 line-through">{plan.originalPrice}</div>
                     )}
-                    <div className="text-3xl font-bold text-gray-900">{plan.price}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900">{plan.price}</div>
+                    <div className="text-xs sm:text-sm text-gray-500">
                       {billingPeriod === 'annual' ? 'Plano anual' : billingPeriod === 'semiannual' ? 'Plano semestral' : 'Plano mensal'} | Capital mínimo: {plan.minCapital}
                     </div>
-                    <div className="text-sm text-gray-600">Risco diário: {plan.dailyRisk}</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Risco diário: {plan.dailyRisk}</div>
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-600">{feature}</span>
+                      <span className="text-xs sm:text-sm text-gray-600 leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <button
                   onClick={() => handlePlanSelection(plan.id)}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all text-sm sm:text-base ${
                     plan.isRecommended || plan.id === recommendedPlan
                       ? 'bg-blue-600 text-white hover:bg-blue-700'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
@@ -366,7 +368,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 {(billingPeriod === 'semiannual' || billingPeriod === 'annual') && plan.isAvailable && (
                   <button
                     onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20tenho%20interesse%20no%20' + encodeURIComponent(plan.name) + '%20no%20plano%20' + encodeURIComponent(billingPeriod === 'semiannual' ? 'semestral' : 'anual') + '.%20Pode%20me%20ajudar%20com%20o%20pagamento%20via%20PIX%3F', '_blank')}
-                    className="w-full mt-2 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center justify-center"
+                    className="w-full mt-2 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center justify-center text-sm sm:text-base"
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Falar com Suporte
@@ -377,7 +379,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           </div>
 
           <div className="mt-16 text-center">
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 mb-4 px-4">
               Apenas 50 vagas disponíveis - Para planos semestrais e anuais via PIX, entre em contato com nossa equipe
             </p>
           </div>

@@ -50,14 +50,14 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
             </span>
           </h1>
 
-          <h2 className="text-xl md:text-2xl font-light mb-8 text-slate-300 max-w-4xl mx-auto">
+          <h2 className="text-lg md:text-xl lg:text-2xl font-light mb-8 text-slate-300 max-w-4xl mx-auto px-4">
             Plug & Play via Mosaico BTG - Comece a Operar Sem Conhecimento Prévio com Spreads Baixos e Execução Rápida
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <button
               onClick={onViewPlans}
-              className="group px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25 flex items-center justify-center"
+              className="group px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25 flex items-center justify-center text-sm sm:text-base"
             >
               Escolher Portfólio
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -69,15 +69,15 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
                   formSection.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
-              className="group px-8 py-4 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all flex items-center justify-center backdrop-blur-sm"
+              className="group px-6 sm:px-8 py-3 sm:py-4 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all flex items-center justify-center backdrop-blur-sm text-sm sm:text-base"
             >
               <Calendar className="mr-2 h-5 w-5" />
               Agendar Reunião
             </button>
           </div>
 
-          {/* Visual Features with Images */}
-          <div className="flex flex-wrap justify-center items-center gap-8 mb-16 text-sm">
+          {/* Visual Features */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center items-center gap-4 sm:gap-8 mb-16 text-xs sm:text-sm px-4">
             <div className="flex items-center space-x-2 text-cyan-300">
               <Zap className="h-5 w-5" />
               <span>Plug & Play</span>

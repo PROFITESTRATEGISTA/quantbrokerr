@@ -64,29 +64,38 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
       
       {/* Expanded Actions */}
       {isExpanded && (
-        <div className="mb-4 space-y-3">
+        <div className="mb-4 space-y-2 sm:space-y-3">
           <button
             onClick={handleQuestionnaireClick}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
+            className="flex items-center px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base"
           >
             <HelpCircle className="h-5 w-5 mr-2" />
-            <span className="font-medium">Qual Portfólio é Ideal?</span>
+            <span className="font-medium">
+              <span className="sm:hidden">Portfólio Ideal?</span>
+              <span className="hidden sm:inline">Qual Portfólio é Ideal?</span>
+            </span>
           </button>
           
           <button
             onClick={handlePlansClick}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
+            className="flex items-center px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base"
           >
             <Zap className="h-5 w-5 mr-2" />
-            <span className="font-medium">Ver Todos os Planos</span>
+            <span className="font-medium">
+              <span className="sm:hidden">Ver Planos</span>
+              <span className="hidden sm:inline">Ver Todos os Planos</span>
+            </span>
           </button>
           
           <button
             onClick={handleScheduleMeeting}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
+            className="flex items-center px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base"
           >
             <Calendar className="h-5 w-5 mr-2" />
-            <span className="font-medium">Conhecer Resultados</span>
+            <span className="font-medium">
+              <span className="sm:hidden">Resultados</span>
+              <span className="hidden sm:inline">Conhecer Resultados</span>
+            </span>
           </button>
           
           <button
@@ -94,10 +103,13 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
               console.log('📱 Botão WhatsApp clicado!');
               window.open('https://wa.me/5511975333355?text=Olá%2C%20quero%20conhecer%20mais%20sobre%20os%20Portfólios%20de%20IA%20Quant%20Broker.%20Pode%20me%20orientar%20no%20processo%3F', '_blank');
             }}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
+            className="flex items-center px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base"
           >
             <MessageCircle className="h-5 w-5 mr-2" />
-            <span className="font-medium">Falar com Consultor Quant</span>
+            <span className="font-medium">
+              <span className="sm:hidden">Consultor</span>
+              <span className="hidden sm:inline">Falar com Consultor Quant</span>
+            </span>
           </button>
         </div>
       )}
@@ -105,16 +117,16 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
       {/* Main Toggle Button */}
       <button
         onClick={toggleExpanded}
-        className={`w-14 h-14 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all flex items-center justify-center ${
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all flex items-center justify-center ${
           isExpanded 
             ? 'bg-gray-600 text-white' 
             : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white animate-pulse'
         }`}
       >
         {isExpanded ? (
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5 sm:h-6 sm:w-6" />
         ) : (
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
         )}
       </button>
 
