@@ -54,13 +54,13 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   const oneTimeCosts = costs.filter(cost => !cost.is_recurring);
 
   const totalThisMonth = thisMonthCosts.reduce((sum, cost) => sum + cost.amount, 0);
+  const totalSupplierCosts = supplierContracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
   const totalRecurring = recurringCosts.reduce((sum, cost) => sum + cost.amount, 0) + totalSupplierCosts;
   const totalOneTime = oneTimeCosts.reduce((sum, cost) => sum + cost.amount, 0);
   const totalGeneral = costs.reduce((sum, cost) => sum + cost.amount, 0);
 
   // Calculate contract-related metrics
   const totalMonthlyRevenue = contracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
-  const totalSupplierCosts = supplierContracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
   const netProfit = totalMonthlyRevenue - totalGeneral - totalSupplierCosts;
 
   return (
