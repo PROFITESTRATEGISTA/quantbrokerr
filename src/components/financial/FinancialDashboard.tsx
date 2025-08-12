@@ -45,7 +45,7 @@ interface SupplierContract {
 
 const FinancialDashboard: React.FC = () => {
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar');
-  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'comparison' | 'clients'>('comparison');
+  const [dataType, setDataType] = useState<'users' | 'revenue' | 'costs' | 'profit' | 'clients'>('revenue');
   const [costs, setCosts] = useState<FinancialCost[]>([]);
   const [contracts, setContracts] = useState<ClientContract[]>([]);
   const [supplierContracts, setSupplierContracts] = useState<SupplierContract[]>([]);
@@ -377,8 +377,8 @@ const FinancialDashboard: React.FC = () => {
               onChange={(e) => setDataType(e.target.value as any)}
               className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="profit">Lucro Líquido Mensal</option>
               <option value="revenue">Receita</option>
+              <option value="profit">Lucro Líquido Mensal</option>
               <option value="costs">Custos Operacionais</option>
               <option value="clients">Evolução de Clientes</option>
             </select>
