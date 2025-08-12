@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Users, Edit3, Save, X, Plus, Trash2, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { Clock, Users, Edit3, Save, X, Plus, Trash2, ExternalLink, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface WaitlistEntry {
