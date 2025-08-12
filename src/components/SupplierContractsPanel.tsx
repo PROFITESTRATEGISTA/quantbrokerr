@@ -818,3 +818,6 @@ const SupplierContractsPanel: React.FC = () => {
 };
 
 export default SupplierContractsPanel;
+
+
+export default SupplierContractsPanel
