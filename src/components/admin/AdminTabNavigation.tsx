@@ -49,18 +49,6 @@ const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTa
       label: 'Fornecedores',
       icon: TrendingUp,
       description: 'Contratos de fornecedores'
-    },
-    {
-      id: 'forms' as const,
-      label: 'Formulários',
-      icon: Calendar,
-      description: 'Formulários de consultoria'
-    },
-    {
-      id: 'leads' as const,
-      label: 'Leads Totais',
-      icon: Target,
-      description: 'Leads únicos de todas as fontes'
     }
   ];
 
