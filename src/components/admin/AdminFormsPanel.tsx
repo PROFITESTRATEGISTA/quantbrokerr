@@ -529,8 +529,6 @@ const AdminFormsPanel: React.FC = () => {
               </div>
             ))}
           </div>
-            </div>
-          </div>
           <button
             onClick={() => window.open('https://wa.me/5511975333355', '_blank')}
             className="mt-4 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
