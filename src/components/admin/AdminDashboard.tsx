@@ -4,7 +4,7 @@ import AdminTabNavigation from './AdminTabNavigation';
 import AdminTabContent from './AdminTabContent';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers' | 'forms' | 'leads'>('financial');
+  const [activeTab, setActiveTab] = useState<'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers' | 'leads'>('financial');
 
   return (
     <div className="min-h-screen bg-gray-50">
