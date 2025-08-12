@@ -51,6 +51,7 @@ const FinancialDashboard: React.FC = () => {
   const [supplierContracts, setSupplierContracts] = useState<SupplierContract[]>([]);
   const [waitlistEntries, setWaitlistEntries] = useState<any[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [consultationForms, setConsultationForms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,7 +66,8 @@ const FinancialDashboard: React.FC = () => {
         fetchContracts(),
         fetchSupplierContracts(),
         fetchWaitlistEntries(),
-        fetchUsers()
+        fetchUsers(),
+        fetchConsultationForms()
       ]);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -143,6 +145,20 @@ const FinancialDashboard: React.FC = () => {
       setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
+    }
+  };
+
+  const fetchConsultationForms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('consultation_forms')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setConsultationForms(data || []);
+    } catch (error) {
+      console.error('Error fetching consultation forms:', error);
     }
   };
 
@@ -252,7 +268,12 @@ const FinancialDashboard: React.FC = () => {
           // Create unique set of leads by email for this month
           const uniqueMonthLeads = new Set([
             ...monthUsers.map(user => user.email.toLowerCase()),
-            ...monthWaitlist.map(entry => entry.email.toLowerCase())
+            ...monthWaitlist.map(entry => entry.email.toLowerCase()),
+            ...consultationForms.filter(form => {
+              const formDate = new Date(form.created_at);
+              const formMonthKey = `${formDate.getFullYear()}-${String(formDate.getMonth() + 1).padStart(2, '0')}`;
+              return formMonthKey === monthKey;
+            }).map(form => form.email.toLowerCase())
           ]);
           
           newLeads = uniqueMonthLeads.size;

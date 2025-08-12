@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, DollarSign, Users, Clock, Building } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Clock, Building, Calendar, Target } from 'lucide-react';
 
 interface AdminTabNavigationProps {
   activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers' | 'forms' | 'leads';
