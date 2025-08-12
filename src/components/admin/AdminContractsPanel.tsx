@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Edit3, Save, X, Trash2, Calendar, DollarSign, User, CheckCircle, AlertCircle, Building2 } from 'lucide-react';
+import { FileText, Plus, Edit3, Save, X, Trash2, Calendar, DollarSign, User, CheckCircle, AlertCircle, Building2, TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface ClientContract {
@@ -8,9 +8,11 @@ interface ClientContract {
   plan_type: string;
   billing_period: string;
   monthly_value: number;
+  leverage_multiplier: number;
   contract_start: string;
   contract_end: string;
   is_active: boolean;
+  contract_file_url: string | null;
   created_at: string;
   updated_at: string;
   user_profiles?: {
@@ -22,6 +24,12 @@ interface ClientContract {
 
 const AdminContractsPanel: React.FC = () => {
   const [contracts, setContracts] = useState<ClientContract[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -30,18 +38,52 @@ const AdminContractsPanel: React.FC = () => {
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
 
   const [newContract, setNewContract] = useState({
-    user_id: '',
     plan_type: 'bitcoin',
     billing_period: 'monthly',
     monthly_value: 0,
+    leverage_multiplier: 1,
     contract_start: new Date().toISOString().split('T')[0],
     contract_end: '',
-    is_active: true
+    is_active: true,
+    contract_file: null as File | null
   });
 
   useEffect(() => {
     fetchContracts();
+    fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Auto-calculate end date when billing period or start date changes
+    if (newContract.contract_start && (newContract.billing_period === 'semiannual' || newContract.billing_period === 'annual')) {
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.billing_period === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.billing_period === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+      
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+      setNewContract(prev => ({ ...prev, contract_end: formattedEndDate }));
+    } else if (newContract.billing_period === 'monthly') {
+      setNewContract(prev => ({ ...prev, contract_end: '' }));
+    }
+  }, [newContract.billing_period, newContract.contract_start]);
+
+  useEffect(() => {
+    // Filter users based on search term
+    if (userSearchTerm.trim() === '') {
+      setFilteredUsers(availableUsers.slice(0, 10)); // Show first 10 users
+    } else {
+      const filtered = availableUsers.filter(user => 
+        user.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+        (user.full_name && user.full_name.toLowerCase().includes(userSearchTerm.toLowerCase()))
+      ).slice(0, 10);
+      setFilteredUsers(filtered);
+    }
+  }, [userSearchTerm, availableUsers]);
 
   const fetchContracts = async () => {
     try {
@@ -67,10 +109,85 @@ const AdminContractsPanel: React.FC = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      // Get current user session to verify admin access
+      const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !currentUser || currentUser.email !== 'pedropardal04@gmail.com') {
+        setError('Acesso negado para buscar usuários');
+        return;
+      }
+
+      // Use admin edge function to get users
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.users) {
+        setAvailableUsers(result.users);
+        setFilteredUsers(result.users.slice(0, 10));
+      } else {
+        throw new Error(result.error || 'Erro ao carregar usuários');
+      }
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      setError(`Erro ao carregar usuários: ${error.message}`);
+    }
+  };
+
+  const uploadContractFile = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `client-contracts/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('contracts')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('contracts')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddContract = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setError(null);
+      
+      if (!selectedUser) {
+        throw new Error('Selecione um usuário para o contrato');
+      }
+
+      let contractFileUrl = null;
+      if (newContract.contract_file) {
+        contractFileUrl = await uploadContractFile(newContract.contract_file);
+        if (!contractFileUrl) {
+          throw new Error('Erro ao fazer upload do arquivo');
+        }
+      }
 
       // Calculate contract end date
       const startDate = new Date(newContract.contract_start);
@@ -78,7 +195,8 @@ const AdminContractsPanel: React.FC = () => {
       
       switch (newContract.billing_period) {
         case 'monthly':
-          endDate.setMonth(endDate.getMonth() + 1);
+          // For monthly, no end date (ongoing)
+          endDate = startDate; // Will be set to null below
           break;
         case 'semiannual':
           endDate.setMonth(endDate.getMonth() + 6);
@@ -89,8 +207,15 @@ const AdminContractsPanel: React.FC = () => {
       }
 
       const contractData = {
-        ...newContract,
-        contract_end: endDate.toISOString().split('T')[0]
+        user_id: selectedUser.id,
+        plan_type: newContract.plan_type,
+        billing_period: newContract.billing_period,
+        monthly_value: newContract.monthly_value,
+        leverage_multiplier: newContract.leverage_multiplier,
+        contract_start: newContract.contract_start,
+        contract_end: newContract.billing_period === 'monthly' ? null : endDate.toISOString().split('T')[0],
+        is_active: newContract.is_active,
+        contract_file_url: contractFileUrl
       };
 
       const { error } = await supabase
@@ -101,14 +226,17 @@ const AdminContractsPanel: React.FC = () => {
 
       setSuccess('Contrato adicionado com sucesso!');
       setShowAddModal(false);
+      setSelectedUser(null);
+      setUserSearchTerm('');
       setNewContract({
-        user_id: '',
         plan_type: 'bitcoin',
         billing_period: 'monthly',
         monthly_value: 0,
+        leverage_multiplier: 1,
         contract_start: new Date().toISOString().split('T')[0],
         contract_end: '',
-        is_active: true
+        is_active: true,
+        contract_file: null
       });
       fetchContracts();
     } catch (error: any) {
@@ -122,6 +250,7 @@ const AdminContractsPanel: React.FC = () => {
       plan_type: contract.plan_type,
       billing_period: contract.billing_period,
       monthly_value: contract.monthly_value,
+      leverage_multiplier: contract.leverage_multiplier,
       contract_start: contract.contract_start,
       contract_end: contract.contract_end,
       is_active: contract.is_active
@@ -189,6 +318,9 @@ const AdminContractsPanel: React.FC = () => {
   const activeContracts = contracts.filter(c => c.is_active);
   const totalMonthlyRevenue = activeContracts.reduce((sum, c) => sum + c.monthly_value, 0);
   const totalAnnualRevenue = totalMonthlyRevenue * 12;
+  const averageLeverage = activeContracts.length > 0 
+    ? activeContracts.reduce((sum, c) => sum + (c.leverage_multiplier || 1), 0) / activeContracts.length 
+    : 0;
 
   if (loading) {
     return (
@@ -236,7 +368,7 @@ const AdminContractsPanel: React.FC = () => {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
             <FileText className="h-8 w-8 text-blue-600" />
@@ -273,6 +405,18 @@ const AdminContractsPanel: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
+            <TrendingUp className="h-8 w-8 text-indigo-600" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Alavancagem Média</p>
+              <p className="text-2xl font-bold text-indigo-600">
+                {averageLeverage.toFixed(1)}x
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center">
             <User className="h-8 w-8 text-orange-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Ticket Médio</p>
@@ -298,8 +442,10 @@ const AdminContractsPanel: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plano</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alavancagem</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contrato</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
@@ -352,11 +498,30 @@ const AdminContractsPanel: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
+                    {editingContract === contract.id ? (
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={editForm.leverage_multiplier || ''}
+                        onChange={(e) => setEditForm({...editForm, leverage_multiplier: parseInt(e.target.value) || 1})}
+                        className="w-16 text-sm border border-gray-300 rounded px-2 py-1"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium text-indigo-600">
+                        {contract.leverage_multiplier || 1}x
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
                       {new Date(contract.contract_start).toLocaleDateString('pt-BR')}
                     </div>
                     <div className="text-sm text-gray-500">
-                      até {new Date(contract.contract_end).toLocaleDateString('pt-BR')}
+                      {contract.contract_end 
+                        ? `até ${new Date(contract.contract_end).toLocaleDateString('pt-BR')}`
+                        : 'Sem prazo definido'
+                      }
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -377,6 +542,21 @@ const AdminContractsPanel: React.FC = () => {
                       }`}>
                         {contract.is_active ? 'Ativo' : 'Inativo'}
                       </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {contract.contract_file_url ? (
+                      <a
+                        href={contract.contract_file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Ver Contrato
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Sem arquivo</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -459,16 +639,85 @@ const AdminContractsPanel: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ID do Usuário *
+                    Selecionar Usuário *
                   </label>
-                  <input
-                    type="text"
-                    value={newContract.user_id}
-                    onChange={(e) => setNewContract({...newContract, user_id: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="UUID do usuário"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={selectedUser ? `${selectedUser.full_name || selectedUser.email} (${selectedUser.email})` : userSearchTerm}
+                      onChange={(e) => {
+                        if (!selectedUser) {
+                          setUserSearchTerm(e.target.value);
+                          setShowUserDropdown(true);
+                        }
+                      }}
+                      onFocus={() => setShowUserDropdown(true)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Buscar usuário por email ou nome..."
+                      required
+                    />
+                    {selectedUser && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUser(null);
+                          setUserSearchTerm('');
+                          setShowUserDropdown(true);
+                        }}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                    
+                    {/* User Dropdown */}
+                    {showUserDropdown && !selectedUser && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.map((user) => (
+                            <button
+                              key={user.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setShowUserDropdown(false);
+                                setUserSearchTerm('');
+                              }}
+                              className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.full_name || 'Nome não informado'}
+                              </div>
+                              <div className="text-sm text-gray-500">{user.email}</div>
+                              {user.phone && (
+                                <div className="text-xs text-gray-400">{user.phone}</div>
+                              )}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-3 text-sm text-gray-500">
+                            {userSearchTerm ? 'Nenhum usuário encontrado' : 'Digite para buscar usuários'}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {selectedUser && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="text-sm">
+                        <div className="font-medium text-blue-900">
+                          {selectedUser.full_name || 'Nome não informado'}
+                        </div>
+                        <div className="text-blue-700">{selectedUser.email}</div>
+                        {selectedUser.phone && (
+                          <div className="text-blue-600">{selectedUser.phone}</div>
+                        )}
+                        <div className="text-xs text-blue-500 mt-1">
+                          Plano atual: {getPlanDisplayName(selectedUser.contracted_plan)}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -506,6 +755,22 @@ const AdminContractsPanel: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alavancagem *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={newContract.leverage_multiplier}
+                    onChange={(e) => setNewContract({...newContract, leverage_multiplier: parseInt(e.target.value) || 1})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Valor Mensal (R$) *
                   </label>
                   <input
@@ -535,6 +800,49 @@ const AdminContractsPanel: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fim do Contrato
+                    {newContract.billing_period === 'monthly' 
+                      ? ' (sem prazo definido)' 
+                      : ' (calculado automaticamente)'
+                    }
+                  </label>
+                  {newContract.billing_period === 'monthly' ? (
+                    <div className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 text-center">
+                      Renovação mensal automática
+                    </div>
+                  ) : (
+                    <input
+                      type="date"
+                      value={newContract.contract_end}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-blue-50 text-gray-700"
+                      readOnly
+                    />
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    {newContract.billing_period === 'monthly'
+                      ? "Contratos mensais são renovados automaticamente"
+                      : `Data calculada: ${newContract.billing_period === 'semiannual' ? '+6 meses' : '+1 ano'} da data de início`
+                    }
+                  </p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Arquivo do Contrato
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => setNewContract({...newContract, contract_file: e.target.files?.[0] || null})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Formatos aceitos: PDF, DOC, DOCX (máximo 10MB)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Status *
                   </label>
                   <select
@@ -552,13 +860,18 @@ const AdminContractsPanel: React.FC = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
+                  disabled={uploading || !selectedUser}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Criar Contrato
+                  {uploading ? 'Fazendo upload...' : 'Criar Contrato'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setSelectedUser(null);
+                    setUserSearchTerm('');
+                  }}
                   className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
                 >
                   Cancelar
