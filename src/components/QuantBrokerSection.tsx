@@ -160,18 +160,6 @@ const ConsultationFormSection: React.FC = () => {
       label: 'Conhecer Resultados',
       icon: TrendingUp,
       color: 'blue'
-    },
-    {
-      value: 'strategy',
-      label: 'Estratégias Personalizadas',
-      icon: Target,
-      color: 'purple'
-    },
-    {
-      value: 'demo',
-      label: 'Demonstração ao Vivo',
-      icon: Eye,
-      color: 'green'
     }
   ];
 
