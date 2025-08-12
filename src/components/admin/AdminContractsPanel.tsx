@@ -76,10 +76,7 @@ const AdminContractsPanel: React.FC = () => {
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('client-contracts')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(fileName, file);
 
       if (uploadError) {
         throw new Error(`Erro no upload: ${uploadError.message}`);
