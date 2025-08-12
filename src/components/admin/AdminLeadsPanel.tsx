@@ -676,40 +676,64 @@ const AdminLeadsPanel: React.FC = () => {
             </div>
           </div>
         </div>
-              <UserCheck className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="text-xl font-bold text-purple-600">
-              {leadsWithStoredStatus.filter(l => l.lead_status === 'qualified').length}
-            </div>
-            <div className="text-xs text-gray-600">Qualificados</div>
-          </div>
 
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+        {/* Lead Status Breakdown */}
+        <div className="mt-8">
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Status dos Leads</h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Target className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="text-xl font-bold text-blue-600">{newLeads}</div>
+              <div className="text-xs text-gray-600">Novos</div>
             </div>
-            <div className="text-xl font-bold text-green-600">{convertedLeads}</div>
-            <div className="text-xs text-gray-600">Convertidos</div>
-          </div>
 
-          <div className="text-center">
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <X className="h-6 w-6 text-red-600" />
+            <div className="text-center">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <MessageCircle className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div className="text-xl font-bold text-yellow-600">{contactedLeads}</div>
+              <div className="text-xs text-gray-600">Contatados</div>
             </div>
-            <div className="text-xl font-bold text-red-600">
-              {leadsWithStoredStatus.filter(l => l.lead_status === 'lost').length}
-            </div>
-            <div className="text-xs text-gray-600">Perdidos</div>
-          </div>
 
-          <div className="text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Clock className="h-6 w-6 text-gray-600" />
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <UserCheck className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className="text-xl font-bold text-purple-600">
+                {leadsWithStoredStatus.filter(l => l.lead_status === 'qualified').length}
+              </div>
+              <div className="text-xs text-gray-600">Qualificados</div>
             </div>
-            <div className="text-xl font-bold text-gray-600">
-              {leadsWithStoredStatus.filter(l => l.lead_status === 'no_contact').length}
+
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="text-xl font-bold text-green-600">{convertedLeads}</div>
+              <div className="text-xs text-gray-600">Convertidos</div>
             </div>
-            <div className="text-xs text-gray-600">Sem Contato</div>
+
+            <div className="text-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <X className="h-6 w-6 text-red-600" />
+              </div>
+              <div className="text-xl font-bold text-red-600">
+                {leadsWithStoredStatus.filter(l => l.lead_status === 'lost').length}
+              </div>
+              <div className="text-xs text-gray-600">Perdidos</div>
+            </div>
+
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Clock className="h-6 w-6 text-gray-600" />
+              </div>
+              <div className="text-xl font-bold text-gray-600">
+                {leadsWithStoredStatus.filter(l => l.lead_status === 'no_contact').length}
+              </div>
+              <div className="text-xs text-gray-600">Sem Contato</div>
+            </div>
           </div>
         </div>
       </div>
