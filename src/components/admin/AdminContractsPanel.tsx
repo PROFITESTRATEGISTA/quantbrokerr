@@ -1057,9 +1057,9 @@ const AdminContractsPanel: React.FC = () => {
                   <div>
                     <span className="text-blue-700 font-medium">Cliente:</span>
                     <div className="text-blue-800">
-                      <div>{userForm.full_name || 'Nome não informado'}</div>
-                      <div className="text-xs text-blue-700">{userForm.email || 'Email não informado'}</div>
-                      {userForm.phone && <div className="text-xs">{userForm.phone}</div>}
+                      <div>{userForm.full_name || selectedUser?.full_name || 'Nome não informado'}</div>
+                      <div className="text-xs text-blue-700">{userForm.email || selectedUser?.email || 'Email não informado'}</div>
+                      {(userForm.phone || selectedUser?.phone) && <div className="text-xs">{userForm.phone || selectedUser?.phone}</div>}
                     </div>
                   </div>
                   <div>
