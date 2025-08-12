@@ -1043,15 +1043,12 @@ const AdminContractsPanel: React.FC = () => {
                   {selectedUser && (
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-blue-600 mr-2" />
+                            {(contract.user_name || contract.user_email)?.charAt(0).toUpperCase() || 'U'}
                         <div>
                           <div className="text-sm font-medium text-blue-900">
                             <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
-                          </div>
-                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                          {selectedUser.phone && (
-                            <div className="text-xs text-blue-700">{selectedUser.phone}</div>
-                          )}
+                          <div className="text-sm text-gray-500">{contract.user_email}</div>
+                          <div className="text-xs text-gray-400">ID: {contract.user_id.substring(0, 8)}...</div>
                         </div>
                       </div>
                     </div>
