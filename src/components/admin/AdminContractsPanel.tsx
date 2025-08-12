@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building, Plus, Edit3, Save, X, Trash2, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink } from 'lucide-react';
+import { Building, Plus, Edit3, Save, X, Trash2, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, Mail, Phone } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface ClientContract {
@@ -179,7 +179,6 @@ const AdminContractsPanel: React.FC = () => {
       }));
     }
   }, [newContract.contract_start, newContract.billing_period]);
-  
   useEffect(() => {
     fetchContracts();
     fetchAvailableUsers();
@@ -323,6 +322,49 @@ const AdminContractsPanel: React.FC = () => {
       });
       fetchContracts();
     } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
+  const handleDeleteContract = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este contrato? Esta ação não pode ser desfeita.')) return;
+
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .delete()
+        .eq('id', contractId);
+
+      if (error) throw error;
+
+      setSuccess('Contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Error deleting contract:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleToggleContractStatus = async (contractId: string, currentStatus: boolean) => {
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({ 
+          is_active: !currentStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contractId);
+
+      if (error) throw error;
+
+      setSuccess(`Contrato ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Error toggling contract status:', error);
       setError(error.message);
     }
   };
@@ -650,6 +692,25 @@ const AdminContractsPanel: React.FC = () => {
                           </div>
                         </div>
                         
+                        {/* Header com total de usuários */}
+                        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-700">
+                              {availableUsers.length} usuários disponíveis
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log('🔄 Recarregando lista de usuários...');
+                                fetchAvailableUsers();
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              Atualizar Lista
+                            </button>
+                          </div>
+                        </div>
+                        
                         {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
                             key={user.id}
@@ -687,6 +748,20 @@ const AdminContractsPanel: React.FC = () => {
                                   : 'Digite para filtrar usuários...'
                               }
                             </p>
+                            {availableUsers.length === 0 && (
+                              <div className="mt-3">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    console.log('🔄 Tentando sincronizar usuários...');
+                                    fetchUsersFromAuth();
+                                  }}
+                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
+                                >
+                                  Carregar Usuários do Sistema
+                                </button>
+                              </div>
+                            )}
                             {availableUsers.length === 0 && (
                               <div className="mt-3">
                                 <button
@@ -828,14 +903,14 @@ const AdminContractsPanel: React.FC = () => {
                   <div>
                     <span className="text-blue-700 font-medium">Cliente:</span>
                     <div className="text-blue-800">
-                      {selectedUser ? (
+                      {selectedUser || userForm.full_name ? (
                         <>
-                          <div>{selectedUser.full_name || 'Nome não cadastrado'}</div>
-                          <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                          {selectedUser.phone && <div className="text-xs">{selectedUser.phone}</div>}
+                          <div>{userForm.full_name || 'Nome não informado'}</div>
+                          <div className="text-xs text-blue-700">{userForm.email}</div>
+                          {userForm.phone && <div className="text-xs">{userForm.phone}</div>}
                         </>
                       ) : (
-                        'Selecione um usuário'
+                        'Preencha os dados do cliente'
                       )}
                     </div>
                   </div>
