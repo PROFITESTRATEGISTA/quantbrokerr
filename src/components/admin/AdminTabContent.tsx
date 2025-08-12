@@ -1,9 +1,9 @@
 import React from 'react';
 import AdminFinancialPanel from './AdminFinancialPanel';
+import AdminContractsPanel from './AdminContractsPanel';
 import AdminUsersPanel from './AdminUsersPanel';
 import AdminWaitlistPanel from './AdminWaitlistPanel';
 import AdminSuppliersPanel from './AdminSuppliersPanel';
-import AdminContractsPanel from './AdminContractsPanel';
 
 interface AdminTabContentProps {
   activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers';
