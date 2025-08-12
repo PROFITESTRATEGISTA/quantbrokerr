@@ -74,8 +74,6 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   const cal = totalLeads > 0 ? marketingCosts / totalLeads : 0;
   
   // Calculate CAC (Customer Acquisition Cost) - New customers this month
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
   const newCustomersThisMonth = contracts.filter(contract => {
     const contractDate = new Date(contract.created_at);
     return contractDate.getMonth() === currentMonth && contractDate.getFullYear() === currentYear;
