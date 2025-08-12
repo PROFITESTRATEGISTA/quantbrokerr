@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
             // Create INSERT policy for authenticated users
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Authenticated users can upload to ${bucket}', id, 'INSERT', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
+              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', '(auth.jwt() ->> ''email'') = ''pedropardal04@gmail.com''', '(auth.jwt() ->> ''email'') = ''pedropardal04@gmail.com'''
               FROM storage.buckets WHERE name = '${bucket}'
               ON CONFLICT (name, bucket_id) DO NOTHING;
             `;
