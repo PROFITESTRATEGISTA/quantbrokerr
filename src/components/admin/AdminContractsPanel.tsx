@@ -974,7 +974,7 @@ const AdminContractsPanel: React.FC = () => {
                         <div className="text-blue-700">{selectedUser.email}</div>
                         {selectedUser.phone && (
                           <div className="text-blue-600">{selectedUser.phone}</div>
-                        )}
+                          {contract.user_profiles?.full_name || 'Nome não cadastrado'}
                         <div className="text-xs text-blue-500 mt-1">
                           Plano atual: {getPlanDisplayName(selectedUser.contracted_plan)}
                         </div>
