@@ -50,15 +50,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Get admin user UID for RLS policies
-    const { data: adminUser, error: adminUserError } = await supabaseAdmin.auth.admin.getUserByEmail('pedropardal04@gmail.com');
-    
-    if (adminUserError || !adminUser.user) {
-      throw new Error(`Failed to get admin user: ${adminUserError?.message}`);
-    }
-    
-    const adminUID = adminUser.user.id;
-
     if (req.method === 'GET') {
       // List existing buckets
       const { data: buckets, error: listError } = await supabaseAdmin.storage.listBuckets();
@@ -114,48 +105,62 @@ Deno.serve(async (req: Request) => {
             results.push({ bucket, status: 'exists' });
           }
 
-          // Create/update RLS policies for the bucket
+          // Create/update RLS policies for the bucket using direct SQL
           try {
-            // Drop existing policies to prevent conflicts
+            // Remove existing policies to prevent conflicts
             await supabaseAdmin.sql`
               DELETE FROM storage.policies 
-              WHERE bucket_id = (SELECT id FROM storage.buckets WHERE name = ${bucket})
-              AND name IN (
+              WHERE bucket_id = (SELECT id FROM storage.buckets WHERE name = ${bucket});
+            `;
+
+            // Create INSERT policy for admin
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 
                 'Admin can upload to ${bucket}',
+                id,
+                'INSERT',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
+              FROM storage.buckets WHERE name = ${bucket};
+            `;
+
+            // Create SELECT policy for admin
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 
+                'Admin can view ${bucket}',
+                id,
+                'SELECT',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
+              FROM storage.buckets WHERE name = ${bucket};
+            `;
+
+            // Create DELETE policy for admin
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 
+                'Admin can delete from ${bucket}',
+                id,
+                'DELETE',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text',
+                '(auth.jwt() ->> ''email''::text) = ''pedropardal04@gmail.com''::text'
+              FROM storage.buckets WHERE name = ${bucket};
+            `;
+
+            // Create public SELECT policy for viewing files
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 
                 'Public can view ${bucket}',
-                'Authenticated users can delete from ${bucket}'
-              );
+                id,
+                'SELECT',
+                'true',
+                'true'
+              FROM storage.buckets WHERE name = ${bucket};
             `;
 
-            // Create INSERT policy for authenticated users
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.uid() = ''' || ${adminUID} || '''', 'auth.uid() = ''' || ${adminUID} || ''''
-              FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO UPDATE SET
-                definition = EXCLUDED.definition,
-                check_expression = EXCLUDED.check_expression;
-            `;
-
-            // Create SELECT policy for public read access
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Public can view ${bucket}', id, 'SELECT', 'true', 'true'
-              FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO UPDATE SET
-                definition = EXCLUDED.definition,
-                check_expression = EXCLUDED.check_expression;
-            `;
-
-            // Create DELETE policy for authenticated users
-            await supabaseAdmin.sql`
-              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.uid() = ''' || ${adminUID} || '''', 'auth.uid() = ''' || ${adminUID} || ''''
-              FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO UPDATE SET
-                definition = EXCLUDED.definition,
-                check_expression = EXCLUDED.check_expression;
-            `;
           } catch (policyError) {
             console.warn(`Policy creation warning for ${bucket}:`, policyError);
             // Continue even if policies fail - they might already exist
