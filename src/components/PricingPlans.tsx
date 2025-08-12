@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Check, Star, TrendingUp, Shield, Building2, Settings, Eye, EyeOff } from 'lucide-react';
+import { Check, Star, TrendingUp, Shield, Building2, Settings, Eye, EyeOff, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import WaitlistModal from './WaitlistModal';
 import { useAuth } from '../hooks/useAuth';
@@ -149,7 +149,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Índice',
-        'Plano semestral no Pix ou em até 12x'
+        'Plano semestral apenas no PIX'
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('mini-indice')
@@ -169,7 +169,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Dólar',
-        'Plano semestral no Pix ou em até 12x'
+        'Plano semestral apenas no PIX'
       ],
       isAvailable: isPlanAvailable('mini-dolar')
     },
@@ -188,7 +188,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy de todas as estratégias',
-        'Plano semestral no Pix ou em até 12x'
+        'Plano semestral apenas no PIX'
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('portfolio-completo')
@@ -256,7 +256,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             
             <div className="text-center mb-8">
               <p className="text-lg text-gray-700 font-medium">
-                💳 <span className="text-blue-600">Planos Semestrais e Anuais:</span> Pagamento no PIX ou em até 12x no cartão
+                💳 <span className="text-blue-600">Planos Semestrais e Anuais:</span> Pagamento apenas no PIX
               </p>
             </div>
           </div>
@@ -361,13 +361,24 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 >
                   {getButtonText(plan.id)}
                 </button>
+
+                {/* WhatsApp button for semiannual and annual plans */}
+                {(billingPeriod === 'semiannual' || billingPeriod === 'annual') && plan.isAvailable && (
+                  <button
+                    onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20tenho%20interesse%20no%20' + encodeURIComponent(plan.name) + '%20no%20plano%20' + encodeURIComponent(billingPeriod === 'semiannual' ? 'semestral' : 'anual') + '.%20Pode%20me%20ajudar%20com%20o%20pagamento%20via%20PIX%3F', '_blank')}
+                    className="w-full mt-2 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center justify-center"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Falar com Suporte
+                  </button>
+                )}
               </div>
             ))}
           </div>
 
           <div className="mt-16 text-center">
             <p className="text-gray-600 mb-4">
-              Apenas 50 vagas disponíveis - Para planos semestrais e anuais, entre em contato com nossa equipe
+              Apenas 50 vagas disponíveis - Para planos semestrais e anuais via PIX, entre em contato com nossa equipe
             </p>
           </div>
         </div>
