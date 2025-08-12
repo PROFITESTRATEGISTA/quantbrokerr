@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle, CheckCircle, X, Send, Eye, Edit3, Plus, Copy } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface LeadSource {
@@ -11,23 +11,35 @@ interface LeadSource {
   status?: string;
   portfolio_type?: string;
   consultation_type?: string;
+  lead_status?: string;
+  last_contact?: string;
+  notes?: string;
 }
 
 const AdminLeadsPanel: React.FC = () => {
   const [leads, setLeads] = useState<LeadSource[]>([]);
   const [uniqueLeads, setUniqueLeads] = useState<LeadSource[]>([]);
+  const [leadInteractions, setLeadInteractions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterSource, setFilterSource] = useState<'all' | 'user' | 'waitlist' | 'consultation'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
+  const [contactType, setContactType] = useState('boas_vindas');
+  const [customMessage, setCustomMessage] = useState('');
+  const [notes, setNotes] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     fetchAllLeads();
+    fetchLeadInteractions();
   }, []);
 
   useEffect(() => {
     applyFilters();
-  }, [leads, filterSource, searchTerm]);
+  }, [leads, filterSource, filterStatus, searchTerm]);
 
   const fetchAllLeads = async () => {
     try {
@@ -102,11 +114,43 @@ const AdminLeadsPanel: React.FC = () => {
 
       setUniqueLeads(Array.from(uniqueLeadsMap.values()));
 
+      // Combinar com status de interações
+      await fetchLeadInteractions();
+
     } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchLeadInteractions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('lead_interactions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setLeadInteractions(data || []);
+    } catch (error: any) {
+      console.error('Error fetching lead interactions:', error);
+    }
+  };
+
+  const getLeadStatus = (email: string) => {
+    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
+    return interaction?.status || 'sem_contato';
+  };
+
+  const getLastContact = (email: string) => {
+    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
+    return interaction?.contacted_at;
+  };
+
+  const getLeadNotes = (email: string) => {
+    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
+    return interaction?.notes || '';
   };
 
   const applyFilters = () => {
@@ -115,6 +159,11 @@ const AdminLeadsPanel: React.FC = () => {
     // Filter by source
     if (filterSource !== 'all') {
       filtered = filtered.filter(lead => lead.source === filterSource);
+    }
+
+    // Status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(lead => getLeadStatus(lead.email) === filterStatus);
     }
 
     // Search filter
@@ -130,6 +179,140 @@ const AdminLeadsPanel: React.FC = () => {
   };
 
   const filteredLeads = applyFilters();
+
+  const statusOptions = [
+    { value: 'sem_contato', label: 'Sem Contato', color: 'bg-gray-100 text-gray-800' },
+    { value: 'contatado', label: 'Contatado', color: 'bg-blue-100 text-blue-800' },
+    { value: 'respondeu', label: 'Respondeu', color: 'bg-green-100 text-green-800' },
+    { value: 'interessado', label: 'Interessado', color: 'bg-purple-100 text-purple-800' },
+    { value: 'reuniao_agendada', label: 'Reunião Agendada', color: 'bg-yellow-100 text-yellow-800' },
+    { value: 'convertido', label: 'Convertido', color: 'bg-green-100 text-green-800' },
+    { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-100 text-red-800' }
+  ];
+
+  const contactTypes = [
+    {
+      value: 'boas_vindas',
+      label: 'Boas-vindas',
+      message: 'Olá {nome}! 👋 Sou da Quant Broker e vi seu interesse em nossos Portfólios de IA. Bem-vindo(a)! Estou aqui para esclarecer qualquer dúvida sobre copy trading automatizado. Como posso ajudar?'
+    },
+    {
+      value: 'follow_up',
+      label: 'Follow-up',
+      message: 'Oi {nome}! Como está? Queria saber se teve chance de analisar nossos Portfólios de IA. Temos resultados muito interessantes para mostrar. Posso te ajudar com alguma dúvida específica?'
+    },
+    {
+      value: 'apresentacao',
+      label: 'Apresentação',
+      message: 'Olá {nome}! Que tal conhecer nossos resultados reais? Posso fazer uma apresentação rápida (15 min) mostrando a performance dos Portfólios de IA e como funciona o copy trading via Mosaico BTG. Quando seria um bom horário?'
+    },
+    {
+      value: 'convite_reuniao',
+      label: 'Convite Reunião',
+      message: 'Oi {nome}! Gostaria de agendar uma reunião personalizada para mostrar como nossos Portfólios de IA podem se adequar ao seu perfil? É gratuito e sem compromisso. Que dia/horário seria melhor para você?'
+    },
+    {
+      value: 'mostrar_resultados',
+      label: 'Mostrar Resultados',
+      message: 'Olá {nome}! Temos resultados frescos dos Portfólios de IA deste mês. Os números estão muito bons! Quer dar uma olhada? Posso enviar um resumo ou fazer uma call rápida para explicar.'
+    },
+    {
+      value: 'personalizada',
+      label: 'Mensagem Personalizada',
+      message: ''
+    }
+  ];
+
+  const updateLeadStatus = async (email: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('lead_interactions')
+        .upsert({
+          lead_email: email.toLowerCase(),
+          lead_source: leads.find(l => l.email === email)?.source || 'user',
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'lead_email'
+        });
+
+      if (error) throw error;
+      
+      await fetchLeadInteractions();
+      setSuccess('Status atualizado com sucesso!');
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
+  const handleContactLead = (lead: LeadSource) => {
+    setSelectedLead(lead);
+    setShowContactModal(true);
+    setNotes(getLeadNotes(lead.email));
+  };
+
+  const getMessagePreview = () => {
+    if (!selectedLead) return '';
+    
+    const selectedType = contactTypes.find(t => t.value === contactType);
+    if (!selectedType) return '';
+    
+    if (contactType === 'personalizada') {
+      return customMessage;
+    }
+    
+    return selectedType.message.replace('{nome}', selectedLead.full_name);
+  };
+
+  const handleSendMessage = async () => {
+    if (!selectedLead) return;
+    
+    try {
+      setSendingMessage(true);
+      const message = getMessagePreview();
+      
+      // Salvar interação no banco
+      const { error } = await supabase
+        .from('lead_interactions')
+        .upsert({
+          lead_email: selectedLead.email.toLowerCase(),
+          lead_source: selectedLead.source,
+          status: 'contatado',
+          interaction_type: contactType,
+          message_sent: message,
+          notes: notes,
+          contacted_at: new Date().toISOString()
+        }, {
+          onConflict: 'lead_email'
+        });
+
+      if (error) throw error;
+      
+      // Abrir WhatsApp com mensagem
+      const phoneNumber = selectedLead.phone.replace(/\D/g, '');
+      const whatsappUrl = `https://wa.me/55${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      setSuccess('Mensagem enviada e interação registrada!');
+      setShowContactModal(false);
+      await fetchLeadInteractions();
+      
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    const statusOption = statusOptions.find(s => s.value === status);
+    return statusOption?.color || 'bg-gray-100 text-gray-800';
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusOption = statusOptions.find(s => s.value === status);
+    return statusOption?.label || status;
+  };
 
   const getSourceDisplayName = (source: string) => {
     const names = {
