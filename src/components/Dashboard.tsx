@@ -120,27 +120,30 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <TrendingUp className="h-10 w-10 text-purple-600" />
-            </div>
-            
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Alavancagem Extra
-            </h3>
-            
-            <p className="text-gray-600 mb-8">
-              Potencialize seus resultados com alavancagem adicional para maximizar oportunidades de mercado.
-            </p>
+          {/* Alavancagem Extra - Only for users with active contracts */}
+          {hasActivePlan && (
+            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="h-10 w-10 text-purple-600" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Alavancagem Extra
+              </h3>
+              
+              <p className="text-gray-600 mb-8">
+                Potencialize seus resultados com alavancagem adicional para maximizar oportunidades de mercado.
+              </p>
 
-            <button
-              onClick={() => window.open('https://buy.stripe.com/4gw3fPePObfffiU3cP', '_blank')}
-              className="inline-flex items-center px-8 py-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <TrendingUp className="h-5 w-5 mr-2" />
-              Contratar Alavancagem
-            </button>
-          </div>
+              <button
+                onClick={() => window.open('https://buy.stripe.com/4gw3fPePObfffiU3cP', '_blank')}
+                className="inline-flex items-center px-8 py-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <TrendingUp className="h-5 w-5 mr-2" />
+                Contratar Alavancagem
+              </button>
+            </div>
+          )}
 
           {/* Tridar Registration Card - Only for active plan members */}
           {canAccessTridar && (
