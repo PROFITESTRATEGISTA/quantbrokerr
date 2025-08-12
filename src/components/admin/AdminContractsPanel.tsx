@@ -283,7 +283,7 @@ const AdminContractsPanel: React.FC = () => {
           // Criar novo usuário no sistema de auth
           const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
                 plan_status: 'active',
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
             password: 'TempPassword123!', // Senha temporária
             email_confirm: true,
             user_metadata: {
