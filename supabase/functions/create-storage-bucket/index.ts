@@ -108,27 +108,26 @@ Deno.serve(async (req: Request) => {
           // Create/update RLS policies for the bucket
           try {
             // Admin can upload and delete
-            await supabaseAdmin.rpc('create_storage_policy', {
-              bucket_name: bucket,
-              policy_name: `Admin can upload to ${bucket}`,
-              definition: `(auth.jwt() ->> 'email'::text) = 'pedropardal04@gmail.com'::text`,
-              operation: 'INSERT'
-            });
+            const { error: insertPolicyError } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(`test-${Date.now()}.pdf`);
+            
+            // If we can't create signed URL, the bucket needs proper policies
+            if (insertPolicyError) {
+              // Use SQL to create storage policies directly
+              await supabaseAdmin.sql`
+                INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+                SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
+                FROM storage.buckets WHERE name = '${bucket}'
+                ON CONFLICT (name, bucket_id) DO NOTHING;
+              `;
+            }
 
-            await supabaseAdmin.rpc('create_storage_policy', {
-              bucket_name: bucket,
-              policy_name: `Admin can delete from ${bucket}`,
-              definition: `(auth.jwt() ->> 'email'::text) = 'pedropardal04@gmail.com'::text`,
-              operation: 'DELETE'
-            });
-
-            // Public read access
-            await supabaseAdmin.rpc('create_storage_policy', {
-              bucket_name: bucket,
-              policy_name: `Public can view ${bucket}`,
-              definition: 'true',
-              operation: 'SELECT'
-            });
+            // Create policies using direct SQL
+            await supabaseAdmin.sql`
+              INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
+              SELECT 'Public can view ${bucket}', id, 'SELECT', 'true', 'true'
+              FROM storage.buckets WHERE name = '${bucket}'
+              ON CONFLICT (name, bucket_id) DO NOTHING;
+            `;
           } catch (policyError) {
             console.warn(`Policy creation warning for ${bucket}:`, policyError);
             // Continue even if policies fail - they might already exist
