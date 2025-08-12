@@ -50,6 +50,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Get admin user UID for RLS policies
+    const { data: adminUser, error: adminUserError } = await supabaseAdmin.auth.admin.getUserByEmail('pedropardal04@gmail.com');
+    
+    if (adminUserError || !adminUser.user) {
+      throw new Error(`Failed to get admin user: ${adminUserError?.message}`);
+    }
+    
+    const adminUID = adminUser.user.id;
+
     if (req.method === 'GET') {
       // List existing buckets
       const { data: buckets, error: listError } = await supabaseAdmin.storage.listBuckets();
@@ -121,7 +130,7 @@ Deno.serve(async (req: Request) => {
             // Create INSERT policy for authenticated users
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com''', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com'''
+              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.uid() = ''' || ${adminUID} || '''', 'auth.uid() = ''' || ${adminUID} || ''''
               FROM storage.buckets WHERE name = '${bucket}'
               ON CONFLICT (name, bucket_id) DO UPDATE SET
                 definition = EXCLUDED.definition,
@@ -141,7 +150,7 @@ Deno.serve(async (req: Request) => {
             // Create DELETE policy for authenticated users
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com''', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com'''
+              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.uid() = ''' || ${adminUID} || '''', 'auth.uid() = ''' || ${adminUID} || ''''
               FROM storage.buckets WHERE name = '${bucket}'
               ON CONFLICT (name, bucket_id) DO UPDATE SET
                 definition = EXCLUDED.definition,
