@@ -52,16 +52,62 @@ const AdminContractsPanel: React.FC = () => {
   // Fetch available users for contract creation
   const fetchAvailableUsers = async () => {
     try {
+      console.log('🔍 Buscando usuários disponíveis...');
+      
+      // First try to get from user_profiles
       const { data, error } = await supabase
         .from('user_profiles')
         .select('id, full_name, email, phone')
-        .eq('is_active', true)
         .order('full_name', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar user_profiles:', error);
+        throw error;
+      }
+      
+      console.log('✅ Usuários encontrados:', data?.length || 0);
+      console.log('📋 Lista de usuários:', data);
+      
       setAvailableUsers(data || []);
+      
+      // Se não há usuários em user_profiles, tentar buscar do auth
+      if (!data || data.length === 0) {
+        console.log('⚠️ Nenhum usuário em user_profiles, tentando buscar do auth...');
+        await fetchUsersFromAuth();
+      }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('❌ Erro ao buscar usuários:', error);
+      setAvailableUsers([]);
+    }
+  };
+
+  // Fetch users from auth system if user_profiles is empty
+  const fetchUsersFromAuth = async () => {
+    try {
+      console.log('🔄 Buscando usuários do sistema de autenticação...');
+      
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.users) {
+        console.log('✅ Usuários do auth carregados:', result.users.length);
+        setAvailableUsers(result.users);
+      } else {
+        console.warn('⚠️ Nenhum usuário encontrado no auth');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar usuários do auth:', error);
     }
   };
 
@@ -176,6 +222,7 @@ const AdminContractsPanel: React.FC = () => {
   };
 
   const handleSelectUser = (user: any) => {
+    console.log('👤 Usuário selecionado:', user);
     setSelectedUser(user);
     setNewContract(prev => ({ ...prev, user_id: user.id }));
     setSearchTerm(user.full_name || user.email);
@@ -183,6 +230,7 @@ const AdminContractsPanel: React.FC = () => {
   };
 
   const clearUserSelection = () => {
+    console.log('🗑️ Limpando seleção de usuário');
     setSelectedUser(null);
     setNewContract(prev => ({ ...prev, user_id: '' }));
     setSearchTerm('');
@@ -549,6 +597,25 @@ const AdminContractsPanel: React.FC = () => {
                     {/* User Dropdown */}
                     {showUserDropdown && !selectedUser && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {/* Header com total de usuários */}
+                        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-700">
+                              {availableUsers.length} usuários disponíveis
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log('🔄 Recarregando lista de usuários...');
+                                fetchAvailableUsers();
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              Atualizar Lista
+                            </button>
+                          </div>
+                        </div>
+                        
                         {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
                             key={user.id}
@@ -586,6 +653,20 @@ const AdminContractsPanel: React.FC = () => {
                                   : 'Digite para filtrar usuários...'
                               }
                             </p>
+                            {availableUsers.length === 0 && (
+                              <div className="mt-3">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    console.log('🔄 Tentando sincronizar usuários...');
+                                    fetchUsersFromAuth();
+                                  }}
+                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
+                                >
+                                  Carregar Usuários do Sistema
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
