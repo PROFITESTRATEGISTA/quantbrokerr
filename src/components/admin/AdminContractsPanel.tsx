@@ -202,22 +202,48 @@ const AdminContractsPanel: React.FC = () => {
   const fetchContracts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First, try to get contracts with user profiles
+      const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
-        .select(`
-          *,
-          user_profiles!inner (
-            full_name,
-            email,
-            phone
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (contractsError) {
+        console.error('Error fetching contracts:', contractsError);
+        throw contractsError;
+      }
       
-      console.log('Contracts with user data:', data);
-      setContracts(data || []);
+      console.log('Raw contracts data:', contractsData);
+      
+      // Then get user profiles separately to avoid join issues
+      const userIds = contractsData?.map(c => c.user_id) || [];
+      let userProfiles: any[] = [];
+      
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('user_profiles')
+          .select('id, full_name, email, phone')
+          .in('id', userIds);
+          
+        if (profilesError) {
+          console.warn('Warning fetching user profiles:', profilesError);
+        } else {
+          userProfiles = profilesData || [];
+        }
+      }
+      
+      // Combine contracts with user profiles
+      const contractsWithProfiles = contractsData?.map(contract => {
+        const userProfile = userProfiles.find(p => p.id === contract.user_id);
+        return {
+          ...contract,
+          user_profiles: userProfile || null
+        };
+      }) || [];
+      
+      console.log('Contracts with user profiles:', contractsWithProfiles);
+      setContracts(contractsWithProfiles);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       setError(error.message);
