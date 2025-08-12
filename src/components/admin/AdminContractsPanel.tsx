@@ -85,6 +85,11 @@ const AdminContractsPanel: React.FC = () => {
       // Combine contracts with user profiles
       const contractsWithProfiles = contractsData?.map(contract => {
         const userProfile = userProfiles.find(p => p.id === contract.user_id);
+        console.log(`Contract ${contract.id} - User ID: ${contract.user_id}`, {
+          userProfile,
+          fullName: userProfile?.full_name,
+          email: userProfile?.email
+        });
         return {
           ...contract,
           user_profiles: userProfile || null
@@ -313,14 +318,13 @@ const AdminContractsPanel: React.FC = () => {
                         <div className="text-sm font-medium text-gray-900">
                           {contract.user_profiles?.email || 'Email não informado'}
                         </div>
-                        <div className="text-sm text-gray-500">{contract.user_profiles?.phone || 'Telefone não informado'}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {contract.user_profiles?.full_name || 'Nome não cadastrado'}
-                    </div>
+                      {contract.user_profiles?.full_name || 'Nome não cadastrado'}
                     <div className="text-sm text-gray-500">
                       ID: {contract.user_id.substring(0, 8)}...
                     </div>
