@@ -288,9 +288,6 @@ const AdminContractsPanel: React.FC = () => {
             email_confirm: true,
             user_metadata: {
               full_name: userForm.full_name,
-              console.error('❌ Erro ao atualizar perfil:', updateProfileError);
-            } else {
-              console.log('✅ Perfil atualizado com sucesso');
             }
           });
 
