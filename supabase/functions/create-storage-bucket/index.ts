@@ -107,12 +107,25 @@ Deno.serve(async (req: Request) => {
 
           // Create/update RLS policies for the bucket
           try {
+            // Drop existing policies to prevent conflicts
+            await supabaseAdmin.sql`
+              DELETE FROM storage.policies 
+              WHERE bucket_id = (SELECT id FROM storage.buckets WHERE name = ${bucket})
+              AND name IN (
+                'Admin can upload to ${bucket}',
+                'Public can view ${bucket}',
+                'Authenticated users can delete from ${bucket}'
+              );
+            `;
+
             // Create INSERT policy for authenticated users
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', '(auth.jwt() ->> ''email'') = ''pedropardal04@gmail.com''', '(auth.jwt() ->> ''email'') = ''pedropardal04@gmail.com'''
+              SELECT 'Admin can upload to ${bucket}', id, 'INSERT', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com''', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com'''
               FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO NOTHING;
+              ON CONFLICT (name, bucket_id) DO UPDATE SET
+                definition = EXCLUDED.definition,
+                check_expression = EXCLUDED.check_expression;
             `;
 
             // Create SELECT policy for public read access
@@ -120,15 +133,19 @@ Deno.serve(async (req: Request) => {
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
               SELECT 'Public can view ${bucket}', id, 'SELECT', 'true', 'true'
               FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO NOTHING;
+              ON CONFLICT (name, bucket_id) DO UPDATE SET
+                definition = EXCLUDED.definition,
+                check_expression = EXCLUDED.check_expression;
             `;
 
             // Create DELETE policy for authenticated users
             await supabaseAdmin.sql`
               INSERT INTO storage.policies (name, bucket_id, operation, definition, check_expression)
-              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.role() = ''authenticated''', 'auth.role() = ''authenticated'''
+              SELECT 'Authenticated users can delete from ${bucket}', id, 'DELETE', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com''', 'auth.jwt() ->> ''email'' = ''pedropardal04@gmail.com'''
               FROM storage.buckets WHERE name = '${bucket}'
-              ON CONFLICT (name, bucket_id) DO NOTHING;
+              ON CONFLICT (name, bucket_id) DO UPDATE SET
+                definition = EXCLUDED.definition,
+                check_expression = EXCLUDED.check_expression;
             `;
           } catch (policyError) {
             console.warn(`Policy creation warning for ${bucket}:`, policyError);
