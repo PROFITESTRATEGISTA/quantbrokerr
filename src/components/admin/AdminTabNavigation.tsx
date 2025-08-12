@@ -28,9 +28,9 @@ const AdminTabNavigation: React.FC<AdminTabNavigationProps> = ({ activeTab, onTa
     },
     {
       id: 'waitlist' as const,
-      label: 'Fila de Espera',
+      label: 'Fila de Espera & Formulários',
       icon: Clock,
-      description: 'Controle de inscrições'
+      description: 'Controle de inscrições e formulários'
     },
     {
       id: 'leads' as const,
