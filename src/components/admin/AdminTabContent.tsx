@@ -1,9 +1,9 @@
 import React from 'react';
-import ResultsCalendar from '../ResultsCalendar';
-import FinancialPanel from '../FinancialPanel';
-import UserManagementPanel from '../UserManagementPanel';
-import WaitlistPanel from '../WaitlistPanel';
-import SupplierContractsPanel from '../SupplierContractsPanel';
+import AdminResultsPanel from './AdminResultsPanel';
+import AdminFinancialPanel from './AdminFinancialPanel';
+import AdminUsersPanel from './AdminUsersPanel';
+import AdminWaitlistPanel from './AdminWaitlistPanel';
+import AdminSuppliersPanel from './AdminSuppliersPanel';
 
 interface AdminTabContentProps {
   activeTab: 'results' | 'financial' | 'users' | 'waitlist' | 'suppliers';
@@ -13,17 +13,17 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'results':
-        return <ResultsCalendar />;
+        return <AdminResultsPanel />;
       case 'financial':
-        return <FinancialPanel />;
+        return <AdminFinancialPanel />;
       case 'users':
-        return <UserManagementPanel />;
+        return <AdminUsersPanel />;
       case 'waitlist':
-        return <WaitlistPanel />;
+        return <AdminWaitlistPanel />;
       case 'suppliers':
-        return <SupplierContractsPanel />;
+        return <AdminSuppliersPanel />;
       default:
-        return <ResultsCalendar />;
+        return <AdminResultsPanel />;
     }
   };
 

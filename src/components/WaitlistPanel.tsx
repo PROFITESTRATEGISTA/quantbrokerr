@@ -142,6 +142,8 @@ const WaitlistPanel: React.FC = () => {
   const cancelEdit = () => {
     setEditingOffer(null);
     setEditForm({});
+    setError(null);
+    setSuccess(null);
   };
 
   const getPortfolioDisplayName = (type: string) => {

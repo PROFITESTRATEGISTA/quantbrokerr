@@ -174,6 +174,8 @@ const FinancialPanel: React.FC = () => {
   const handleCloseModal = () => {
     setShowAddModal(false);
     setEditingCost(null);
+    setError(null);
+    setSuccess(null);
   };
 
   if (loading) {

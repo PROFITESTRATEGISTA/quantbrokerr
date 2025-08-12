@@ -177,6 +177,8 @@ const UserManagementPanel: React.FC = () => {
   const handleCancelEdit = () => {
     setEditingUser(null);
     setEditForm({});
+    setError(null);
+    setSuccess(null);
   };
 
   const handleDeleteUser = async (id: string) => {
