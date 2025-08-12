@@ -166,7 +166,12 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+                label={({ name, percent, value }) => {
+                  if (!value || value === 0 || !percent || isNaN(percent)) {
+                    return null;
+                  }
+                  return `${name} ${(percent * 100).toFixed(1)}%`;
+                }}
               >
                 {categoryChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
