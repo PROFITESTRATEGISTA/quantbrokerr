@@ -476,7 +476,6 @@ const AdminLeadsPanel: React.FC = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonte</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
@@ -616,6 +615,151 @@ const AdminLeadsPanel: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Contato */}
+      {showContactModal && selectedLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Contatar Lead
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {selectedLead.full_name} • {selectedLead.email}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Tipo de Atendimento */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Tipo de Atendimento
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {contactTypes.map((type) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => {
+                        setContactType(type.value);
+                        if (type.value !== 'personalizada') {
+                          setCustomMessage('');
+                        }
+                      }}
+                      className={`p-3 border-2 rounded-lg transition-all text-left ${
+                        contactType === type.value
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <div className="text-sm font-medium">{type.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mensagem Personalizada */}
+              {contactType === 'personalizada' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mensagem Personalizada
+                  </label>
+                  <textarea
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Digite sua mensagem personalizada..."
+                  />
+                </div>
+              )}
+
+              {/* Preview da Mensagem */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preview da Mensagem
+                </label>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {getMessagePreview() || 'Selecione um tipo de atendimento para ver a mensagem'}
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigator.clipboard.writeText(getMessagePreview())}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copiar mensagem
+                </button>
+              </div>
+
+              {/* Notas */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notas sobre o Lead
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Adicione observações sobre este lead..."
+                />
+              </div>
+
+              {/* Status Atual */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Status Atual</h4>
+                <div className="flex items-center space-x-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(getLeadStatus(selectedLead.email))}`}>
+                    {getStatusLabel(getLeadStatus(selectedLead.email))}
+                  </span>
+                  {getLastContact(selectedLead.email) && (
+                    <span className="text-xs text-gray-600">
+                      • Último contato: {new Date(getLastContact(selectedLead.email)!).toLocaleDateString('pt-BR')}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Ações */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSendMessage}
+                  disabled={sendingMessage || !getMessagePreview()}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {sendingMessage ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Enviar via WhatsApp
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowContactModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
