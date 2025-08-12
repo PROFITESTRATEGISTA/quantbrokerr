@@ -31,7 +31,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
     name: getCategoryDisplayName(category),
     value: amount,
     color: getCategoryColor(category)
-  }));
+  })).filter(item => item.value > 0);
 
   // Prepare data for monthly chart
   const monthlyData = costs.reduce((acc, cost) => {
@@ -55,7 +55,7 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
   const typeChartData = [
     { name: 'Recorrentes', value: recurringTotal, color: '#8b5cf6' },
     { name: 'Únicos', value: oneTimeTotal, color: '#f97316' }
-  ];
+  ].filter(item => item.value > 0);
 
   function getCategoryDisplayName(category: string) {
     const categories = {
