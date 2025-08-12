@@ -186,22 +186,23 @@ const FinancialDashboard: React.FC = () => {
 
         case 'profit':
           // Calculate profit (revenue - all costs)
+          // Get all active contracts up to this month for cumulative revenue
           revenue = contracts.filter(contract => {
             const contractDate = new Date(contract.created_at);
-            const contractMonthKey = `${contractDate.getFullYear()}-${String(contractDate.getMonth() + 1).padStart(2, '0')}`;
-            return contractMonthKey === monthKey;
+            return contractDate <= new Date(monthKey + '-31');
           }).reduce((sum, contract) => sum + contract.monthly_value, 0);
 
+          // Get costs for this specific month
           totalCosts = costs.filter(cost => {
             const costDate = new Date(cost.cost_date);
             const costMonthKey = `${costDate.getFullYear()}-${String(costDate.getMonth() + 1).padStart(2, '0')}`;
             return costMonthKey === monthKey;
           }).reduce((sum, cost) => sum + cost.amount, 0);
 
+          // Get all active supplier contracts up to this month for cumulative costs
           supplierCosts = supplierContracts.filter(contract => {
             const contractDate = new Date(contract.created_at);
-            const contractMonthKey = `${contractDate.getFullYear()}-${String(contractDate.getMonth() + 1).padStart(2, '0')}`;
-            return contractMonthKey === monthKey;
+            return contractDate <= new Date(monthKey + '-31');
           }).reduce((sum, contract) => sum + contract.monthly_value, 0);
 
           value = revenue - totalCosts - supplierCosts;
