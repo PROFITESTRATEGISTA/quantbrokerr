@@ -644,27 +644,29 @@ const SupplierContractsPanel: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fim do Contrato {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') ? '(não se aplica)' : '*'}
-                    </label>
-                    <input
-                      type="date"
-                      value={newContract.contract_end}
-                      onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                        (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') 
-                          ? 'bg-gray-100 cursor-not-allowed opacity-50' 
-                          : ''
-                      }`}
-                      placeholder={
-                        (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly')
-                          ? "Não se aplica para contratos mensais/trimestrais"
-                          : "Data de término do contrato"
+                      Fim do Contrato
+                      {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') 
+                        ? ' (não se aplica)' 
+                        : ' *'
                       }
-                      disabled={newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly'}
-                    />
+                    </label>
+                    {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') ? (
+                      <div className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 text-center">
+                        Não se aplica para contratos {newContract.payment_frequency === 'monthly' ? 'mensais' : 'trimestrais'}
+                      </div>
+                    ) : (
+                      <input
+                        type="date"
+                        value={newContract.contract_end}
+                        onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Data de término do contrato"
+                        required
+                      />
+                    )}
                     <p className="text-xs text-gray-500 mt-1">
                       {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly')
-                        ? "Contratos mensais e trimestrais não possuem data de término"
+                        ? "Contratos mensais e trimestrais não possuem data de término definida"
                         : "Obrigatório para contratos semestrais e anuais"
                       }
                     </p>
