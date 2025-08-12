@@ -20,6 +20,43 @@ interface FinancialChartsProps {
 const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
   const [activeChart, setActiveChart] = React.useState<'category' | 'monthly' | 'type'>('category');
 
+  // Early return if no costs
+  if (!costs || costs.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+        <div className="text-center">
+          <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Sem dados para gráficos</h3>
+          <p className="text-gray-600">Adicione alguns custos para visualizar os gráficos</p>
+        </div>
+      </div>
+    );
+  }
+
+  const getCategoryDisplayName = (category: string) => {
+    const categories = {
+      'operacional': 'Operacional',
+      'marketing': 'Marketing',
+      'tecnologia': 'Tecnologia',
+      'pessoal': 'Pessoal',
+      'infraestrutura': 'Infraestrutura',
+      'outros': 'Outros'
+    };
+    return categories[category as keyof typeof categories] || category;
+  };
+
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      'operacional': '#3b82f6',
+      'marketing': '#22c55e',
+      'tecnologia': '#8b5cf6',
+      'pessoal': '#eab308',
+      'infraestrutura': '#f97316',
+      'outros': '#6b7280'
+    };
+    return colors[category as keyof typeof colors] || '#6b7280';
+  };
+
   // Prepare data for category chart
   const categoryData = costs.reduce((acc, cost) => {
     const category = cost.category;
@@ -27,11 +64,13 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
     return acc;
   }, {} as Record<string, number>);
 
-  const categoryChartData = Object.entries(categoryData).map(([category, amount]) => ({
-    name: getCategoryDisplayName(category),
-    value: amount,
-    color: getCategoryColor(category)
-  })).filter(item => item.value > 0);
+  const categoryChartData = Object.entries(categoryData)
+    .map(([category, amount]) => ({
+      name: getCategoryDisplayName(category),
+      value: amount,
+      color: getCategoryColor(category)
+    }))
+    .filter(item => item.value > 0);
 
   // Prepare data for monthly chart
   const monthlyData = costs.reduce((acc, cost) => {
@@ -46,7 +85,8 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
     .map(([month, amount]) => ({
       month: new Date(month + '-01').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
       amount
-    }));
+    }))
+    .filter(item => item.amount > 0);
 
   // Prepare data for type chart (recurring vs one-time)
   const recurringTotal = costs.filter(c => c.is_recurring).reduce((sum, c) => sum + c.amount, 0);
@@ -56,30 +96,6 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
     { name: 'Recorrentes', value: recurringTotal, color: '#8b5cf6' },
     { name: 'Únicos', value: oneTimeTotal, color: '#f97316' }
   ].filter(item => item.value > 0);
-
-  function getCategoryDisplayName(category: string) {
-    const categories = {
-      'operacional': 'Operacional',
-      'marketing': 'Marketing',
-      'tecnologia': 'Tecnologia',
-      'pessoal': 'Pessoal',
-      'infraestrutura': 'Infraestrutura',
-      'outros': 'Outros'
-    };
-    return categories[category as keyof typeof categories] || category;
-  }
-
-  function getCategoryColor(category: string) {
-    const colors = {
-      'operacional': '#3b82f6',
-      'marketing': '#22c55e',
-      'tecnologia': '#8b5cf6',
-      'pessoal': '#eab308',
-      'infraestrutura': '#f97316',
-      'outros': '#6b7280'
-    };
-    return colors[category as keyof typeof colors] || '#6b7280';
-  }
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -98,18 +114,6 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
     }
     return null;
   };
-
-  if (costs.length === 0) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-8">
-        <div className="text-center">
-          <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Sem dados para gráficos</h3>
-          <p className="text-gray-600">Adicione alguns custos para visualizar os gráficos</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
@@ -157,106 +161,91 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
 
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          {activeChart === 'category' && (
-            <>
-              {categoryChartData.length > 0 && categoryChartData.some(item => item.value > 0) ? (
-                <PieChart>
-                  <Pie
-                    data={categoryChartData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
-                  >
-                    {categoryChartData.filter(entry => entry.value > 0).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <PieChartIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Nenhum dado por categoria</p>
-                  </div>
-                </div>
-              )}
-            </>
+          {activeChart === 'category' && categoryChartData.length > 0 && (
+            <PieChart>
+              <Pie
+                data={categoryChartData}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+              >
+                {categoryChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
           )}
 
-          {activeChart === 'monthly' && (
-            <>
-              {monthlyChartData.length > 0 ? (
-                <LineChart data={monthlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="#64748b"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="amount" 
-                    stroke="#3b82f6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Nenhum dado mensal</p>
-                  </div>
-                </div>
-              )}
-            </>
+          {activeChart === 'monthly' && monthlyChartData.length > 0 && (
+            <LineChart data={monthlyChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis 
+                dataKey="month" 
+                stroke="#64748b"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="#64748b"
+                fontSize={12}
+                tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line 
+                type="monotone" 
+                dataKey="amount" 
+                stroke="#3b82f6" 
+                strokeWidth={3}
+                dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+              />
+            </LineChart>
           )}
 
-          {activeChart === 'type' && (
-            <>
-              {typeChartData.length > 0 && typeChartData.some(item => item.value > 0) ? (
-                <BarChart data={typeChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="#64748b"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar 
-                    dataKey="value" 
-                    radius={[4, 4, 0, 0]}
-                  >
-                    {typeChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Nenhum dado por tipo</p>
-                  </div>
-                </div>
-              )}
-            </>
+          {activeChart === 'type' && typeChartData.length > 0 && (
+            <BarChart data={typeChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <XAxis 
+                dataKey="name" 
+                stroke="#64748b"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="#64748b"
+                fontSize={12}
+                tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar 
+                dataKey="value" 
+                radius={[4, 4, 0, 0]}
+              >
+                {typeChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          )}
+
+          {/* Empty state for when no data is available for the selected chart */}
+          {((activeChart === 'category' && categoryChartData.length === 0) ||
+            (activeChart === 'monthly' && monthlyChartData.length === 0) ||
+            (activeChart === 'type' && typeChartData.length === 0)) && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                {activeChart === 'category' && <PieChartIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />}
+                {activeChart === 'monthly' && <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-2" />}
+                {activeChart === 'type' && <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-2" />}
+                <p className="text-gray-500">
+                  {activeChart === 'category' && 'Nenhum dado por categoria'}
+                  {activeChart === 'monthly' && 'Nenhum dado mensal'}
+                  {activeChart === 'type' && 'Nenhum dado por tipo'}
+                </p>
+              </div>
+            </div>
           )}
         </ResponsiveContainer>
       </div>

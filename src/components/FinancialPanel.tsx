@@ -5,7 +5,6 @@ import FinancialSummaryCards from './financial/FinancialSummaryCards';
 import FinancialFilters from './financial/FinancialFilters';
 import FinancialCostForm from './financial/FinancialCostForm';
 import FinancialCostTable from './financial/FinancialCostTable';
-import FinancialCharts from './financial/FinancialCharts';
 
 interface FinancialCost {
   id: string;
@@ -228,9 +227,6 @@ const FinancialPanel: React.FC = () => {
 
         {/* Summary Cards */}
         <FinancialSummaryCards costs={costs} />
-
-        {/* Charts */}
-        <FinancialCharts costs={costs} />
 
         {/* Filters */}
         <FinancialFilters
