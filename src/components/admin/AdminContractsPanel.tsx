@@ -179,6 +179,7 @@ const AdminContractsPanel: React.FC = () => {
       }));
     }
   }, [newContract.contract_start, newContract.billing_period]);
+  
   useEffect(() => {
     fetchContracts();
     fetchAvailableUsers();
@@ -351,15 +352,12 @@ const AdminContractsPanel: React.FC = () => {
           .eq('email', userForm.email)
           .single();
 
-            console.log('🔄 Atualizando perfil do usuário:', userId);
-            
         if (existingUser) {
           userId = existingUser.id;
         } else {
           // Criar novo usuário no sistema de auth
           const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-                plan_status: 'active',
-                updated_at: new Date().toISOString(),
+            email: userForm.email,
             password: 'TempPassword123!', // Senha temporária
             email_confirm: true,
             user_metadata: {
@@ -440,12 +438,15 @@ const AdminContractsPanel: React.FC = () => {
 
       // Se criou um novo usuário, atualizar também o contracted_plan no perfil
       if (createdNewUser || selectedUser) {
+        console.log('🔄 Atualizando perfil do usuário:', userId);
+        
         const { error: updateProfileError } = await supabase
           .from('user_profiles')
           .update({ 
             contracted_plan: newContract.plan_type,
             leverage_multiplier: newContract.leverage_multiplier,
-            plan_status: 'active'
+            plan_status: 'active',
+            updated_at: new Date().toISOString(),
           })
           .eq('id', userId);
 
@@ -453,6 +454,7 @@ const AdminContractsPanel: React.FC = () => {
           console.warn('Warning updating user profile:', updateProfileError);
         }
       }
+      
       setSuccess('Contrato adicionado com sucesso!');
       setShowAddModal(false);
       clearUserSelection();
@@ -869,16 +871,6 @@ const AdminContractsPanel: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* Header com total de usuários */}
-                        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-gray-700">
-                              {availableUsers.length} usuários disponíveis
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                        
                         {(searchTerm.length > 0 ? filteredUsers : availableUsers).map((user) => (
                           <button
                             key={user.id}
@@ -896,18 +888,13 @@ const AdminContractsPanel: React.FC = () => {
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
                                   {user.full_name || 'Nome não cadastrado'}
-                              {(user.full_name || user.email).charAt(0).toUpperCase()}
+                                </div>
                                 <div className="text-xs text-gray-500">{user.email}</div>
                                 {user.phone && (
                                   <div className="text-xs text-gray-500">{user.phone}</div>
-                            <div className="text-sm font-medium text-gray-900 truncate">
-                              {user.full_name || user.email}
-                            </div>
-                            {user.full_name && (
-                              <div className="text-xs text-gray-500 truncate">
-                                {user.email}
+                                )}
                               </div>
-                            )}
+                            </div>
                           </button>
                         ))}
                         
@@ -921,20 +908,6 @@ const AdminContractsPanel: React.FC = () => {
                                   : 'Digite para filtrar usuários...'
                               }
                             </p>
-                            {availableUsers.length === 0 && (
-                              <div className="mt-3">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    console.log('🔄 Tentando sincronizar usuários...');
-                                    fetchUsersFromAuth();
-                                  }}
-                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
-                                >
-                                  Carregar Usuários do Sistema
-                                </button>
-                              </div>
-                            )}
                             {availableUsers.length === 0 && (
                               <div className="mt-3">
                                 <button
@@ -964,7 +937,7 @@ const AdminContractsPanel: React.FC = () => {
                             <strong>Usuário Selecionado:</strong> {selectedUser.full_name || 'Nome não cadastrado'}
                           </div>
                           <div className="text-xs text-blue-700">{selectedUser.email}</div>
-                              {user.phone || user.id.substring(0, 13) + '...'}
+                          {selectedUser.phone && (
                             <div className="text-xs text-blue-700">{selectedUser.phone}</div>
                           )}
                         </div>
