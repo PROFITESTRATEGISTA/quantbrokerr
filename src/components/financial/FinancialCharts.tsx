@@ -289,9 +289,6 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
       </div>
     </div>
   );
-};
-
-export default FinancialCharts;
 
 
 
