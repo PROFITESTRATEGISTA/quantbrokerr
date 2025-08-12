@@ -409,7 +409,7 @@ const WaitlistPanel: React.FC = () => {
                           className="text-green-600 hover:text-green-800"
                           title="Contatar via WhatsApp"
                         >
-                          <ExternalLink className="h-4 w-4" />
+                          <MessageCircle className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => deleteWaitlistEntry(entry.id)}
