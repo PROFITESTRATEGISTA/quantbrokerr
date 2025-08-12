@@ -187,6 +187,25 @@ const SupplierContractsPanel: React.FC = () => {
     }
   };
 
+  const handleReactivateContract = async (contractId: string) => {
+    try {
+      const { error } = await supabase
+        .from('supplier_contracts')
+        .update({
+          is_active: true,
+          cancellation_reason: null,
+          cancelled_at: null
+        })
+        .eq('id', contractId);
+
+      if (error) throw error;
+
+      setSuccess('Contrato reativado com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
   const getContractTypeDisplayName = (type: string) => {
     const types = {
       'tecnologia': 'Tecnologia',
@@ -447,6 +466,34 @@ const SupplierContractsPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
+                        {/* Switch para cancelar/ativar contrato */}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">
+                            {contract.is_active ? 'Ativo' : 'Cancelado'}
+                          </span>
+                          <button
+                            onClick={() => {
+                              if (contract.is_active) {
+                                setContractToCancel(contract.id);
+                                setShowCancelModal(true);
+                              } else {
+                                // Reativar contrato
+                                handleReactivateContract(contract.id);
+                              }
+                            }}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                              contract.is_active ? 'bg-green-600' : 'bg-gray-400'
+                            }`}
+                            title={contract.is_active ? 'Cancelar contrato' : 'Reativar contrato'}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                contract.is_active ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        
                         <button
                           onClick={() => {
                             setEditingContract(contract.id);
@@ -457,18 +504,6 @@ const SupplierContractsPanel: React.FC = () => {
                         >
                           <Edit3 className="h-4 w-4" />
                         </button>
-                        {contract.is_active && (
-                          <button
-                            onClick={() => {
-                              setContractToCancel(contract.id);
-                              setShowCancelModal(true);
-                            }}
-                            className="text-orange-600 hover:text-orange-800"
-                            title="Cancelar contrato"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
                         <button
                           onClick={() => {
                             if (confirm('Tem certeza que deseja excluir este contrato?')) {
