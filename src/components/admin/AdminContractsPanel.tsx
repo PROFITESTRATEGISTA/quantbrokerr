@@ -191,10 +191,18 @@ const AdminContractsPanel: React.FC = () => {
       
       console.log('🔍 Buscando contratos...');
       
-      // First, get contracts
+      // Get contracts with user profiles in a single query
       const { data: contractsData, error: contractsError } = await supabase
         .from('client_contracts')
-        .select('*')
+        .select(`
+          *,
+          user_profiles (
+            id,
+            full_name,
+            email,
+            phone
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (contractsError) {
@@ -203,43 +211,8 @@ const AdminContractsPanel: React.FC = () => {
       }
       
       console.log('✅ Contratos encontrados:', contractsData?.length || 0);
-      
-      // Then get user profiles separately
-      const userIds = contractsData?.map(c => c.user_id) || [];
-      let userProfiles: any[] = [];
-      
-      if (userIds.length > 0) {
-        console.log('🔍 Buscando perfis para usuários:', userIds);
-        
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('user_profiles')
-          .select('id, full_name, email, phone')
-          .in('id', userIds);
-          
-        if (profilesError) {
-          console.warn('Warning fetching user profiles:', profilesError);
-        } else {
-          userProfiles = profilesData || [];
-          console.log('✅ Perfis encontrados:', userProfiles.length);
-        }
-      }
-      
-      // Combine contracts with user profiles
-      const contractsWithProfiles = contractsData?.map(contract => {
-        const userProfile = userProfiles.find(p => p.id === contract.user_id);
-        
-        if (!userProfile) {
-          console.warn(`⚠️ Perfil não encontrado para usuário ${contract.user_id}`);
-        }
-        
-        return {
-          ...contract,
-          user_profiles: userProfile || null
-        };
-      }) || [];
-      
-      console.log('✅ Contratos com perfis combinados:', contractsWithProfiles.length);
-      setContracts(contractsWithProfiles);
+      console.log('✅ Contratos com perfis:', contractsData);
+      setContracts(contractsData || []);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       setError(error.message);
@@ -404,11 +377,9 @@ const AdminContractsPanel: React.FC = () => {
       // Aguardar um pouco para garantir que os dados foram salvos
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Recarregar tanto contratos quanto usuários
-      await Promise.all([
-        fetchContracts(),
-        fetchAvailableUsers()
-      ]);
+      // Recarregar contratos e usuários
+      await fetchContracts();
+      await fetchAvailableUsers();
     } catch (error: any) {
       console.error('Error creating contract:', error);
       setError(error.message);
@@ -611,8 +582,13 @@ const AdminContractsPanel: React.FC = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {contract.user_profiles?.email || 'Email não informado'}
+                          {contract.user_profiles?.email || `Usuário ID: ${contract.user_id.substring(0, 8)}...`}
                         </div>
+                        {!contract.user_profiles && (
+                          <div className="text-xs text-red-500">
+                            Perfil não encontrado
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -621,7 +597,7 @@ const AdminContractsPanel: React.FC = () => {
                       {contract.user_profiles?.full_name || 'Nome não cadastrado'}
                     </div>
                     <div className="text-sm text-gray-500">
-                      ID: {contract.user_id.substring(0, 8)}...
+                      {contract.user_profiles?.phone || 'Telefone não cadastrado'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
