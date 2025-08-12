@@ -160,8 +160,8 @@ const AdminContractsPanel: React.FC = () => {
       
       switch (newContract.billing_period) {
         case 'monthly':
-          // For monthly, no end date (ongoing)
-          endDate = startDate; // Will be set to null below
+          // For monthly, set far future date (ongoing)
+          endDate = new Date('9999-12-31');
           break;
         case 'semiannual':
           endDate.setMonth(endDate.getMonth() + 6);
@@ -178,7 +178,7 @@ const AdminContractsPanel: React.FC = () => {
         monthly_value: newContract.monthly_value,
         leverage_multiplier: newContract.leverage_multiplier,
         contract_start: newContract.contract_start,
-        contract_end: newContract.billing_period === 'monthly' ? null : endDate.toISOString().split('T')[0],
+        contract_end: endDate.toISOString().split('T')[0],
         is_active: newContract.is_active
       };
 
