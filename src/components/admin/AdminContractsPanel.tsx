@@ -645,7 +645,7 @@ const AdminContractsPanel: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {contract.user_profiles?.full_name || contract.user_profiles?.email?.split('@')[0] || 'Nome não informado'}
+                        {contract.user_profiles?.full_name || contract.user_profiles?.email || 'Nome não informado'}
                       </div>
                       <div className="text-sm text-gray-500">{contract.user_profiles?.email}</div>
                       <div className="text-sm text-gray-500">{contract.user_profiles?.phone}</div>
