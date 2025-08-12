@@ -342,6 +342,49 @@ const AdminContractsPanel: React.FC = () => {
     }
   };
 
+  const handleDeleteContractFile = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir o arquivo do contrato?')) return;
+
+    try {
+      setError(null);
+      
+      // Get contract to find file URL
+      const contract = contracts.find(c => c.id === contractId);
+      if (!contract?.contract_file_url) {
+        setError('Nenhum arquivo encontrado para excluir');
+        return;
+      }
+
+      // Extract file path from URL
+      const url = new URL(contract.contract_file_url);
+      const filePath = url.pathname.split('/').pop();
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: deleteError } = await supabase.storage
+          .from('client-contracts')
+          .remove([`client-contracts/${filePath}`]);
+
+        if (deleteError) {
+          console.warn('Warning deleting file:', deleteError);
+        }
+      }
+
+      // Update contract to remove file URL
+      const { error: updateError } = await supabase
+        .from('client_contracts')
+        .update({ contract_file_url: null })
+        .eq('id', contractId);
+
+      if (updateError) throw updateError;
+
+      setSuccess('Arquivo do contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Delete file error:', error);
+      setError(error.message || 'Erro ao excluir arquivo do contrato');
+    }
+  };
   const getPlanDisplayName = (plan: string) => {
     const plans = {
       'bitcoin': 'Bitcoin',
@@ -602,6 +645,13 @@ const AdminContractsPanel: React.FC = () => {
                         >
                           Ver Contrato
                         </a>
+                        <button
+                          onClick={() => handleDeleteContractFile(contract.id)}
+                          className="text-red-600 hover:text-red-800 text-xs"
+                          title="Excluir arquivo do contrato"
+                        >
+                          Excluir Arquivo
+                        </button>
                       ) : (
                         <span className="text-sm text-gray-500">Não anexado</span>
                       )}
