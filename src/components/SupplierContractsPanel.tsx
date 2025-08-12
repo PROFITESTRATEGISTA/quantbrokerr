@@ -48,6 +48,13 @@ const SupplierContractsPanel: React.FC = () => {
     contract_file: null as File | null
   });
 
+  // Limpar data de fim quando mudar para mensal ou trimestral
+  useEffect(() => {
+    if (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') {
+      setNewContract(prev => ({ ...prev, contract_end: '' }));
+    }
+  }, [newContract.payment_frequency]);
+
   const [editForm, setEditForm] = useState<Partial<SupplierContract>>({});
 
   useEffect(() => {
@@ -637,17 +644,29 @@ const SupplierContractsPanel: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fim do Contrato
+                      Fim do Contrato {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') ? '(não se aplica)' : '*'}
                     </label>
                     <input
                       type="date"
                       value={newContract.contract_end}
                       onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="Deixe vazio para contrato sem prazo"
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                        (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') 
+                          ? 'bg-gray-100 cursor-not-allowed opacity-50' 
+                          : ''
+                      }`}
+                      placeholder={
+                        (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly')
+                          ? "Não se aplica para contratos mensais/trimestrais"
+                          : "Data de término do contrato"
+                      }
+                      disabled={newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly'}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Deixe vazio para contrato sem prazo definido
+                      {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly')
+                        ? "Contratos mensais e trimestrais não possuem data de término"
+                        : "Obrigatório para contratos semestrais e anuais"
+                      }
                     </p>
                   </div>
 
