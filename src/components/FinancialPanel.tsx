@@ -797,6 +797,7 @@ const FinancialPanel: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                       contract.billing_period === 'monthly_no_term' ? 'Mensal (sem prazo)' :
                       {getBillingDisplayName(contract.billing_period)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
@@ -808,10 +809,31 @@ const FinancialPanel: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(contract.contract_start).toLocaleDateString('pt-BR')}
+                        {contract.contract_end ? (
+                          <div className="text-gray-500">
+                            até {new Date(contract.contract_end).toLocaleDateString('pt-BR')}
+                          </div>
+                        ) : (
+                          <div className="text-blue-500 text-xs">
+                            Sem prazo definido
+                          </div>
+                        )}
+                      {new Date(contract.contract_end).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(contract.contract_end).toLocaleDateString('pt-BR')}
+                      {contract.contract_file_url ? (
+                        <button
+                          onClick={() => window.open(`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/contracts/${contract.contract_file_url}`, '_blank')}
+                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                        >
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                          </svg>
+                          Ver PDF
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Sem arquivo</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

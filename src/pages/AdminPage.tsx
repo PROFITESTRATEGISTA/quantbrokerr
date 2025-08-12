@@ -4,7 +4,7 @@ import ResultsCalendar from '../components/ResultsCalendar';
 import FinancialPanel from '../components/FinancialPanel';
 import WaitlistPanel from '../components/WaitlistPanel';
 import UserManagementPanel from '../components/UserManagementPanel';
-import { BarChart3, DollarSign, Users, TrendingUp, Clock } from 'lucide-react';
+import { BarChart3, DollarSign, Users, TrendingUp, Clock, Building } from 'lucide-react';
 
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'results' | 'financial' | 'users' | 'waitlist'>('results');
