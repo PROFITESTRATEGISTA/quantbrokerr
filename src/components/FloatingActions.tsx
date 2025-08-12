@@ -90,22 +90,6 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ onOpenQuestionnaire, 
           </button>
           
           <button
-            onClick={handleConsultationClick}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
-          >
-            <Users className="h-5 w-5 mr-2" />
-            <span className="font-medium">Agendar Consultoria</span>
-          </button>
-          
-          <button
-            onClick={handleConsultationClick}
-            className="flex items-center px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all whitespace-nowrap"
-          >
-            <Users className="h-5 w-5 mr-2" />
-            <span className="font-medium">Agendar Consultoria</span>
-          </button>
-          
-          <button
             onClick={() => {
               console.log('📱 Botão WhatsApp clicado!');
               window.open('https://wa.me/5511975333355?text=Olá%2C%20quero%20conhecer%20mais%20sobre%20os%20Portfólios%20de%20IA%20Quant%20Broker.%20Pode%20me%20orientar%20no%20processo%3F', '_blank');
