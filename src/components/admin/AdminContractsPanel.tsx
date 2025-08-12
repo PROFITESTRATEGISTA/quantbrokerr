@@ -32,6 +32,12 @@ const AdminContractsPanel: React.FC = () => {
   const [editingContract, setEditingContract] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ClientContract>>({});
 
+  // User search states
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [newContract, setNewContract] = useState({
     user_id: '',
     plan_type: 'bitcoin',
@@ -43,8 +49,72 @@ const AdminContractsPanel: React.FC = () => {
     is_active: true
   });
 
+  // Fetch available users for contract creation
+  const fetchAvailableUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, full_name, email, phone')
+        .eq('is_active', true)
+        .order('full_name', { ascending: true });
+
+      if (error) throw error;
+      setAvailableUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (searchTerm.length >= 2) {
+      const filtered = availableUsers.filter(user => 
+        (user.full_name && user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.phone && user.phone.includes(searchTerm))
+      );
+      setFilteredUsers(filtered);
+      setShowUserDropdown(true);
+    } else {
+      setFilteredUsers([]);
+      setShowUserDropdown(false);
+    }
+  }, [searchTerm, availableUsers]);
+
+  // Calculate contract end date automatically
+  useEffect(() => {
+    if (newContract.contract_start && newContract.billing_period !== 'monthly') {
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      switch (newContract.billing_period) {
+        case 'semiannual':
+          endDate.setMonth(endDate.getMonth() + 6);
+          break;
+        case 'annual':
+          endDate.setFullYear(endDate.getFullYear() + 1);
+          break;
+      }
+      
+      setNewContract(prev => ({
+        ...prev,
+        contract_end: endDate.toISOString().split('T')[0]
+      }));
+    } else if (newContract.billing_period === 'monthly') {
+      // For monthly contracts, calculate 1 month ahead
+      const startDate = new Date(newContract.contract_start);
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+      
+      setNewContract(prev => ({
+        ...prev,
+        contract_end: endDate.toISOString().split('T')[0]
+      }));
+    }
+  }, [newContract.contract_start, newContract.billing_period]);
   useEffect(() => {
     fetchContracts();
+    fetchAvailableUsers();
   }, []);
 
   const fetchContracts = async () => {
@@ -105,6 +175,20 @@ const AdminContractsPanel: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectUser = (user: any) => {
+    setSelectedUser(user);
+    setNewContract(prev => ({ ...prev, user_id: user.id }));
+    setSearchTerm(`${user.full_name || user.email} - ${user.email}`);
+    setShowUserDropdown(false);
+  };
+
+  const clearUserSelection = () => {
+    setSelectedUser(null);
+    setNewContract(prev => ({ ...prev, user_id: '' }));
+    setSearchTerm('');
+    setShowUserDropdown(false);
   };
 
   const handleAddContract = async (e: React.FormEvent) => {
