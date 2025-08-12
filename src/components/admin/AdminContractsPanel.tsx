@@ -205,7 +205,7 @@ const AdminContractsPanel: React.FC = () => {
         .from('client_contracts')
         .select(`
           *,
-          user_profiles (
+          user_profiles!inner (
             full_name,
             email,
             phone
@@ -214,8 +214,11 @@ const AdminContractsPanel: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Contracts with user data:', data);
       setContracts(data || []);
     } catch (error: any) {
+      console.error('Error fetching contracts:', error);
       setError(error.message);
     } finally {
       setLoading(false);
