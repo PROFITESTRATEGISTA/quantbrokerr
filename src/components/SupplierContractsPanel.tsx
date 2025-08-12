@@ -32,7 +32,6 @@ const SupplierContractsPanel: React.FC = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [contractToCancel, setContractToCancel] = useState<string | null>(null);
   const [cancellationReason, setCancellationReason] = useState('');
-  const [uploading, setUploading] = useState(false);
 
   const [newContract, setNewContract] = useState({
     supplier_name: '',
@@ -44,8 +43,7 @@ const SupplierContractsPanel: React.FC = () => {
     contract_start: new Date().toISOString().split('T')[0],
     contract_end: '',
     payment_frequency: 'monthly',
-    auto_renewal: false,
-    contract_file: null as File | null
+    auto_renewal: false
   });
 
   // Limpar data de fim quando mudar para mensal ou trimestral
@@ -91,45 +89,11 @@ const SupplierContractsPanel: React.FC = () => {
     }
   };
 
-  const uploadContractFile = async (file: File): Promise<string | null> => {
-    try {
-      setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `supplier-contracts/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('contracts')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('contracts')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleAddContract = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setError(null);
       
-      let contractFileUrl = null;
-      if (newContract.contract_file) {
-        contractFileUrl = await uploadContractFile(newContract.contract_file);
-        if (!contractFileUrl) {
-          throw new Error('Erro ao fazer upload do arquivo');
-        }
-      }
-
       const contractData = {
         supplier_name: newContract.supplier_name,
         supplier_email: newContract.supplier_email,
@@ -141,7 +105,6 @@ const SupplierContractsPanel: React.FC = () => {
         contract_end: newContract.contract_end || null,
         payment_frequency: newContract.payment_frequency,
         auto_renewal: newContract.auto_renewal,
-        contract_file_url: contractFileUrl,
         is_active: true
       };
 
@@ -163,8 +126,7 @@ const SupplierContractsPanel: React.FC = () => {
         contract_start: new Date().toISOString().split('T')[0],
         contract_end: '',
         payment_frequency: 'monthly',
-        auto_renewal: false,
-        contract_file: null
+        auto_renewal: false
       });
       fetchContracts();
     } catch (error: any) {
@@ -463,19 +425,7 @@ const SupplierContractsPanel: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {contract.contract_file_url ? (
-                        <a
-                          href={contract.contract_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          <FileText className="h-4 w-4" />
-                          Ver Contrato
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 text-sm">Sem arquivo</span>
-                      )}
+                      <span className="text-gray-400 text-sm">Não disponível</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
@@ -727,21 +677,6 @@ const SupplierContractsPanel: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Arquivo do Contrato
-                    </label>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => setNewContract({...newContract, contract_file: e.target.files?.[0] || null})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Formatos aceitos: PDF, DOC, DOCX (máximo 10MB)
-                    </p>
-                  </div>
-
-                  <div className="md:col-span-2">
                     <label className="flex items-center">
                       <input
                         type="checkbox"
@@ -757,10 +692,9 @@ const SupplierContractsPanel: React.FC = () => {
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    disabled={uploading}
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {uploading ? 'Fazendo upload...' : 'Criar Contrato'}
+                    Criar Contrato
                   </button>
                   <button
                     type="button"

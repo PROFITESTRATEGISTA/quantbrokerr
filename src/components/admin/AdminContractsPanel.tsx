@@ -44,8 +44,7 @@ const AdminContractsPanel: React.FC = () => {
     leverage_multiplier: 1,
     contract_start: new Date().toISOString().split('T')[0],
     contract_end: '',
-    is_active: true,
-    contract_file: null as File | null
+    is_active: true
   });
 
   useEffect(() => {
@@ -146,32 +145,6 @@ const AdminContractsPanel: React.FC = () => {
     }
   };
 
-  const uploadContractFile = async (file: File): Promise<string | null> => {
-    try {
-      setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `client-contracts/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('contracts')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('contracts')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleAddContract = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -179,14 +152,6 @@ const AdminContractsPanel: React.FC = () => {
       
       if (!selectedUser) {
         throw new Error('Selecione um usuário para o contrato');
-      }
-
-      let contractFileUrl = null;
-      if (newContract.contract_file) {
-        contractFileUrl = await uploadContractFile(newContract.contract_file);
-        if (!contractFileUrl) {
-          throw new Error('Erro ao fazer upload do arquivo');
-        }
       }
 
       // Calculate contract end date
@@ -214,8 +179,7 @@ const AdminContractsPanel: React.FC = () => {
         leverage_multiplier: newContract.leverage_multiplier,
         contract_start: newContract.contract_start,
         contract_end: newContract.billing_period === 'monthly' ? null : endDate.toISOString().split('T')[0],
-        is_active: newContract.is_active,
-        contract_file_url: contractFileUrl
+        is_active: newContract.is_active
       };
 
       const { error } = await supabase
@@ -235,8 +199,7 @@ const AdminContractsPanel: React.FC = () => {
         leverage_multiplier: 1,
         contract_start: new Date().toISOString().split('T')[0],
         contract_end: '',
-        is_active: true,
-        contract_file: null
+        is_active: true
       });
       fetchContracts();
     } catch (error: any) {
@@ -545,19 +508,7 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {contract.contract_file_url ? (
-                      <a
-                        href={contract.contract_file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        <FileText className="h-4 w-4" />
-                        Ver Contrato
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Sem arquivo</span>
-                    )}
+                    <span className="text-gray-400 text-sm">Não disponível</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingContract === contract.id ? (
@@ -826,21 +777,6 @@ const AdminContractsPanel: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Arquivo do Contrato
-                  </label>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => setNewContract({...newContract, contract_file: e.target.files?.[0] || null})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Formatos aceitos: PDF, DOC, DOCX (máximo 10MB)
-                  </p>
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Status *
@@ -860,10 +796,10 @@ const AdminContractsPanel: React.FC = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  disabled={uploading || !selectedUser}
+                  disabled={!selectedUser}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploading ? 'Fazendo upload...' : 'Criar Contrato'}
+                  Criar Contrato
                 </button>
                 <button
                   type="button"
