@@ -293,3 +293,6 @@ const FinancialCharts: React.FC<FinancialChartsProps> = ({ costs }) => {
 
 export default FinancialCharts;
 
+
+
+export default FinancialCharts
