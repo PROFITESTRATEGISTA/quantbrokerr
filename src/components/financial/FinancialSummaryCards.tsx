@@ -1,5 +1,6 @@
 import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Building, Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface FinancialCost {
   id: string;
@@ -17,6 +18,30 @@ interface FinancialSummaryCardsProps {
 }
 
 const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) => {
+  const [contracts, setContracts] = React.useState<any[]>([]);
+  const [supplierContracts, setSupplierContracts] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchContractsData();
+  }, []);
+
+  const fetchContractsData = async () => {
+    try {
+      const [clientContractsResult, supplierContractsResult] = await Promise.all([
+        supabase.from('client_contracts').select('*').eq('is_active', true),
+        supabase.from('supplier_contracts').select('*').eq('is_active', true)
+      ]);
+
+      setContracts(clientContractsResult.data || []);
+      setSupplierContracts(supplierContractsResult.data || []);
+    } catch (error) {
+      console.error('Error fetching contracts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   
@@ -33,13 +58,44 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
   const totalOneTime = oneTimeCosts.reduce((sum, cost) => sum + cost.amount, 0);
   const totalGeneral = costs.reduce((sum, cost) => sum + cost.amount, 0);
 
+  // Calculate contract-related metrics
+  const totalMonthlyRevenue = contracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
+  const totalSupplierCosts = supplierContracts.reduce((sum, contract) => sum + contract.monthly_value, 0);
+  const netProfit = totalMonthlyRevenue - totalGeneral - totalSupplierCosts;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+      {/* Revenue Card */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center">
+          <Users className="h-8 w-8 text-green-600" />
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">Receita Mensal</p>
+            <p className="text-2xl font-bold text-green-600">
+              R$ {totalMonthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Supplier Costs Card */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center">
+          <Building className="h-8 w-8 text-red-600" />
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">Custos Fornecedores</p>
+            <p className="text-2xl font-bold text-red-600">
+              R$ {totalSupplierCosts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center">
           <DollarSign className="h-8 w-8 text-blue-600" />
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">Total Geral</p>
+            <p className="text-sm font-medium text-gray-600">Custos Operacionais</p>
             <p className="text-2xl font-bold text-blue-600">
               R$ {totalGeneral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
@@ -71,13 +127,14 @@ const FinancialSummaryCards: React.FC<FinancialSummaryCardsProps> = ({ costs }) 
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      {/* Net Profit Card */}
+      <div className="bg-white rounded-lg shadow-sm p-6 border-2 border-purple-200">
         <div className="flex items-center">
-          <TrendingDown className="h-8 w-8 text-orange-600" />
+          <TrendingUp className={`h-8 w-8 ${netProfit >= 0 ? 'text-purple-600' : 'text-red-600'}`} />
           <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">Custos Únicos</p>
-            <p className="text-2xl font-bold text-orange-600">
-              R$ {totalOneTime.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            <p className="text-sm font-medium text-gray-600">Lucro Líquido Mensal</p>
+            <p className={`text-2xl font-bold ${netProfit >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+              R$ {netProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>
