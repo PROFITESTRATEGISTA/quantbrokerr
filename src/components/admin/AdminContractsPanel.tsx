@@ -674,7 +674,7 @@ const AdminContractsPanel: React.FC = () => {
                       <button
                         onClick={() => {
                           if (confirm('Tem certeza que deseja excluir este contrato?')) {
-                            // handleDeleteContract(contract.id);
+                            handleDeleteContract(contract.id);
                           }
                         }}
                         className="text-red-600 hover:text-red-800"
