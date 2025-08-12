@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { X, Edit2, Save, Cancel, UserX } from 'lucide-react';
+import { X, Edit2, Save, Ambulance as Cancel, UserX } from 'lucide-react';
 
 interface Contract {
   id: string;
