@@ -236,11 +236,26 @@ const FinancialDashboard: React.FC = () => {
             return costMonthKey === monthKey && cost.category === 'marketing';
           }).reduce((sum, cost) => sum + cost.amount, 0);
 
-          newLeads = waitlistEntries.filter(entry => {
+          // Calculate unique leads from multiple sources for this month
+          const monthUsers = users.filter(user => {
+            const userDate = new Date(user.created_at);
+            const userMonthKey = `${userDate.getFullYear()}-${String(userDate.getMonth() + 1).padStart(2, '0')}`;
+            return userMonthKey === monthKey;
+          });
+          
+          const monthWaitlist = waitlistEntries.filter(entry => {
             const entryDate = new Date(entry.created_at);
             const entryMonthKey = `${entryDate.getFullYear()}-${String(entryDate.getMonth() + 1).padStart(2, '0')}`;
             return entryMonthKey === monthKey;
-          }).length;
+          });
+          
+          // Create unique set of leads by email for this month
+          const uniqueMonthLeads = new Set([
+            ...monthUsers.map(user => user.email.toLowerCase()),
+            ...monthWaitlist.map(entry => entry.email.toLowerCase())
+          ]);
+          
+          newLeads = uniqueMonthLeads.size;
 
           value = newLeads > 0 ? marketingCosts / newLeads : 0;
           break;
