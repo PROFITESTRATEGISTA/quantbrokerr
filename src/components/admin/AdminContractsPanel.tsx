@@ -508,7 +508,28 @@ const AdminContractsPanel: React.FC = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-gray-400 text-sm">Não disponível</span>
+                    <button
+                      onClick={() => {
+                        // Create file input element
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.pdf,.doc,.docx';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) {
+                            // For now, just show success message
+                            // File upload functionality can be implemented when storage is configured
+                            setSuccess(`Arquivo "${file.name}" selecionado. Upload será implementado quando o storage estiver configurado.`);
+                          }
+                        };
+                        input.click();
+                      }}
+                      className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors"
+                      title="Anexar contrato"
+                    >
+                      <FileText className="h-3 w-3" />
+                      Anexar
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingContract === contract.id ? (
