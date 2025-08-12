@@ -326,6 +326,49 @@ const AdminContractsPanel: React.FC = () => {
     }
   };
 
+  const handleDeleteContract = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este contrato? Esta ação não pode ser desfeita.')) return;
+
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .delete()
+        .eq('id', contractId);
+
+      if (error) throw error;
+
+      setSuccess('Contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Error deleting contract:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleToggleContractStatus = async (contractId: string, currentStatus: boolean) => {
+    try {
+      setError(null);
+      
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({ 
+          is_active: !currentStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contractId);
+
+      if (error) throw error;
+
+      setSuccess(`Contrato ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Error toggling contract status:', error);
+      setError(error.message);
+    }
+  };
+
   const getPlanDisplayName = (plan: string) => {
     const plans = {
       'bitcoin': 'Bitcoin',
