@@ -52,8 +52,21 @@ const SupplierContractsPanel: React.FC = () => {
   useEffect(() => {
     if (newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') {
       setNewContract(prev => ({ ...prev, contract_end: '' }));
+    } else if (newContract.contract_start && (newContract.payment_frequency === 'semiannual' || newContract.payment_frequency === 'annual')) {
+      // Calcular automaticamente a data de fim baseada na modalidade
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.payment_frequency === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.payment_frequency === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+      
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+      setNewContract(prev => ({ ...prev, contract_end: formattedEndDate }));
     }
-  }, [newContract.payment_frequency]);
+  }, [newContract.payment_frequency, newContract.contract_start]);
 
   const [editForm, setEditForm] = useState<Partial<SupplierContract>>({});
 
@@ -681,28 +694,34 @@ const SupplierContractsPanel: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Fim do Contrato
                       {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') 
-                        ? ' (não se aplica)' 
-                        : ' *'
+                        ? ' (calculado automaticamente)' 
+                        : ' (calculado automaticamente) *'
                       }
                     </label>
                     {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly') ? (
                       <div className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 text-center">
-                        Não se aplica para contratos {newContract.payment_frequency === 'monthly' ? 'mensais' : 'trimestrais'}
+                        Sem prazo definido - Renovação {newContract.payment_frequency === 'monthly' ? 'mensal' : 'trimestral'}
                       </div>
                     ) : (
-                      <input
-                        type="date"
-                        value={newContract.contract_end}
-                        onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Data de término do contrato"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={newContract.contract_end}
+                          onChange={(e) => setNewContract({...newContract, contract_end: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-blue-50"
+                          placeholder="Data calculada automaticamente"
+                          required
+                          readOnly
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <Calendar className="h-5 w-5 text-blue-500" />
+                        </div>
+                      </div>
                     )}
                     <p className="text-xs text-gray-500 mt-1">
                       {(newContract.payment_frequency === 'monthly' || newContract.payment_frequency === 'quarterly')
-                        ? "Contratos mensais e trimestrais não possuem data de término definida"
-                        : "Obrigatório para contratos semestrais e anuais"
+                        ? "Contratos mensais e trimestrais são renovados automaticamente"
+                        : `Data calculada automaticamente: ${newContract.payment_frequency === 'semiannual' ? '+6 meses' : '+1 ano'} da data de início`
                       }
                     </p>
                   </div>
