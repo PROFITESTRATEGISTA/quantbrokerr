@@ -52,5 +52,3 @@ const AdminFormsPanel: React.FC = () => {
 };
 
 export default AdminFormsPanel;
-
-export default AdminFormsPanel
