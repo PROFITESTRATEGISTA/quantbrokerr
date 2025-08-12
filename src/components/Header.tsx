@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, TrendingUp, User, LogIn, MessageCircle } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   currentView: string;
@@ -14,6 +15,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   const baseMenuItems = [
     { id: 'home', label: 'Home', icon: TrendingUp, path: '/' },
@@ -90,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, isLoggedIn, isAdmin = fals
                   className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   <User className="h-4 w-4" />
-                  <span>Dashboard</span>
+                  <span>{user?.user_metadata?.full_name ? `${user.user_metadata.full_name.split(' ')[0]}` : 'Dashboard'}</span>
                 </button>
                 <button
                   onClick={onLogout}
