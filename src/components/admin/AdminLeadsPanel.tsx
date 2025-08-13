@@ -28,9 +28,9 @@ const AdminLeadsPanel: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
   const [contactType, setContactType] = useState('boas_vindas');
   const [customMessage, setCustomMessage] = useState('');
-  const [notes, setNotes] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     fetchAllLeads();
@@ -122,7 +122,16 @@ const AdminLeadsPanel: React.FC = () => {
   };
 
   const fetchLeadInteractions = async () => {
-    // Implementation for fetchLeadInteractions
+    try {
+      const { data, error } = await supabase
+        .from('lead_interactions')
+        .select('*');
+
+      if (error) throw error;
+      setLeadInteractions(data || []);
+    } catch (error: any) {
+      console.error('Error fetching lead interactions:', error);
+    }
   };
 
   const applyFilters = () => {
@@ -216,7 +225,6 @@ const AdminLeadsPanel: React.FC = () => {
   const handleContactLead = (lead: LeadSource) => {
     setSelectedLead(lead);
     setShowContactModal(true);
-    setNotes('');
     setContactType('boas_vindas');
     setCustomMessage('');
     setError(null);
