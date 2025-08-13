@@ -14,6 +14,7 @@ interface LeadSource {
   lead_status?: string;
   last_contact?: string;
   notes?: string;
+  capital_available?: string;
 }
 
 const AdminLeadsPanel: React.FC = () => {
@@ -48,8 +49,8 @@ const AdminLeadsPanel: React.FC = () => {
       // Buscar dados de todas as fontes
       const [usersResult, waitlistResult, consultationResult] = await Promise.all([
         supabase.from('user_profiles').select('id, email, full_name, phone, created_at'),
-        supabase.from('waitlist_entries').select('id, email, full_name, phone, portfolio_type, status, created_at'),
-        supabase.from('consultation_forms').select('id, email, full_name, phone, consultation_type, status, created_at')
+        supabase.from('waitlist_entries').select('id, email, full_name, phone, portfolio_type, status, capital_available, created_at'),
+        supabase.from('consultation_forms').select('id, email, full_name, phone, consultation_type, status, capital_available, created_at')
       ]);
 
       const allLeads: LeadSource[] = [];
@@ -62,7 +63,8 @@ const AdminLeadsPanel: React.FC = () => {
             full_name: user.full_name || 'Nome não informado',
             phone: user.phone || 'Telefone não informado',
             source: 'user',
-            created_at: user.created_at
+            created_at: user.created_at,
+            capital_available: undefined
           });
         });
       }
@@ -77,7 +79,8 @@ const AdminLeadsPanel: React.FC = () => {
             source: 'consultation',
             created_at: form.created_at,
             status: form.status,
-            consultation_type: form.consultation_type
+            consultation_type: form.consultation_type,
+            capital_available: form.capital_available
           });
         });
       }
@@ -92,7 +95,8 @@ const AdminLeadsPanel: React.FC = () => {
             source: 'waitlist',
             created_at: entry.created_at,
             status: entry.status,
-            portfolio_type: entry.portfolio_type
+            portfolio_type: entry.portfolio_type,
+            capital_available: entry.capital_available
           });
         });
       }
@@ -499,6 +503,7 @@ const AdminLeadsPanel: React.FC = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonte</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capital</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Registro</th>
@@ -537,6 +542,17 @@ const AdminLeadsPanel: React.FC = () => {
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getSourceColor(lead.source)}`}>
                           {getSourceDisplayName(lead.source)}
                         </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm">
+                        {lead.capital_available ? (
+                          <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                            {lead.capital_available}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-xs">Não informado</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
