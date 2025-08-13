@@ -24,6 +24,7 @@ const AdminLeadsPanel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filterSource, setFilterSource] = useState<'all' | 'user' | 'waitlist' | 'consultation'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
   const [contactType, setContactType] = useState('boas_vindas');
@@ -38,7 +39,7 @@ const AdminLeadsPanel: React.FC = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [leads, filterSource, searchTerm]);
+  }, [leads, filterSource, searchTerm, statusFilter, leadStatuses]);
 
   const fetchAllLeads = async () => {
     try {
@@ -140,6 +141,14 @@ const AdminLeadsPanel: React.FC = () => {
     // Filter by source
     if (filterSource !== 'all') {
       filtered = filtered.filter(lead => lead.source === filterSource);
+    }
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(lead => {
+        const currentStatus = leadStatuses[lead.email] || 'sem_contato';
+        return currentStatus === statusFilter;
+      });
     }
 
 
@@ -427,7 +436,7 @@ const AdminLeadsPanel: React.FC = () => {
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Filtros</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
             <input
@@ -450,6 +459,24 @@ const AdminLeadsPanel: React.FC = () => {
               <option value="user">Usuários Cadastrados</option>
               <option value="waitlist">Fila de Espera</option>
               <option value="consultation">Formulários Consultoria</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Todos os Status</option>
+              <option value="sem_contato">Sem Contato</option>
+              <option value="contatado">Contatado</option>
+              <option value="respondeu">Respondeu</option>
+              <option value="interessado">Interessado</option>
+              <option value="reuniao_agendada">Reunião Agendada</option>
+              <option value="convertido">Convertido</option>
+              <option value="nao_interessado">Não Interessado</option>
             </select>
           </div>
         </div>
