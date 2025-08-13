@@ -352,24 +352,6 @@ const ResultsCalendar: React.FC = () => {
 
   const loadRiskSettings = () => {
     try {
-      const saved = localStorage.getItem(`risk_settings_${calendarAsset}`);
-      if (saved) {
-        setRiskSettings(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error('Error loading risk settings:', error);
-    }
-  };
-
-  // Effects
-  useEffect(() => {
-    checkAdminStatus();
-    fetchResults();
-    loadRiskSettings();
-  }, []);
-
-  const loadRiskSettings = () => {
-    try {
       const savedSettings = localStorage.getItem('riskManagementSettings');
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings);
@@ -392,6 +374,13 @@ const ResultsCalendar: React.FC = () => {
   const getCurrentRiskSettings = () => {
     return riskSettings[selectedAsset] || riskSettings.bitcoin;
   };
+
+  // Effects
+  useEffect(() => {
+    checkAdminStatus();
+    fetchResults();
+    loadRiskSettings();
+  }, []);
 
   useEffect(() => {
     loadRiskSettings();
@@ -478,18 +467,10 @@ const ResultsCalendar: React.FC = () => {
             <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Gestão de Risco por Portfólio</h3>
-                  Configurar Gestão de Risco - {(() => {
-                    switch (selectedAsset) {
-                      case 'bitcoin': return '🟠 Bitcoin';
-                      case 'miniIndice': return '🔵 Mini Índice';
-                      case 'miniDolar': return '🟢 Mini Dólar';
-                      case 'portfolio': return '🟣 Portfólio Completo';
-                      default: return 'Portfólio';
-                    }
-                  })()}
+                <p className="text-slate-300 text-sm">Configure os limites de risco para cada ativo</p>
               </div>
               
-                  Ajuste os limites de risco específicos para este portfólio
+              <div className="flex items-center gap-3">
                 <label className="text-sm font-medium text-slate-300">Portfólio:</label>
                 <select
                   value={selectedAsset}
