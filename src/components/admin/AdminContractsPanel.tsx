@@ -733,6 +733,127 @@ export default function AdminContractsPanel() {
         </div>
       )}
 
+      {/* Modal de Revogação */}
+      {showRevokeModal && contractToRevoke && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Revogar Contrato</h2>
+              <button
+                onClick={() => setShowRevokeModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Ban className="h-5 w-5 text-orange-600 mr-2" />
+                  <div>
+                    <p className="text-orange-800 text-sm font-medium">
+                      Revogar contrato de {contractToRevoke.user_profiles?.full_name}
+                    </p>
+                    <p className="text-orange-700 text-xs">
+                      O contrato será desativado mas mantido no histórico
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motivo da Revogação *
+                </label>
+                <textarea
+                  value={revokeReason}
+                  onChange={(e) => setRevokeReason(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Descreva o motivo da revogação..."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleRevokeContract}
+                  disabled={!revokeReason.trim()}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirmar Revogação
+                </button>
+                <button
+                  onClick={() => setShowRevokeModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Exclusão */}
+      {showDeleteModal && contractToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Excluir Contrato</h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Trash2 className="h-5 w-5 text-red-600 mr-2" />
+                  <div>
+                    <p className="text-red-800 text-sm font-medium">
+                      Excluir permanentemente o contrato de {contractToDelete.user_profiles?.full_name}
+                    </p>
+                    <p className="text-red-700 text-xs">
+                      ⚠️ Esta ação não pode ser desfeita! O contrato será removido completamente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 className="font-semibold text-yellow-900 mb-2">Consequências da Exclusão:</h4>
+                <ul className="text-sm text-yellow-800 space-y-1">
+                  <li>• Contrato será removido permanentemente do banco de dados</li>
+                  <li>• Plano do usuário será resetado para "none"</li>
+                  <li>• Alavancagem será resetada para 1x</li>
+                  <li>• Histórico de pagamentos será perdido</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteContract}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Confirmar Exclusão
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Contract Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
