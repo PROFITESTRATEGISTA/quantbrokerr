@@ -618,6 +618,7 @@ const AdminLeadsPanel: React.FC = () => {
               </button>
             </div>
 
+            <div className="p-6 space-y-6">
                       }}
                       className={`p-3 border-2 rounded-lg transition-all text-left ${
                         contactType === type.value
@@ -714,6 +715,7 @@ const AdminLeadsPanel: React.FC = () => {
                   Cancelar
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </div>
