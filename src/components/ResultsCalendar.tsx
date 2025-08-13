@@ -49,11 +49,34 @@ const ResultsCalendar: React.FC = () => {
   // Risk Management states
   const [showRiskManagement, setShowRiskManagement] = useState(true);
   const [riskSettings, setRiskSettings] = useState({
-    dailyLossLimit: 5.0,
-    monthlyLossLimit: 15.0,
-    maxDrawdown: 20.0,
-    stopLossPercentage: 2.0,
-    isActive: true
+    bitcoin: {
+      dailyLoss: -5.0,
+      monthlyLoss: -15.0,
+      maxDrawdown: -20.0,
+      stopLoss: -2.0,
+      riskControlActive: true
+    },
+    miniIndice: {
+      dailyLoss: -4.0,
+      monthlyLoss: -12.0,
+      maxDrawdown: -18.0,
+      stopLoss: -1.8,
+      riskControlActive: true
+    },
+    miniDolar: {
+      dailyLoss: -6.0,
+      monthlyLoss: -18.0,
+      maxDrawdown: -25.0,
+      stopLoss: -2.5,
+      riskControlActive: true
+    },
+    portfolio: {
+      dailyLoss: -4.5,
+      monthlyLoss: -14.0,
+      maxDrawdown: -20.0,
+      stopLoss: -2.0,
+      riskControlActive: true
+    }
   });
   const [editingRisk, setEditingRisk] = useState(false);
 
@@ -342,7 +365,33 @@ const ResultsCalendar: React.FC = () => {
   useEffect(() => {
     checkAdminStatus();
     fetchResults();
+    loadRiskSettings();
   }, []);
+
+  const loadRiskSettings = () => {
+    try {
+      const savedSettings = localStorage.getItem('riskManagementSettings');
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        setRiskSettings(prev => ({ ...prev, ...parsed }));
+      }
+    } catch (error) {
+      console.error('Error loading risk settings:', error);
+    }
+  };
+
+  const saveRiskSettings = (newSettings: typeof riskSettings) => {
+    try {
+      localStorage.setItem('riskManagementSettings', JSON.stringify(newSettings));
+      setRiskSettings(newSettings);
+    } catch (error) {
+      console.error('Error saving risk settings:', error);
+    }
+  };
+
+  const getCurrentRiskSettings = () => {
+    return riskSettings[selectedAsset] || riskSettings.bitcoin;
+  };
 
   useEffect(() => {
     loadRiskSettings();
