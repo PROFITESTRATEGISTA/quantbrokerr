@@ -46,6 +46,13 @@ export default function AdminContractsPanel() {
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
+  // Load users when modal opens
+  useEffect(() => {
+    if (showAddModal) {
+      fetchAvailableUsers();
+    }
+  }, [showAddModal]);
+
   // Calculate contract end date based on billing period
   useEffect(() => {
     if (newContract.contract_start) {
@@ -68,12 +75,13 @@ export default function AdminContractsPanel() {
 
   useEffect(() => {
     fetchContracts();
-    fetchAvailableUsers();
   }, []);
 
   const fetchAvailableUsers = async () => {
     try {
       setLoadingUsers(true);
+      setError(null);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('id, email, full_name')
@@ -81,9 +89,12 @@ export default function AdminContractsPanel() {
         .order('full_name');
 
       if (error) throw error;
+      
+      console.log('✅ Users loaded:', data?.length || 0);
       setAvailableUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching users:', error);
+      setError(`Erro ao carregar usuários: ${error.message}`);
     } finally {
       setLoadingUsers(false);
     }
@@ -737,25 +748,36 @@ export default function AdminContractsPanel() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Selecionar Cliente *
                   </label>
+                  {loadingUsers && (
+                    <div className="text-sm text-blue-600 mb-2">
+                      Carregando usuários...
+                    </div>
+                  )}
                   <select
                     value={newContract.user_id}
                     onChange={(e) => setNewContract({...newContract, user_id: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loadingUsers}
                     required
                   >
-                    <option value="">Selecione um usuário</option>
+                    <option value="">
+                      {loadingUsers ? 'Carregando usuários...' : 'Selecione um usuário'}
+                    </option>
                     {loadingUsers ? (
-                      <option disabled>Carregando usuários...</option>
+                      <option disabled>Aguarde...</option>
                     ) : (
                       availableUsers.map(user => (
                         <option key={user.id} value={user.id}>
-                          {user.full_name || 'Nome não informado'} ({user.email}) - ID: {user.id.substring(0, 8)}
+                          {user.full_name || 'Nome não informado'} ({user.email}) - ID: {user.id.substring(0, 8)}...
                         </option>
                       ))
                     )}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Selecione o usuário para criar o contrato
+                    {availableUsers.length > 0 
+                      ? `${availableUsers.length} usuários disponíveis` 
+                      : 'Nenhum usuário encontrado'
+                    }
                   </p>
                 </div>
 
