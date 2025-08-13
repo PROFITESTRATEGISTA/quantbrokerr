@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, TrendingUp, TrendingDown, BarChart3, Filter, MessageCircle, Plus, AlertCircle, Edit3, Save, X, Check, Shield, Settings, CheckCircle } from 'lucide-react';
+import { Calendar, TrendingUp, TrendingDown, BarChart3, Filter, MessageCircle, Plus, AlertCircle, Edit3, Save, X, Check, Shield, Settings } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ResultsChart from './ResultsChart';
 import AdminEditButton from './AdminEditButton';
@@ -928,7 +928,7 @@ const ResultsCalendar: React.FC = () => {
                 <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                    <span className="text-xs md:text-sm text-gray-400">Total Acumulado</span>
+                    <span className="text-xs md:text-sm text-gray-400">Retorno Total</span>
                   </div>
                   <div className={`text-lg sm:text-xl lg:text-2xl font-bold ${
                     metrics.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'
@@ -939,7 +939,7 @@ const ResultsCalendar: React.FC = () => {
 
                 <div className="bg-slate-800/50 p-3 sm:p-4 lg:p-6 rounded-xl border border-slate-600">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                     <span className="text-xs md:text-sm text-gray-400">Taxa de Acerto</span>
                   </div>
                   <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-400">
