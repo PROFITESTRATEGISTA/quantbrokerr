@@ -31,6 +31,7 @@ const AdminLeadsPanel: React.FC = () => {
   const [customMessage, setCustomMessage] = useState('');
   const [notes, setNotes] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAllLeads();
@@ -249,6 +250,10 @@ const AdminLeadsPanel: React.FC = () => {
     setSelectedLead(lead);
     setShowContactModal(true);
     setNotes(getLeadNotes(lead.email));
+    setContactType('boas_vindas');
+    setCustomMessage('');
+    setError(null);
+    setSuccess(null);
   };
 
   const getMessagePreview = () => {
@@ -273,6 +278,7 @@ const AdminLeadsPanel: React.FC = () => {
       
       if (!message.trim()) {
         setError('Selecione um tipo de atendimento ou digite uma mensagem personalizada');
+        setSendingMessage(false);
         return;
       }
       
@@ -398,6 +404,13 @@ const AdminLeadsPanel: React.FC = () => {
         </div>
       )}
 
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+          <CheckCircle className="h-5 w-5 mr-2" />
+          {success}
+          <button onClick={() => setSuccess(null)} className="ml-auto text-green-500 hover:text-green-700">×</button>
+        </div>
+      )}
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
