@@ -303,24 +303,6 @@ const AdminLeadsPanel: React.FC = () => {
     return statusOption?.label || status;
   };
 
-  const statusOptions = [
-    { value: 'sem_contato', label: 'Sem Contato', color: 'bg-gray-100 text-gray-800' },
-    { value: 'contatado', label: 'Contatado', color: 'bg-blue-100 text-blue-800' },
-    { value: 'respondeu', label: 'Respondeu', color: 'bg-green-100 text-green-800' },
-    { value: 'interessado', label: 'Interessado', color: 'bg-purple-100 text-purple-800' },
-    { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-100 text-red-800' }
-  ];
-
-  const getStatusColor = (status: string) => {
-    const statusOption = statusOptions.find(s => s.value === status);
-    return statusOption?.color || 'bg-gray-100 text-gray-800';
-  };
-
-  const getStatusLabel = (status: string) => {
-    const statusOption = statusOptions.find(s => s.value === status);
-    return statusOption?.label || 'Sem Contato';
-  };
-
   const getSourceDisplayName = (source: string) => {
     const names = {
       'user': 'Usuário Cadastrado',
