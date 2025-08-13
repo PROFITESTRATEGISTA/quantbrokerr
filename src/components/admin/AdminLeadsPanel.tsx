@@ -31,6 +31,7 @@ const AdminLeadsPanel: React.FC = () => {
   const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>({});
   const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchAllLeads();
@@ -249,12 +250,19 @@ const AdminLeadsPanel: React.FC = () => {
     
     try {
       setSendingMessage(true);
+      setError(null);
       const message = getMessagePreview();
       
       if (!message.trim()) {
         setError('Selecione um tipo de atendimento ou digite uma mensagem personalizada');
         return;
       }
+      
+      // Atualizar status do lead para "contatado"
+      setLeadStatuses(prev => ({
+        ...prev,
+        [selectedLead.email]: 'contatado'
+      }));
       
       // Atualizar status do lead para "contatado"
       setLeadStatuses(prev => ({
@@ -275,11 +283,12 @@ const AdminLeadsPanel: React.FC = () => {
       window.open(whatsappUrl, '_blank');
       
       setSuccess('Mensagem enviada! Status atualizado para "Contatado".');
+      setSuccess('Mensagem enviada! Status atualizado para "Contatado".');
       setShowContactModal(false);
       
     } catch (error: any) {
       console.error('❌ Error sending message:', error);
-      setError('Erro ao abrir WhatsApp. Verifique se o número está correto.');
+      setError(error.message || 'Erro ao abrir WhatsApp. Verifique se o número está correto.');
     } finally {
       setSendingMessage(false);
     }
@@ -293,6 +302,24 @@ const AdminLeadsPanel: React.FC = () => {
   const getStatusLabel = (status: string) => {
     const statusOption = statusOptions.find(s => s.value === status);
     return statusOption?.label || status;
+  };
+
+  const statusOptions = [
+    { value: 'sem_contato', label: 'Sem Contato', color: 'bg-gray-100 text-gray-800' },
+    { value: 'contatado', label: 'Contatado', color: 'bg-blue-100 text-blue-800' },
+    { value: 'respondeu', label: 'Respondeu', color: 'bg-green-100 text-green-800' },
+    { value: 'interessado', label: 'Interessado', color: 'bg-purple-100 text-purple-800' },
+    { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-100 text-red-800' }
+  ];
+
+  const getStatusColor = (status: string) => {
+    const statusOption = statusOptions.find(s => s.value === status);
+    return statusOption?.color || 'bg-gray-100 text-gray-800';
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusOption = statusOptions.find(s => s.value === status);
+    return statusOption?.label || 'Sem Contato';
   };
 
   const getSourceDisplayName = (source: string) => {
@@ -466,6 +493,7 @@ const AdminLeadsPanel: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonte</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
@@ -521,6 +549,22 @@ const AdminLeadsPanel: React.FC = () => {
                           </div>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={leadStatuses[lead.email] || 'sem_contato'}
+                        onChange={(e) => setLeadStatuses(prev => ({
+                          ...prev,
+                          [lead.email]: e.target.value
+                        }))}
+                        className={`text-xs px-2 py-1 rounded-full border-0 ${getStatusColor(leadStatuses[lead.email] || 'sem_contato')}`}
+                      >
+                        {statusOptions.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
@@ -701,7 +745,9 @@ const AdminLeadsPanel: React.FC = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="font-semibold text-blue-900 mb-2">Status Atual do Lead</h4>
                 <p className="text-sm text-blue-800">
-                  Status atual: <span className="font-semibold">{getStatusLabel(leadStatuses[selectedLead.email] || 'sem_contato')}</span>
+                  Status atual: <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(leadStatuses[selectedLead.email] || 'sem_contato')}`}>
+                    {getStatusLabel(leadStatuses[selectedLead.email] || 'sem_contato')}
+                  </span>
                 </p>
                 <p className="text-xs text-blue-700 mt-1">
                   Após enviar a mensagem, o status será automaticamente alterado para "Contatado".
