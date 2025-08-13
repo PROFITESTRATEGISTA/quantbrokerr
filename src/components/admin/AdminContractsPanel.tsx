@@ -48,7 +48,7 @@ export default function AdminContractsPanel() {
 
   // Calculate contract end date based on billing period
   useEffect(() => {
-    if (newContract.contract_start && newContract.billing_period !== 'monthly') {
+    if (newContract.contract_start) {
       const startDate = new Date(newContract.contract_start);
       let endDate = new Date(startDate);
       
@@ -56,6 +56,9 @@ export default function AdminContractsPanel() {
         endDate.setMonth(endDate.getMonth() + 6);
       } else if (newContract.billing_period === 'annual') {
         endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        // Monthly - set to 1 month
+        endDate.setMonth(endDate.getMonth() + 1);
       }
       
       const formattedEndDate = endDate.toISOString().split('T')[0];
@@ -822,15 +825,26 @@ export default function AdminContractsPanel() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data de Início *
+                    Data de Fim do Contrato
+                    {newContract.billing_period === 'monthly' 
+                      ? ' (calculado automaticamente)' 
+                      : ' (calculado automaticamente) *'
+                    }
                   </label>
-                  <input
-                    type="date"
-                    value={newContract.contract_start}
-                    onChange={(e) => setNewContract({...newContract, contract_start: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={newContract.contract_end}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-blue-50 text-gray-700"
+                      readOnly
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <Calendar className="h-5 w-5 text-blue-500" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Data calculada automaticamente: {newContract.billing_period === 'semiannual' ? '+6 meses' : newContract.billing_period === 'annual' ? '+1 ano' : '+1 mês'} da data de início
+                  </p>
                 </div>
               </div>
 
