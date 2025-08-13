@@ -618,20 +618,6 @@ const AdminLeadsPanel: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* Tipo de Atendimento */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tipo de Atendimento
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {contactTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => {
-                        setContactType(type.value);
-                        if (type.value !== 'personalizada') {
                           setCustomMessage('');
                         }
                       }}
