@@ -425,6 +425,28 @@ const ResultsCalendar: React.FC = () => {
         {/* Risk Management Section */}
         {isAdmin && (
           <div className="mb-12 mt-16">
+            {/* Asset Selector */}
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Gestão de Risco por Portfólio</h3>
+                <p className="text-slate-300 text-sm">Configure os limites de risco para cada ativo</p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-slate-300">Portfólio:</label>
+                <select
+                  value={selectedAsset}
+                  onChange={(e) => setSelectedAsset(e.target.value as any)}
+                  className="bg-slate-700 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[180px]"
+                >
+                  <option value="bitcoin">🟠 Portfólio Bitcoin</option>
+                  <option value="miniIndice">🔵 Portfólio Mini Índice</option>
+                  <option value="miniDolar">🟢 Portfólio Mini Dólar</option>
+                  <option value="portfolio">🟣 Portfólio Completo</option>
+                </select>
+              </div>
+            </div>
+
             <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
               <Shield className="w-6 h-6 text-red-400" />
               Gerenciamento de Risco - {getAssetDisplayName(chartAsset)}
