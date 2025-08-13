@@ -690,19 +690,6 @@ const AdminLeadsPanel: React.FC = () => {
                 </button>
               </div>
 
-              {/* Notas */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notas sobre o Lead
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Adicione observações sobre este lead..."
-                />
-              </div>
 
               {/* Status Atual */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
