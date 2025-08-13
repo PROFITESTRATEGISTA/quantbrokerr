@@ -13,12 +13,17 @@ interface Contract {
   is_active: boolean;
   leverage_multiplier: number;
   contract_file_url?: string;
+  referral_partner_id?: string;
   created_at: string;
   updated_at: string;
   user_profiles?: {
     email: string;
     full_name: string;
     phone?: string;
+  };
+  supplier_contracts?: {
+    supplier_name: string;
+    supplier_email: string;
   };
 }
 
@@ -45,16 +50,20 @@ export default function AdminContractsPanel() {
     billing_period: 'monthly',
     monthly_value: 0,
     leverage_multiplier: 1,
+    referral_partner_id: '',
     contract_start: new Date().toISOString().split('T')[0],
     contract_end: ''
   });
   const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(false);
 
   // Load users when modal opens
   useEffect(() => {
     if (showAddModal) {
       fetchAvailableUsers();
+      fetchAvailableSuppliers();
     }
   }, [showAddModal]);
 
