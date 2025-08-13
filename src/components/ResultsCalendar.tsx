@@ -534,7 +534,7 @@ const ResultsCalendar: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-xl font-bold text-orange-400">
-                        -{(riskSettings.monthlyLossLimit || 15.0).toFixed(1)}%
+                        -{riskSettings.monthlyLossLimit.toFixed(1)}%
                       </div>
                     )}
                   </div>
@@ -744,7 +744,7 @@ const ResultsCalendar: React.FC = () => {
                 </h3>
                 <p className="text-slate-300 mb-6">
                   Os dados foram zerados para início da operação real. 
-                  {isAdmin ? ' Use o botão "Adicionar Mês" para inserir os primeiros resultados.' : ' Os resultados aparecerão aqui conforme forem sendo inseridos.'}
+                  Stop loss automático em {(riskSettings.stopLoss || 2.0).toFixed(1)}% por operação individual.
                 </p>
                 {isAdmin && (
                   <button
