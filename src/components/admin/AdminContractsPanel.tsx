@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { X, Edit2, Save, Ambulance as Cancel, UserX, Upload, FileText, ExternalLink } from 'lucide-react';
+import { X, Edit2, Save, Ambulance as Cancel, UserX, Upload, FileText, ExternalLink, Plus, Building } from 'lucide-react';
 
 interface Contract {
   id: string;
@@ -33,6 +33,33 @@ export default function AdminContractsPanel() {
   const [uploadingContract, setUploadingContract] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newContract, setNewContract] = useState({
+    user_email: '',
+    plan_type: 'bitcoin',
+    billing_period: 'monthly',
+    monthly_value: 0,
+    leverage_multiplier: 1,
+    contract_start: new Date().toISOString().split('T')[0],
+    contract_end: ''
+  });
+
+  // Calculate contract end date based on billing period
+  useEffect(() => {
+    if (newContract.contract_start && newContract.billing_period !== 'monthly') {
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.billing_period === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.billing_period === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+      
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+      setNewContract(prev => ({ ...prev, contract_end: formattedEndDate }));
+    }
+  }, [newContract.billing_period, newContract.contract_start]);
 
   useEffect(() => {
     fetchContracts();
@@ -137,9 +164,82 @@ export default function AdminContractsPanel() {
 
       setSuccess('Arquivo do contrato excluído com sucesso!');
       fetchContracts();
+  const handleAddContract = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setError(null);
+      
+      // First, find the user by email
+      const { data: userProfile, error: userError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('email', newContract.user_email.toLowerCase())
+        .single();
+
+      if (userError || !userProfile) {
+        throw new Error('Usuário não encontrado com este email. Verifique se o email está correto.');
+      }
+
+      // Calculate contract end date
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.billing_period === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.billing_period === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        // Monthly - set to 1 month
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      const contractData = {
+        user_id: userProfile.id,
+        plan_type: newContract.plan_type,
+        billing_period: newContract.billing_period,
+        monthly_value: newContract.monthly_value,
+        leverage_multiplier: newContract.leverage_multiplier,
+        contract_start: newContract.contract_start,
+        contract_end: endDate.toISOString().split('T')[0],
+        is_active: true
+      };
     } catch (error: any) {
+      const { error: insertError } = await supabase
+        .from('client_contracts')
+        .insert(contractData);
       console.error('Delete file error:', error);
+      if (insertError) throw insertError;
       setError(error.message || 'Erro ao excluir arquivo do contrato');
+      // Update user profile with contracted plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: newContract.plan_type,
+          plan_status: 'active',
+          plan_start_date: newContract.contract_start,
+          plan_end_date: endDate.toISOString().split('T')[0],
+          current_leverage: newContract.leverage_multiplier
+        })
+        .eq('id', userProfile.id);
+    }
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
+      }
+  };
+      setSuccess('Contrato criado com sucesso!');
+      setShowAddModal(false);
+      setNewContract({
+        user_email: '',
+        plan_type: 'bitcoin',
+        billing_period: 'monthly',
+        monthly_value: 0,
+        leverage_multiplier: 1,
+        contract_start: new Date().toISOString().split('T')[0],
+        contract_end: ''
+      });
+      fetchContracts();
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
@@ -579,6 +679,154 @@ export default function AdminContractsPanel() {
                 Confirmar Cancelamento
               </button>
             </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Criar Contrato
+        </button>
+      )}
+
+      {/* Add Contract Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Criar Novo Contrato</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddContract} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email do Cliente *
+                  </label>
+                  <input
+                    type="email"
+                    value={newContract.user_email}
+                    onChange={(e) => setNewContract({...newContract, user_email: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="cliente@email.com"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Email deve estar cadastrado no sistema
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Plano *
+                  </label>
+                  <select
+                    value={newContract.plan_type}
+                    onChange={(e) => setNewContract({...newContract, plan_type: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="bitcoin">Bitcoin</option>
+                    <option value="mini-indice">Mini Índice</option>
+                    <option value="mini-dolar">Mini Dólar</option>
+                    <option value="portfolio-completo">Portfólio Completo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Período de Cobrança *
+                  </label>
+                  <select
+                    value={newContract.billing_period}
+                    onChange={(e) => setNewContract({...newContract, billing_period: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="monthly">Mensal</option>
+                    <option value="semiannual">Semestral</option>
+                    <option value="annual">Anual</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Valor Mensal (R$) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newContract.monthly_value}
+                    onChange={(e) => setNewContract({...newContract, monthly_value: parseFloat(e.target.value) || 0})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Multiplicador de Alavancagem *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={newContract.leverage_multiplier}
+                    onChange={(e) => setNewContract({...newContract, leverage_multiplier: parseInt(e.target.value) || 1})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Início *
+                  </label>
+                  <input
+                    type="date"
+                    value={newContract.contract_start}
+                    onChange={(e) => setNewContract({...newContract, contract_start: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Informações do Contrato</h4>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>• O contrato será criado para o usuário com o email informado</p>
+                  <p>• A data de fim será calculada automaticamente baseada no período</p>
+                  <p>• O perfil do usuário será atualizado com o plano contratado</p>
+                  <p>• A alavancagem será aplicada automaticamente</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Criar Contrato
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
