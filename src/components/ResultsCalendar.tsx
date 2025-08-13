@@ -980,6 +980,192 @@ const ResultsCalendar: React.FC = () => {
             availableYears={availableYears}
           />
         )}
+
+        {/* Risk Management Edit Modal */}
+        {showRiskModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Editar Gestão de Risco
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {getAssetDisplayName(selectedAsset)} - Configurar limites de risco
+                  </p>
+                </div>
+                <button
+                  onClick={handleCancelRiskEdit}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Daily Loss Limit */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <AlertTriangle className="h-4 w-4 inline mr-1 text-red-500" />
+                    Limite de Perda Diária (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="-50"
+                    max="0"
+                    value={editingRiskValues.dailyLossLimit}
+                    onChange={(e) => setEditingRiskValues({
+                      ...editingRiskValues,
+                      dailyLossLimit: parseFloat(e.target.value) || 0
+                    })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    placeholder="-5.0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Valor negativo. Ex: -5.0 para parar operações com 5% de perda diária
+                  </p>
+                </div>
+
+                {/* Monthly Loss Limit */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Calendar className="h-4 w-4 inline mr-1 text-orange-500" />
+                    Limite de Perda Mensal (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="-50"
+                    max="0"
+                    value={editingRiskValues.monthlyLossLimit}
+                    onChange={(e) => setEditingRiskValues({
+                      ...editingRiskValues,
+                      monthlyLossLimit: parseFloat(e.target.value) || 0
+                    })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="-15.0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Valor negativo. Ex: -15.0 para parar operações com 15% de perda mensal
+                  </p>
+                </div>
+
+                {/* Max Drawdown */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <TrendingDown className="h-4 w-4 inline mr-1 text-yellow-500" />
+                    Drawdown Máximo (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="-50"
+                    max="0"
+                    value={editingRiskValues.maxDrawdown}
+                    onChange={(e) => setEditingRiskValues({
+                      ...editingRiskValues,
+                      maxDrawdown: parseFloat(e.target.value) || 0
+                    })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="-20.0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Valor negativo. Ex: -20.0 para drawdown máximo de 20% do capital
+                  </p>
+                </div>
+
+                {/* Stop Loss */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Target className="h-4 w-4 inline mr-1 text-blue-500" />
+                    Stop Loss por Operação (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="-10"
+                    max="0"
+                    value={editingRiskValues.stopLoss}
+                    onChange={(e) => setEditingRiskValues({
+                      ...editingRiskValues,
+                      stopLoss: parseFloat(e.target.value) || 0
+                    })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="-2.0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Valor negativo. Ex: -2.0 para stop loss automático em 2% por operação
+                  </p>
+                </div>
+
+                {/* Preview */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">Preview dos Novos Limites</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Perda Diária:</span>
+                      <span className="font-medium text-red-600">{editingRiskValues.dailyLossLimit}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Perda Mensal:</span>
+                      <span className="font-medium text-orange-600">{editingRiskValues.monthlyLossLimit}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Drawdown Máx:</span>
+                      <span className="font-medium text-yellow-600">{editingRiskValues.maxDrawdown}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Stop Loss:</span>
+                      <span className="font-medium text-blue-600">{editingRiskValues.stopLoss}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warning */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+                    <div>
+                      <h4 className="font-semibold text-yellow-900">Atenção</h4>
+                      <p className="text-yellow-800 text-sm">
+                        Alterações nos limites de risco afetam apenas futuras operações. 
+                        Operações em andamento mantêm os limites anteriores.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSaveRiskValues}
+                    disabled={savingRisk}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  >
+                    {savingRisk ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Salvar Alterações
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCancelRiskEdit}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
