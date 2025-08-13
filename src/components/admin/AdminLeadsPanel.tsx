@@ -28,6 +28,7 @@ const AdminLeadsPanel: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
   const [contactType, setContactType] = useState('boas_vindas');
   const [customMessage, setCustomMessage] = useState('');
+  const [notes, setNotes] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -120,9 +121,9 @@ const AdminLeadsPanel: React.FC = () => {
     }
   };
 
-
-
-
+  const fetchLeadInteractions = async () => {
+    // Implementation for fetchLeadInteractions
+  };
 
   const applyFilters = () => {
     let filtered = [...uniqueLeads];
@@ -215,6 +216,7 @@ const AdminLeadsPanel: React.FC = () => {
   const handleContactLead = (lead: LeadSource) => {
     setSelectedLead(lead);
     setShowContactModal(true);
+    setNotes('');
     setContactType('boas_vindas');
     setCustomMessage('');
     setError(null);
@@ -730,3 +732,10 @@ const AdminLeadsPanel: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminLeadsPanel;
