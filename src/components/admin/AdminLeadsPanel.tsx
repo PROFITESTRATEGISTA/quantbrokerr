@@ -271,6 +271,11 @@ const AdminLeadsPanel: React.FC = () => {
       setSendingMessage(true);
       const message = getMessagePreview();
       
+      if (!message.trim()) {
+        setError('Selecione um tipo de atendimento ou digite uma mensagem personalizada');
+        return;
+      }
+      
       // Salvar interação no banco
       const { error } = await supabase
         .from('lead_interactions')
@@ -290,7 +295,14 @@ const AdminLeadsPanel: React.FC = () => {
       
       // Abrir WhatsApp com mensagem
       const phoneNumber = selectedLead.phone.replace(/\D/g, '');
-      const whatsappUrl = `https://wa.me/55${phoneNumber}?text=${encodeURIComponent(message)}`;
+      const formattedPhone = phoneNumber.startsWith('55') ? phoneNumber : `55${phoneNumber}`;
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      
+      console.log('📱 Opening WhatsApp with:', {
+        phone: formattedPhone,
+        message: message.substring(0, 50) + '...'
+      });
+      
       window.open(whatsappUrl, '_blank');
       
       setSuccess('Mensagem enviada e interação registrada!');
@@ -298,6 +310,7 @@ const AdminLeadsPanel: React.FC = () => {
       await fetchLeadInteractions();
       
     } catch (error: any) {
+      console.error('❌ Error sending message:', error);
       setError(error.message);
     } finally {
       setSendingMessage(false);
