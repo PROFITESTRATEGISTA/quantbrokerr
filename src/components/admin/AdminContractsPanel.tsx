@@ -126,44 +126,6 @@ export default function AdminContractsPanel() {
     }
   };
 
-  const handleDeleteContractFile = async (contractId: string) => {
-    if (!confirm('Tem certeza que deseja excluir o arquivo do contrato?')) return;
-
-    try {
-      setError(null);
-      
-      // Get contract to find file URL
-      const contract = contracts.find(c => c.id === contractId);
-      if (!contract?.contract_file_url) {
-        setError('Nenhum arquivo encontrado para excluir');
-        return;
-      }
-
-      // Extract file path from URL
-      const url = new URL(contract.contract_file_url);
-      const filePath = url.pathname.split('/').pop();
-      
-      if (filePath) {
-        // Delete file from storage
-        const { error: deleteError } = await supabase.storage
-          .from('client-contracts')
-          .remove([`client-contracts/${filePath}`]);
-
-        if (deleteError) {
-          console.warn('Warning deleting file:', deleteError);
-        }
-      }
-
-      // Update contract to remove file URL
-      const { error: updateError } = await supabase
-        .from('client_contracts')
-        .update({ contract_file_url: null })
-        .eq('id', contractId);
-
-      if (updateError) throw updateError;
-
-      setSuccess('Arquivo do contrato excluído com sucesso!');
-      fetchContracts();
   const handleAddContract = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -203,13 +165,13 @@ export default function AdminContractsPanel() {
         contract_end: endDate.toISOString().split('T')[0],
         is_active: true
       };
-    } catch (error: any) {
+
       const { error: insertError } = await supabase
         .from('client_contracts')
         .insert(contractData);
-      console.error('Delete file error:', error);
+
       if (insertError) throw insertError;
-      setError(error.message || 'Erro ao excluir arquivo do contrato');
+
       // Update user profile with contracted plan
       const { error: updateError } = await supabase
         .from('user_profiles')
@@ -221,10 +183,70 @@ export default function AdminContractsPanel() {
           current_leverage: newContract.leverage_multiplier
         })
         .eq('id', userProfile.id);
-    }
+
       if (updateError) {
         console.warn('Warning updating user profile:', updateError);
       }
+
+      setSuccess('Contrato criado com sucesso!');
+      setShowAddModal(false);
+      setNewContract({
+        user_email: '',
+        plan_type: 'bitcoin',
+        billing_period: 'monthly',
+        monthly_value: 0,
+        leverage_multiplier: 1,
+        contract_start: new Date().toISOString().split('T')[0],
+        contract_end: ''
+      });
+      fetchContracts();
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
+  const handleDeleteContractFile = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir o arquivo do contrato?')) return;
+
+    try {
+      setError(null);
+      
+      // Get contract to find file URL
+      const contract = contracts.find(c => c.id === contractId);
+      if (!contract?.contract_file_url) {
+        setError('Nenhum arquivo encontrado para excluir');
+        return;
+      }
+
+      // Extract file path from URL
+      const url = new URL(contract.contract_file_url);
+      const filePath = url.pathname.split('/').pop();
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: deleteError } = await supabase.storage
+          .from('client-contracts')
+          .remove([`client-contracts/${filePath}`]);
+
+        if (deleteError) {
+          console.warn('Warning deleting file:', deleteError);
+        }
+      }
+
+      // Update contract to remove file URL
+      const { error: updateError } = await supabase
+        .from('client_contracts')
+        .update({ contract_file_url: null })
+        .eq('id', contractId);
+
+      if (updateError) throw updateError;
+
+      setSuccess('Arquivo do contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Delete file error:', error);
+      setError(error.message || 'Erro ao excluir arquivo do contrato');
+    }
   };
       setSuccess('Contrato criado com sucesso!');
       setShowAddModal(false);
