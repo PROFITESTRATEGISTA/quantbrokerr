@@ -478,10 +478,18 @@ const ResultsCalendar: React.FC = () => {
             <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Gestão de Risco por Portfólio</h3>
-                <p className="text-slate-300 text-sm">Configure os limites de risco para cada ativo</p>
+                  Configurar Gestão de Risco - {(() => {
+                    switch (selectedAsset) {
+                      case 'bitcoin': return '🟠 Bitcoin';
+                      case 'miniIndice': return '🔵 Mini Índice';
+                      case 'miniDolar': return '🟢 Mini Dólar';
+                      case 'portfolio': return '🟣 Portfólio Completo';
+                      default: return 'Portfólio';
+                    }
+                  })()}
               </div>
               
-              <div className="flex items-center gap-3">
+                  Ajuste os limites de risco específicos para este portfólio
                 <label className="text-sm font-medium text-slate-300">Portfólio:</label>
                 <select
                   value={selectedAsset}
