@@ -28,7 +28,7 @@ const AdminLeadsPanel: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
   const [contactType, setContactType] = useState('boas_vindas');
   const [customMessage, setCustomMessage] = useState('');
-  const [notes, setNotes] = useState('');
+  const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>({});
   const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -256,6 +256,12 @@ const AdminLeadsPanel: React.FC = () => {
         return;
       }
       
+      // Atualizar status do lead para "contatado"
+      setLeadStatuses(prev => ({
+        ...prev,
+        [selectedLead.email]: 'contatado'
+      }));
+      
       // Abrir WhatsApp com mensagem
       const phoneNumber = selectedLead.phone.replace(/\D/g, '');
       const formattedPhone = phoneNumber.startsWith('55') ? phoneNumber : `55${phoneNumber}`;
@@ -268,7 +274,7 @@ const AdminLeadsPanel: React.FC = () => {
       
       window.open(whatsappUrl, '_blank');
       
-      setSuccess('WhatsApp aberto com mensagem personalizada!');
+      setSuccess('Mensagem enviada! Status atualizado para "Contatado".');
       setShowContactModal(false);
       
     } catch (error: any) {
