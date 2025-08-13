@@ -618,8 +618,6 @@ const AdminLeadsPanel: React.FC = () => {
               </button>
             </div>
 
-                          setCustomMessage('');
-                        }
                       }}
                       className={`p-3 border-2 rounded-lg transition-all text-left ${
                         contactType === type.value
@@ -639,11 +637,13 @@ const AdminLeadsPanel: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Mensagem Personalizada
                   </label>
+                  <textarea
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Digite sua mensagem personalizada..."
+                  />
                   />
                 </div>
               )}
