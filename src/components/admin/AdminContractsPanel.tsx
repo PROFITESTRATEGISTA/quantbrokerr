@@ -397,6 +397,17 @@ export default function AdminContractsPanel() {
       </div>
 
       {/* Alerts */}
+      {/* Botão Criar Contrato */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Criar Contrato
+        </button>
+      </div>
+
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
           <AlertCircle className="h-5 w-5 mr-2" />
@@ -681,13 +692,6 @@ export default function AdminContractsPanel() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Criar Contrato
-        </button>
       )}
 
       {/* Add Contract Modal */}
