@@ -301,10 +301,6 @@ export default function AdminContractsPanel() {
             email,
             full_name,
             phone
-          ),
-          supplier_contracts (
-            supplier_name,
-            supplier_email
           )
         `)
         .order('created_at', { ascending: false });
@@ -680,10 +676,33 @@ export default function AdminContractsPanel() {
                           <button
                             onClick={() => handleCancelContract(contract)}
                             className="text-orange-600 hover:text-orange-900"
+                            title="Cancelar contrato"
                           >
                             <UserX className="h-4 w-4" />
                           </button>
                         )}
+                        {contract.is_active && (
+                          <button
+                            onClick={() => {
+                              setContractToRevoke(contract);
+                              setShowRevokeModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                            title="Revogar contrato"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setContractToDelete(contract);
+                            setShowDeleteModal(true);
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                          title="Excluir contrato permanentemente"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </>
                     )}
                   </td>
