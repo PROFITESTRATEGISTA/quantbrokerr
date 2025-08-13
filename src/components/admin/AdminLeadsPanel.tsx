@@ -639,7 +639,6 @@ const AdminLeadsPanel: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Mensagem Personalizada
                   </label>
-                  <textarea
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
                     rows={4}
