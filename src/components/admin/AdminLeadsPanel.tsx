@@ -28,9 +28,9 @@ const AdminLeadsPanel: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
   const [contactType, setContactType] = useState('boas_vindas');
   const [customMessage, setCustomMessage] = useState('');
+  const [notes, setNotes] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     fetchAllLeads();
