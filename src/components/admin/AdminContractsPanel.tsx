@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { X, Edit2, Save, Ambulance as Cancel, UserX, Upload, FileText, ExternalLink, Plus, Building, AlertCircle, CheckCircle, Calendar } from 'lucide-react';
 
@@ -30,6 +30,11 @@ export default function AdminContractsPanel() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancellingContract, setCancellingContract] = useState<Contract | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [contractToRevoke, setContractToRevoke] = useState<Contract | null>(null);
+  const [revokeReason, setRevokeReason] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const [uploadingContract, setUploadingContract] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
