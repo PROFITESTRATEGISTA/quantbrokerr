@@ -242,7 +242,7 @@ const AdminLeadsPanel: React.FC = () => {
       await fetchLeadInteractions();
       setSuccess('Status atualizado com sucesso!');
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message || 'Erro desconhecido ao atualizar status.');
     }
   };
 
@@ -317,7 +317,7 @@ const AdminLeadsPanel: React.FC = () => {
       
     } catch (error: any) {
       console.error('❌ Error sending message:', error);
-      setError(error.message);
+      setError(error.message || 'Erro desconhecido ao enviar mensagem.');
     } finally {
       setSendingMessage(false);
     }
