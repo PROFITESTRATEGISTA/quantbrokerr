@@ -114,6 +114,29 @@ export default function AdminContractsPanel() {
     }
   };
 
+  const fetchAvailableSuppliers = async () => {
+    try {
+      setLoadingSuppliers(true);
+      setError(null);
+      
+      const { data, error } = await supabase
+        .from('supplier_contracts')
+        .select('id, supplier_name, supplier_email, contract_type')
+        .eq('is_active', true)
+        .order('supplier_name');
+
+      if (error) throw error;
+      
+      console.log('✅ Suppliers loaded:', data?.length || 0);
+      setAvailableSuppliers(data || []);
+    } catch (error: any) {
+      console.error('Error fetching suppliers:', error);
+      setError(`Erro ao carregar fornecedores: ${error.message}`);
+    } finally {
+      setLoadingSuppliers(false);
+    }
+  };
+
   const handleFileUpload = async (contractId: string, file: File) => {
     try {
       setUploadingContract(contractId);
@@ -205,7 +228,8 @@ export default function AdminContractsPanel() {
         leverage_multiplier: newContract.leverage_multiplier,
         contract_start: newContract.contract_start,
         contract_end: endDate.toISOString().split('T')[0],
-        is_active: true
+        is_active: true,
+        referral_partner_id: newContract.referral_partner_id || null
       };
 
       const { error: insertError } = await supabase
@@ -238,6 +262,7 @@ export default function AdminContractsPanel() {
         billing_period: 'monthly',
         monthly_value: 0,
         leverage_multiplier: 1,
+        referral_partner_id: '',
         contract_start: new Date().toISOString().split('T')[0],
         contract_end: ''
       });
@@ -368,6 +393,48 @@ export default function AdminContractsPanel() {
       setCancelReason('');
     } catch (error) {
       console.error('Erro ao cancelar contrato:', error);
+    }
+  };
+
+  const handleRevokeContract = async () => {
+    if (!contractToRevoke || !revokeReason.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contractToRevoke.id);
+
+      if (error) throw error;
+
+      await fetchContracts();
+      setShowRevokeModal(false);
+      setContractToRevoke(null);
+      setRevokeReason('');
+    } catch (error) {
+      console.error('Erro ao revogar contrato:', error);
+    }
+  };
+
+  const handleDeleteContract = async () => {
+    if (!contractToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('client_contracts')
+        .delete()
+        .eq('id', contractToDelete.id);
+
+      if (error) throw error;
+
+      await fetchContracts();
+      setShowDeleteModal(false);
+      setContractToDelete(null);
+    } catch (error) {
+      console.error('Erro ao excluir contrato:', error);
     }
   };
 
@@ -676,33 +743,10 @@ export default function AdminContractsPanel() {
                           <button
                             onClick={() => handleCancelContract(contract)}
                             className="text-orange-600 hover:text-orange-900"
-                            title="Cancelar contrato"
                           >
                             <UserX className="h-4 w-4" />
                           </button>
                         )}
-                        {contract.is_active && (
-                          <button
-                            onClick={() => {
-                              setContractToRevoke(contract);
-                              setShowRevokeModal(true);
-                            }}
-                            className="text-red-600 hover:text-red-900"
-                            title="Revogar contrato"
-                          >
-                            <Ban className="h-4 w-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => {
-                            setContractToDelete(contract);
-                            setShowDeleteModal(true);
-                          }}
-                          className="text-red-600 hover:text-red-900"
-                          title="Excluir contrato permanentemente"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </>
                     )}
                   </td>
@@ -1001,6 +1045,38 @@ export default function AdminContractsPanel() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Parceiro de Indicação (Opcional)
+                  </label>
+                  {loadingSuppliers && (
+                    <div className="text-sm text-blue-600 mb-2">
+                      Carregando fornecedores...
+                    </div>
+                  )}
+                  <select
+                    value={newContract.referral_partner_id}
+                    onChange={(e) => setNewContract({...newContract, referral_partner_id: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loadingSuppliers}
+                  >
+                    <option value="">
+                      {loadingSuppliers ? 'Carregando fornecedores...' : 'Nenhum parceiro (indicação direta)'}
+                    </option>
+                    {availableSuppliers.map(supplier => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.supplier_name} ({supplier.supplier_email}) - {supplier.contract_type}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {availableSuppliers.length > 0 
+                      ? `${availableSuppliers.length} parceiros disponíveis` 
+                      : 'Nenhum fornecedor ativo encontrado'
+                    }
+                  </p>
                 </div>
 
                 <div>
