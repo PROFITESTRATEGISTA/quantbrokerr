@@ -23,7 +23,6 @@ const AdminLeadsPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterSource, setFilterSource] = useState<'all' | 'user' | 'waitlist' | 'consultation'>('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
@@ -35,12 +34,11 @@ const AdminLeadsPanel: React.FC = () => {
 
   useEffect(() => {
     fetchAllLeads();
-    fetchLeadInteractions();
   }, []);
 
   useEffect(() => {
     applyFilters();
-  }, [leads, filterSource, filterStatus, searchTerm]);
+  }, [leads, filterSource, searchTerm]);
 
   const fetchAllLeads = async () => {
     try {
@@ -115,8 +113,6 @@ const AdminLeadsPanel: React.FC = () => {
 
       setUniqueLeads(Array.from(uniqueLeadsMap.values()));
 
-      // Combinar com status de interações
-      await fetchLeadInteractions();
 
     } catch (error: any) {
       setError(error.message);
@@ -125,34 +121,9 @@ const AdminLeadsPanel: React.FC = () => {
     }
   };
 
-  const fetchLeadInteractions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('lead_interactions')
-        .select('*')
-        .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setLeadInteractions(data || []);
-    } catch (error: any) {
-      console.error('Error fetching lead interactions:', error);
-    }
-  };
 
-  const getLeadStatus = (email: string) => {
-    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
-    return interaction?.status || 'sem_contato';
-  };
 
-  const getLastContact = (email: string) => {
-    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
-    return interaction?.contacted_at;
-  };
-
-  const getLeadNotes = (email: string) => {
-    const interaction = leadInteractions.find(i => i.lead_email === email.toLowerCase());
-    return interaction?.notes || '';
-  };
 
   const applyFilters = () => {
     let filtered = [...uniqueLeads];
@@ -162,10 +133,6 @@ const AdminLeadsPanel: React.FC = () => {
       filtered = filtered.filter(lead => lead.source === filterSource);
     }
 
-    // Status filter
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(lead => getLeadStatus(lead.email) === filterStatus);
-    }
 
     // Search filter
     if (searchTerm) {
@@ -249,7 +216,7 @@ const AdminLeadsPanel: React.FC = () => {
   const handleContactLead = (lead: LeadSource) => {
     setSelectedLead(lead);
     setShowContactModal(true);
-    setNotes(getLeadNotes(lead.email));
+    setNotes('');
     setContactType('boas_vindas');
     setCustomMessage('');
     setError(null);
@@ -278,26 +245,8 @@ const AdminLeadsPanel: React.FC = () => {
       
       if (!message.trim()) {
         setError('Selecione um tipo de atendimento ou digite uma mensagem personalizada');
-        setSendingMessage(false);
         return;
       }
-      
-      // Salvar interação no banco
-      const { error } = await supabase
-        .from('lead_interactions')
-        .upsert({
-          lead_email: selectedLead.email.toLowerCase(),
-          lead_source: selectedLead.source,
-          status: 'contatado',
-          interaction_type: contactType,
-          message_sent: message,
-          notes: notes,
-          contacted_at: new Date().toISOString()
-        }, {
-          onConflict: 'lead_email'
-        });
-
-      if (error) throw error;
       
       // Abrir WhatsApp com mensagem
       const phoneNumber = selectedLead.phone.replace(/\D/g, '');
@@ -311,13 +260,12 @@ const AdminLeadsPanel: React.FC = () => {
       
       window.open(whatsappUrl, '_blank');
       
-      setSuccess('Mensagem enviada e interação registrada!');
+      setSuccess('WhatsApp aberto com mensagem personalizada!');
       setShowContactModal(false);
-      await fetchLeadInteractions();
       
     } catch (error: any) {
       console.error('❌ Error sending message:', error);
-      setError(error.message || 'Erro desconhecido ao enviar mensagem.');
+      setError('Erro ao abrir WhatsApp. Verifique se o número está correto.');
     } finally {
       setSendingMessage(false);
     }
@@ -749,18 +697,11 @@ const AdminLeadsPanel: React.FC = () => {
               </div>
 
               {/* Status Atual */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">Status Atual</h4>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(getLeadStatus(selectedLead.email))}`}>
-                    {getStatusLabel(getLeadStatus(selectedLead.email))}
-                  </span>
-                  {getLastContact(selectedLead.email) && (
-                    <span className="text-xs text-gray-600">
-                      • Último contato: {new Date(getLastContact(selectedLead.email)!).toLocaleDateString('pt-BR')}
-                    </span>
-                  )}
-                </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-semibold text-green-900 mb-2">Pronto para Contato</h4>
+                <p className="text-sm text-green-800">
+                  A mensagem será enviada diretamente via WhatsApp com o conteúdo personalizado selecionado.
+                </p>
               </div>
 
               {/* Ações */}
