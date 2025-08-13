@@ -49,34 +49,11 @@ const ResultsCalendar: React.FC = () => {
   // Risk Management states
   const [showRiskManagement, setShowRiskManagement] = useState(true);
   const [riskSettings, setRiskSettings] = useState({
-    bitcoin: {
-      dailyLoss: -5.0,
-      monthlyLoss: -15.0,
-      maxDrawdown: -20.0,
-      stopLoss: -2.0,
-      riskControlActive: true
-    },
-    miniIndice: {
-      dailyLoss: -4.0,
-      monthlyLoss: -12.0,
-      maxDrawdown: -18.0,
-      stopLoss: -1.8,
-      riskControlActive: true
-    },
-    miniDolar: {
-      dailyLoss: -6.0,
-      monthlyLoss: -18.0,
-      maxDrawdown: -25.0,
-      stopLoss: -2.5,
-      riskControlActive: true
-    },
-    portfolio: {
-      dailyLoss: -4.5,
-      monthlyLoss: -14.0,
-      maxDrawdown: -20.0,
-      stopLoss: -2.0,
-      riskControlActive: true
-    }
+    dailyLossLimit: 5.0,
+    monthlyLossLimit: 15.0,
+    maxDrawdown: 20.0,
+    stopLossPercentage: 2.0,
+    isActive: true
   });
   const [editingRisk, setEditingRisk] = useState(false);
 
@@ -352,34 +329,19 @@ const ResultsCalendar: React.FC = () => {
 
   const loadRiskSettings = () => {
     try {
-      const savedSettings = localStorage.getItem('riskManagementSettings');
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        setRiskSettings(prev => ({ ...prev, ...parsed }));
+      const saved = localStorage.getItem(`risk_settings_${calendarAsset}`);
+      if (saved) {
+        setRiskSettings(JSON.parse(saved));
       }
     } catch (error) {
       console.error('Error loading risk settings:', error);
     }
   };
 
-  const saveRiskSettings = (newSettings: typeof riskSettings) => {
-    try {
-      localStorage.setItem('riskManagementSettings', JSON.stringify(newSettings));
-      setRiskSettings(newSettings);
-    } catch (error) {
-      console.error('Error saving risk settings:', error);
-    }
-  };
-
-  const getCurrentRiskSettings = () => {
-    return riskSettings[selectedAsset] || riskSettings.bitcoin;
-  };
-
   // Effects
   useEffect(() => {
     checkAdminStatus();
     fetchResults();
-    loadRiskSettings();
   }, []);
 
   useEffect(() => {
@@ -463,28 +425,6 @@ const ResultsCalendar: React.FC = () => {
         {/* Risk Management Section */}
         {isAdmin && (
           <div className="mb-12 mt-16">
-            {/* Asset Selector */}
-            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">Gestão de Risco por Portfólio</h3>
-                <p className="text-slate-300 text-sm">Configure os limites de risco para cada ativo</p>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-slate-300">Portfólio:</label>
-                <select
-                  value={selectedAsset}
-                  onChange={(e) => setSelectedAsset(e.target.value as any)}
-                  className="bg-slate-700 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[180px]"
-                >
-                  <option value="bitcoin">🟠 Portfólio Bitcoin</option>
-                  <option value="miniIndice">🔵 Portfólio Mini Índice</option>
-                  <option value="miniDolar">🟢 Portfólio Mini Dólar</option>
-                  <option value="portfolio">🟣 Portfólio Completo</option>
-                </select>
-              </div>
-            </div>
-
             <h2 className="text-2xl font-bold flex items-center gap-2 mb-6">
               <Shield className="w-6 h-6 text-red-400" />
               Gerenciamento de Risco - {getAssetDisplayName(chartAsset)}
@@ -744,7 +684,7 @@ const ResultsCalendar: React.FC = () => {
                 </h3>
                 <p className="text-slate-300 mb-6">
                   Os dados foram zerados para início da operação real. 
-                  Stop loss automático em {(riskSettings.stopLoss || 2.0).toFixed(1)}% por operação individual.
+                  {isAdmin ? ' Use o botão "Adicionar Mês" para inserir os primeiros resultados.' : ' Os resultados aparecerão aqui conforme forem sendo inseridos.'}
                 </p>
                 {isAdmin && (
                   <button
