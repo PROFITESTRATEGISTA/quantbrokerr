@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { X, Edit2, Save, Ambulance as Cancel, UserX, Upload, FileText, ExternalLink, Plus, Building } from 'lucide-react';
+import { X, Edit2, Save, Ambulance as Cancel, UserX, Upload, FileText, ExternalLink, Plus, Building, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface Contract {
   id: string;
@@ -246,22 +246,6 @@ export default function AdminContractsPanel() {
     } catch (error: any) {
       console.error('Delete file error:', error);
       setError(error.message || 'Erro ao excluir arquivo do contrato');
-    }
-  };
-      setSuccess('Contrato criado com sucesso!');
-      setShowAddModal(false);
-      setNewContract({
-        user_email: '',
-        plan_type: 'bitcoin',
-        billing_period: 'monthly',
-        monthly_value: 0,
-        leverage_multiplier: 1,
-        contract_start: new Date().toISOString().split('T')[0],
-        contract_end: ''
-      });
-      fetchContracts();
-    } catch (error: any) {
-      setError(error.message);
     }
   };
 
