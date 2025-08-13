@@ -35,7 +35,7 @@ export default function AdminContractsPanel() {
   const [success, setSuccess] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newContract, setNewContract] = useState({
-    user_email: '',
+    user_id: '',
     plan_type: 'bitcoin',
     billing_period: 'monthly',
     monthly_value: 0,
@@ -43,6 +43,8 @@ export default function AdminContractsPanel() {
     contract_start: new Date().toISOString().split('T')[0],
     contract_end: ''
   });
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   // Calculate contract end date based on billing period
   useEffect(() => {
@@ -63,7 +65,26 @@ export default function AdminContractsPanel() {
 
   useEffect(() => {
     fetchContracts();
+    fetchAvailableUsers();
   }, []);
+
+  const fetchAvailableUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, email, full_name')
+        .eq('is_active', true)
+        .order('full_name');
+
+      if (error) throw error;
+      setAvailableUsers(data || []);
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   const handleFileUpload = async (contractId: string, file: File) => {
     try {
@@ -131,15 +152,8 @@ export default function AdminContractsPanel() {
     try {
       setError(null);
       
-      // First, find the user by email
-      const { data: userProfile, error: userError } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('email', newContract.user_email.toLowerCase())
-        .single();
-
-      if (userError || !userProfile) {
-        throw new Error('Usuário não encontrado com este email. Verifique se o email está correto.');
+      if (!newContract.user_id) {
+        throw new Error('Selecione um usuário para criar o contrato.');
       }
 
       // Calculate contract end date
@@ -156,7 +170,7 @@ export default function AdminContractsPanel() {
       }
 
       const contractData = {
-        user_id: userProfile.id,
+        user_id: newContract.user_id,
         plan_type: newContract.plan_type,
         billing_period: newContract.billing_period,
         monthly_value: newContract.monthly_value,
@@ -182,7 +196,7 @@ export default function AdminContractsPanel() {
           plan_end_date: endDate.toISOString().split('T')[0],
           current_leverage: newContract.leverage_multiplier
         })
-        .eq('id', userProfile.id);
+        .eq('id', newContract.user_id);
 
       if (updateError) {
         console.warn('Warning updating user profile:', updateError);
@@ -191,7 +205,7 @@ export default function AdminContractsPanel() {
       setSuccess('Contrato criado com sucesso!');
       setShowAddModal(false);
       setNewContract({
-        user_email: '',
+        user_id: '',
         plan_type: 'bitcoin',
         billing_period: 'monthly',
         monthly_value: 0,
@@ -718,18 +732,27 @@ export default function AdminContractsPanel() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email do Cliente *
+                    Selecionar Cliente *
                   </label>
-                  <input
-                    type="email"
-                    value={newContract.user_email}
-                    onChange={(e) => setNewContract({...newContract, user_email: e.target.value})}
+                  <select
+                    value={newContract.user_id}
+                    onChange={(e) => setNewContract({...newContract, user_id: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="cliente@email.com"
                     required
-                  />
+                  >
+                    <option value="">Selecione um usuário</option>
+                    {loadingUsers ? (
+                      <option disabled>Carregando usuários...</option>
+                    ) : (
+                      availableUsers.map(user => (
+                        <option key={user.id} value={user.id}>
+                          {user.full_name || 'Nome não informado'} ({user.email}) - ID: {user.id.substring(0, 8)}
+                        </option>
+                      ))
+                    )}
+                  </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Email deve estar cadastrado no sistema
+                    Selecione o usuário para criar o contrato
                   </p>
                 </div>
 
