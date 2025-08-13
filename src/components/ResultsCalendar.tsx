@@ -534,7 +534,7 @@ const ResultsCalendar: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-xl font-bold text-orange-400">
-                        -{riskSettings.monthlyLossLimit.toFixed(1)}%
+                        -{(riskSettings.monthlyLossLimit || 15.0).toFixed(1)}%
                       </div>
                     )}
                   </div>
