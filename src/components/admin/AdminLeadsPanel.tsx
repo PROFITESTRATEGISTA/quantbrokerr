@@ -547,9 +547,16 @@ const AdminLeadsPanel: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
+                        onClick={() => handleContactLead(lead)}
+                        className="text-blue-600 hover:text-blue-800 mr-3"
+                        title="Contatar com mensagens padronizadas"
+                      >
+                        <Send className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => window.open(`https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${lead.full_name}, sou da Quant Broker. Vi seu interesse em nossos Portfólios de IA. Como posso ajudar?`, '_blank')}
                         className="text-green-600 hover:text-green-800"
-                        title="Contatar via WhatsApp"
+                        title="WhatsApp direto"
                       >
                         <MessageCircle className="h-4 w-4" />
                       </button>
