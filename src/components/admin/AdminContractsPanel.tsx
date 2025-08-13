@@ -301,6 +301,10 @@ export default function AdminContractsPanel() {
             email,
             full_name,
             phone
+          ),
+          supplier_contracts (
+            supplier_name,
+            supplier_email
           )
         `)
         .order('created_at', { ascending: false });
