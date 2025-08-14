@@ -58,11 +58,6 @@ const AdminContractsPanel: React.FC = () => {
   const [availableSuppliers, setAvailableSuppliers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
-  const [showBulkEmailModal, setShowBulkEmailModal] = useState(false);
-  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
-  const [bulkEmailSubject, setBulkEmailSubject] = useState('');
-  const [bulkEmailMessage, setBulkEmailMessage] = useState('');
-  const [sendingBulkEmail, setSendingBulkEmail] = useState(false);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Load users when modal opens
@@ -1220,6 +1215,133 @@ const AdminContractsPanel: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2 } from 'lucide-react';
+      )}
+                  Email Marketing em Massa
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Enviando para {selectedLeads.size} leads selecionados
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBulkEmailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Lista de Leads Selecionados */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-3">
+                  Leads Selecionados ({selectedLeads.size})
+                </h4>
+                <div className="max-h-32 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                    {filteredLeads
+                      .filter(lead => selectedLeads.has(lead.email))
+                      .map(lead => (
+                        <div key={lead.email} className="flex items-center text-blue-800">
+                          <CheckSquare className="h-3 w-3 mr-2" />
+                          {lead.full_name} ({lead.email})
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Assunto do Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Assunto do Email *
+                </label>
+                <input
+                  type="text"
+                  value={bulkEmailSubject}
+                  onChange={(e) => setBulkEmailSubject(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Assunto do email..."
+                  required
+                />
+              </div>
+
+              {/* Mensagem do Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mensagem do Email *
+                </label>
+                <textarea
+                  value={bulkEmailMessage}
+                  onChange={(e) => setBulkEmailMessage(e.target.value)}
+                  rows={12}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Digite sua mensagem personalizada..."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Use {'{nome}'} para personalizar com o nome do lead
+                </p>
+              </div>
+
+              {/* Preview da Mensagem */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preview da Mensagem (exemplo com primeiro lead)
+                </label>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-40 overflow-y-auto">
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                    {bulkEmailMessage.replace(
+                      /{nome}/g, 
+                      filteredLeads.find(lead => selectedLeads.has(lead.email))?.full_name || 'Nome do Lead'
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Aviso Importante */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+                  <div>
+                    <h4 className="font-semibold text-yellow-900">Importante</h4>
+                    <p className="text-yellow-800 text-sm">
+                      Esta funcionalidade simula o envio de emails. Para implementação real, 
+                      integre com um provedor de email como SendGrid, Mailgun ou AWS SES.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ações */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSendBulkEmail}
+                  disabled={sendingBulkEmail || !bulkEmailSubject.trim() || !bulkEmailMessage.trim() || selectedLeads.size === 0}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {sendingBulkEmail ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Enviando Emails...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Enviar Email para {selectedLeads.size} Leads
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowBulkEmailModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
