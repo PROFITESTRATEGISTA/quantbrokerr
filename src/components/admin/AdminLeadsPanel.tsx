@@ -1,386 +1,574 @@
-import React, { useState, useEffect } from 'react';
-import { Users, TrendingUp, Calendar, Mail, Phone, MessageCircle, Target, UserCheck, Clock, AlertCircle, CheckCircle, X, Send, Eye, Edit3, Plus, Copy } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2, Zap, CheckSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
-interface LeadSource {
-  email: string;
-  full_name: string;
-  phone: string;
-  source: 'user' | 'waitlist' | 'consultation';
+interface Contract {
+  id: string;
+  user_id: string;
+  plan_type: string;
+  billing_period: string;
+  monthly_value: number;
+  contract_start: string;
+  contract_end: string;
+  is_active: boolean;
+  leverage_multiplier: number;
+  contract_file_url?: string;
+  referral_partner_id?: string;
   created_at: string;
-  status?: string;
-  portfolio_type?: string;
-  consultation_type?: string;
-  lead_status?: string;
-  last_contact?: string;
-  notes?: string;
-  capital_available?: string;
+  updated_at: string;
+  user_profiles?: {
+    email: string;
+    full_name: string;
+    phone?: string;
+  };
+  supplier_contracts?: {
+    supplier_name: string;
+    supplier_email: string;
+  };
 }
 
-const AdminLeadsPanel: React.FC = () => {
-  const [leads, setLeads] = useState<LeadSource[]>([]);
-  const [uniqueLeads, setUniqueLeads] = useState<LeadSource[]>([]);
-  const [leadInteractions, setLeadInteractions] = useState<any[]>([]);
+const AdminContractsPanel: React.FC = () => {
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Contract>>({});
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellingContract, setCancellingContract] = useState<Contract | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [contractToRevoke, setContractToRevoke] = useState<Contract | null>(null);
+  const [revokeReason, setRevokeReason] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
+  const [uploadingContract, setUploadingContract] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filterSource, setFilterSource] = useState<'all' | 'user' | 'waitlist' | 'consultation'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<LeadSource | null>(null);
-  const [contactType, setContactType] = useState('boas_vindas');
-  const [customMessage, setCustomMessage] = useState('');
-  const [sendingMessage, setSendingMessage] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newContract, setNewContract] = useState({
+    user_id: '',
+    plan_type: 'bitcoin',
+    billing_period: 'monthly',
+    monthly_value: 0,
+    leverage_multiplier: 1,
+    referral_partner_id: '',
+    contract_start: new Date().toISOString().split('T')[0],
+    contract_end: ''
+  });
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(false);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+
+  // Load users when modal opens
+  useEffect(() => {
+    if (showAddModal) {
+      fetchAvailableUsers();
+      fetchAvailableSuppliers();
+    }
+  }, [showAddModal]);
+
+  // Calculate contract end date based on billing period
+  useEffect(() => {
+    if (newContract.contract_start) {
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.billing_period === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.billing_period === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        // Monthly - set to 1 month
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+      
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+      setNewContract(prev => ({ ...prev, contract_end: formattedEndDate }));
+    }
+  }, [newContract.billing_period, newContract.contract_start]);
 
   useEffect(() => {
-    fetchAllLeads();
+    fetchContracts();
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [leads, filterSource, searchTerm, statusFilter, leadStatuses]);
-
-  const fetchAllLeads = async () => {
+  const fetchAvailableUsers = async () => {
     try {
-      setLoading(true);
+      setLoadingUsers(true);
+      setError(null);
       
-      // Buscar dados de todas as fontes
-      const [usersResult, waitlistResult, consultationResult] = await Promise.all([
-        supabase.from('user_profiles').select('id, email, full_name, phone, created_at'),
-        supabase.from('waitlist_entries').select('id, email, full_name, phone, portfolio_type, status, capital_available, created_at'),
-        supabase.from('consultation_forms').select('id, email, full_name, phone, consultation_type, status, capital_available, created_at')
-      ]);
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, email, full_name')
+        .eq('is_active', true)
+        .order('full_name');
 
-      const allLeads: LeadSource[] = [];
-
-      // Adicionar usuários
-      if (usersResult.data) {
-        usersResult.data.forEach(user => {
-          allLeads.push({
-            email: user.email.toLowerCase(),
-            full_name: user.full_name || 'Nome não informado',
-            phone: user.phone || 'Telefone não informado',
-            source: 'user',
-            created_at: user.created_at,
-            capital_available: undefined
-          });
-        });
-      }
-
-      // Adicionar formulários de consultoria
-      if (consultationResult.data) {
-        consultationResult.data.forEach(form => {
-          allLeads.push({
-            email: form.email.toLowerCase(),
-            full_name: form.full_name,
-            phone: form.phone,
-            source: 'consultation',
-            created_at: form.created_at,
-            status: form.status,
-            consultation_type: form.consultation_type,
-            capital_available: form.capital_available
-          });
-        });
-      }
-
-      // Adicionar fila de espera
-      if (waitlistResult.data) {
-        waitlistResult.data.forEach(entry => {
-          allLeads.push({
-            email: entry.email.toLowerCase(),
-            full_name: entry.full_name,
-            phone: entry.phone,
-            source: 'waitlist',
-            created_at: entry.created_at,
-            status: entry.status,
-            portfolio_type: entry.portfolio_type,
-            capital_available: entry.capital_available
-          });
-        });
-      }
-      setLeads(allLeads);
-
-      // Criar lista de leads únicos (sem duplicação por email)
-      const uniqueLeadsMap = new Map<string, LeadSource>();
+      if (error) throw error;
       
-      // Ordenar por data de criação (mais antigo primeiro para manter o primeiro contato)
-      const sortedLeads = allLeads.sort((a, b) => 
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
+      console.log('✅ Users loaded:', data?.length || 0);
+      setAvailableUsers(data || []);
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      setError(`Erro ao carregar usuários: ${error.message}`);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
-      sortedLeads.forEach(lead => {
-        if (!uniqueLeadsMap.has(lead.email)) {
-          uniqueLeadsMap.set(lead.email, lead);
-        }
-      });
+  const fetchAvailableSuppliers = async () => {
+    try {
+      setLoadingSuppliers(true);
+      setError(null);
+      
+      const { data, error } = await supabase
+        .from('supplier_contracts')
+        .select('id, supplier_name, supplier_email, contract_type')
+        .eq('is_active', true)
+        .order('supplier_name');
 
-      setUniqueLeads(Array.from(uniqueLeadsMap.values()));
+      if (error) throw error;
+      
+      console.log('✅ Suppliers loaded:', data?.length || 0);
+      setAvailableSuppliers(data || []);
+    } catch (error: any) {
+      console.error('Error fetching suppliers:', error);
+      setError(`Erro ao carregar fornecedores: ${error.message}`);
+    } finally {
+      setLoadingSuppliers(false);
+    }
+  };
 
+  const handleFileUpload = async (contractId: string, file: File) => {
+    try {
+      setUploadingContract(contractId);
+      setError(null);
+
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        throw new Error('Apenas arquivos PDF são permitidos');
+      }
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('Arquivo muito grande. Máximo 10MB permitido');
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const fileName = `client-contracts/${timestamp}-${randomString}.pdf`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('client-contracts')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('client-contracts')
+        .getPublicUrl(fileName);
+
+      if (!urlData?.publicUrl) {
+        throw new Error('Erro ao obter URL do arquivo');
+      }
+
+      // Update contract with file URL
+      const { error: updateError } = await supabase
+        .from('client_contracts')
+        .update({ contract_file_url: urlData.publicUrl })
+        .eq('id', contractId);
+
+      if (updateError) {
+        // If database update fails, try to delete the uploaded file
+        await supabase.storage.from('client-contracts').remove([fileName]);
+        throw updateError;
+      }
+
+      setSuccess('Contrato anexado com sucesso!');
+      fetchContracts();
 
     } catch (error: any) {
+      console.error('Upload error:', error);
+      setError(error.message || 'Erro ao fazer upload do arquivo');
+    } finally {
+      setUploadingContract(null);
+    }
+  };
+
+  const handleAddContract = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setError(null);
+      
+      if (!newContract.user_id) {
+        throw new Error('Selecione um usuário para criar o contrato.');
+      }
+
+      // Calculate contract end date
+      const startDate = new Date(newContract.contract_start);
+      let endDate = new Date(startDate);
+      
+      if (newContract.billing_period === 'semiannual') {
+        endDate.setMonth(endDate.getMonth() + 6);
+      } else if (newContract.billing_period === 'annual') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        // Monthly - set to 1 month
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      const contractData = {
+        user_id: newContract.user_id,
+        plan_type: newContract.plan_type,
+        billing_period: newContract.billing_period,
+        monthly_value: newContract.monthly_value,
+        leverage_multiplier: newContract.leverage_multiplier,
+        contract_start: newContract.contract_start,
+        contract_end: endDate.toISOString().split('T')[0],
+        is_active: true,
+        referral_partner_id: newContract.referral_partner_id || null
+      };
+
+      const { error: insertError } = await supabase
+        .from('client_contracts')
+        .insert(contractData);
+
+      if (insertError) throw insertError;
+
+      // Update user profile with contracted plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: newContract.plan_type,
+          plan_status: 'active',
+          plan_start_date: newContract.contract_start,
+          plan_end_date: endDate.toISOString().split('T')[0],
+          current_leverage: newContract.leverage_multiplier
+        })
+        .eq('id', newContract.user_id);
+
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
+      }
+
+      setSuccess('Contrato criado com sucesso!');
+      setShowAddModal(false);
+      setNewContract({
+        user_id: '',
+        plan_type: 'bitcoin',
+        billing_period: 'monthly',
+        monthly_value: 0,
+        leverage_multiplier: 1,
+        referral_partner_id: '',
+        contract_start: new Date().toISOString().split('T')[0],
+        contract_end: ''
+      });
+      fetchContracts();
+    } catch (error: any) {
       setError(error.message);
+    }
+  };
+
+  const handleDeleteContractFile = async (contractId: string) => {
+    if (!confirm('Tem certeza que deseja excluir o arquivo do contrato?')) return;
+
+    try {
+      setError(null);
+      
+      // Get contract to find file URL
+      const contract = contracts.find(c => c.id === contractId);
+      if (!contract?.contract_file_url) {
+        setError('Nenhum arquivo encontrado para excluir');
+        return;
+      }
+
+      // Extract file path from URL
+      const url = new URL(contract.contract_file_url);
+      const filePath = url.pathname.split('/').pop();
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: deleteError } = await supabase.storage
+          .from('client-contracts')
+          .remove([`client-contracts/${filePath}`]);
+
+        if (deleteError) {
+          console.warn('Warning deleting file:', deleteError);
+        }
+      }
+
+      // Update contract to remove file URL
+      const { error: updateError } = await supabase
+        .from('client_contracts')
+        .update({ contract_file_url: null })
+        .eq('id', contractId);
+
+      if (updateError) throw updateError;
+
+      setSuccess('Arquivo do contrato excluído com sucesso!');
+      fetchContracts();
+    } catch (error: any) {
+      console.error('Delete file error:', error);
+      setError(error.message || 'Erro ao excluir arquivo do contrato');
+    }
+  };
+
+  const fetchContracts = async () => {
+    try {
+      const { data: contractsWithUsers, error } = await supabase
+        .from('client_contracts')
+        .select(`
+          *,
+          user_profiles (
+            email,
+            full_name,
+            phone
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setContracts(contractsWithUsers || []);
+    } catch (error) {
+      console.error('Erro ao buscar contratos:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchLeadInteractions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('lead_interactions')
-        .select('*');
-
-      if (error) throw error;
-      setLeadInteractions(data || []);
-    } catch (error: any) {
-      console.error('Error fetching lead interactions:', error);
-    }
+  const handleEdit = (contract: Contract) => {
+    setEditingId(contract.id);
+    setEditForm(contract);
   };
 
-  const applyFilters = () => {
-    let filtered = [...uniqueLeads];
+  const handleSave = async () => {
+    if (!editingId) return;
 
-    // Filter by source
-    if (filterSource !== 'all') {
-      filtered = filtered.filter(lead => lead.source === filterSource);
-    }
-
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(lead => {
-        const currentStatus = leadStatuses[lead.email] || 'sem_contato';
-        return currentStatus === statusFilter;
-      });
-    }
-
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(lead =>
-        lead.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm)
-      );
-    }
-
-    return filtered;
-  };
-
-  const filteredLeads = applyFilters();
-
-  const statusOptions = [
-    { value: 'sem_contato', label: 'Sem Contato', color: 'bg-gray-100 text-gray-800' },
-    { value: 'contatado', label: 'Contatado', color: 'bg-blue-100 text-blue-800' },
-    { value: 'respondeu', label: 'Respondeu', color: 'bg-green-100 text-green-800' },
-    { value: 'interessado', label: 'Interessado', color: 'bg-purple-100 text-purple-800' },
-    { value: 'reuniao_agendada', label: 'Reunião Agendada', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'convertido', label: 'Convertido', color: 'bg-green-100 text-green-800' },
-    { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-100 text-red-800' }
-  ];
-
-  const contactTypes = [
-    {
-      value: 'boas_vindas',
-      label: 'Boas-vindas',
-      message: 'Olá {nome}! 👋 Sou da Quant Broker e vi seu interesse em nossos Portfólios de IA. Bem-vindo(a)! Estou aqui para esclarecer qualquer dúvida sobre copy trading automatizado. Como posso ajudar?'
-    },
-    {
-      value: 'follow_up',
-      label: 'Follow-up',
-      message: 'Oi {nome}! Como está? Queria saber se teve chance de analisar nossos Portfólios de IA. Temos resultados muito interessantes para mostrar. Posso te ajudar com alguma dúvida específica?'
-    },
-    {
-      value: 'apresentacao',
-      label: 'Apresentação',
-      message: 'Olá {nome}! Que tal conhecer nossos resultados reais? Posso fazer uma apresentação rápida (15 min) mostrando a performance dos Portfólios de IA e como funciona o copy trading via Mosaico BTG. Quando seria um bom horário?'
-    },
-    {
-      value: 'convite_reuniao',
-      label: 'Convite Reunião',
-      message: 'Oi {nome}! Gostaria de agendar uma reunião personalizada para mostrar como nossos Portfólios de IA podem se adequar ao seu perfil? É gratuito e sem compromisso. Que dia/horário seria melhor para você?'
-    },
-    {
-      value: 'mostrar_resultados',
-      label: 'Mostrar Resultados',
-      message: 'Olá {nome}! Temos resultados frescos dos Portfólios de IA deste mês. Os números estão muito bons! Quer dar uma olhada? Posso enviar um resumo ou fazer uma call rápida para explicar.'
-    },
-    {
-      value: 'personalizada',
-      label: 'Mensagem Personalizada',
-      message: ''
-    }
-  ];
-
-  const updateLeadStatus = async (email: string, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from('lead_interactions')
-        .upsert({
-          lead_email: email.toLowerCase(),
-          lead_source: leads.find(l => l.email === email)?.source || 'user',
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'lead_email'
-        });
+        .from('client_contracts')
+        .update(editForm)
+        .eq('id', editingId);
 
       if (error) throw error;
-      
-      await fetchLeadInteractions();
-      setSuccess('Status atualizado com sucesso!');
-    } catch (error: any) {
-      setError(error.message || 'Erro desconhecido ao atualizar status.');
+
+      await fetchContracts();
+      setEditingId(null);
+      setEditForm({});
+    } catch (error) {
+      console.error('Erro ao atualizar contrato:', error);
     }
   };
 
-  const handleContactLead = (lead: LeadSource) => {
-    setSelectedLead(lead);
-    setShowContactModal(true);
-    setContactType('boas_vindas');
-    setCustomMessage('');
-    setError(null);
-    setSuccess(null);
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditForm({});
   };
 
-  const getMessagePreview = () => {
-    if (!selectedLead) return '';
-    
-    const selectedType = contactTypes.find(t => t.value === contactType);
-    if (!selectedType) return '';
-    
-    if (contactType === 'personalizada') {
-      return customMessage;
-    }
-    
-    return selectedType.message.replace('{nome}', selectedLead.full_name);
+  const handleCancelContract = (contract: Contract) => {
+    setCancellingContract(contract);
+    setShowCancelModal(true);
   };
 
-  const handleSendMessage = async () => {
-    if (!selectedLead) return;
-    
+  const confirmCancelContract = async () => {
+    if (!cancellingContract || !cancelReason.trim()) return;
+
     try {
-      setSendingMessage(true);
-      setError(null);
-      const message = getMessagePreview();
-      
-      if (!message.trim()) {
-        setError('Selecione um tipo de atendimento ou digite uma mensagem personalizada');
-        return;
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', cancellingContract.id);
+
+      if (error) throw error;
+
+      await fetchContracts();
+      setShowCancelModal(false);
+      setCancellingContract(null);
+      setCancelReason('');
+    } catch (error) {
+      console.error('Erro ao cancelar contrato:', error);
+    }
+  };
+
+  const handleRevokeContract = async () => {
+    if (!contractToRevoke || !revokeReason.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('client_contracts')
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', contractToRevoke.id);
+
+      if (error) throw error;
+
+      // Update user profile to reset plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: 'none',
+          plan_status: 'inactive',
+          current_leverage: 1
+        })
+        .eq('id', contractToRevoke.user_id);
+
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
       }
-      
-      // Atualizar status do lead para "contatado"
-      setLeadStatuses(prev => ({
-        ...prev,
-        [selectedLead.email]: 'contatado'
-      }));
-      
-      // Atualizar status do lead para "contatado"
-      setLeadStatuses(prev => ({
-        ...prev,
-        [selectedLead.email]: 'contatado'
-      }));
-      
-      // Abrir WhatsApp com mensagem
-      const phoneNumber = selectedLead.phone.replace(/\D/g, '');
-      const formattedPhone = phoneNumber.startsWith('55') ? phoneNumber : `55${phoneNumber}`;
-      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-      
-      console.log('📱 Opening WhatsApp with:', {
-        phone: formattedPhone,
-        message: message.substring(0, 50) + '...'
-      });
-      
-      window.open(whatsappUrl, '_blank');
-      
-      setSuccess('Mensagem enviada! Status atualizado para "Contatado".');
-      setSuccess('Mensagem enviada! Status atualizado para "Contatado".');
-      setShowContactModal(false);
-      
+
+      setSuccess('Contrato revogado com sucesso!');
+      await fetchContracts();
+      setShowRevokeModal(false);
+      setContractToRevoke(null);
+      setRevokeReason('');
     } catch (error: any) {
-      console.error('❌ Error sending message:', error);
-      setError(error.message || 'Erro ao abrir WhatsApp. Verifique se o número está correto.');
-    } finally {
-      setSendingMessage(false);
+      setError(error.message);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const statusOption = statusOptions.find(s => s.value === status);
-    return statusOption?.color || 'bg-gray-100 text-gray-800';
+  const handleDeleteContract = async () => {
+    if (!contractToDelete) return;
+
+    try {
+      // Delete contract file if exists
+      if (contractToDelete.contract_file_url) {
+        const url = new URL(contractToDelete.contract_file_url);
+        const filePath = url.pathname.split('/').pop();
+        
+        if (filePath) {
+          await supabase.storage
+            .from('client-contracts')
+            .remove([`client-contracts/${filePath}`]);
+        }
+      }
+
+      // Delete contract from database
+      const { error } = await supabase
+        .from('client_contracts')
+        .delete()
+        .eq('id', contractToDelete.id);
+
+      if (error) throw error;
+
+      // Update user profile to reset plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: 'none',
+          plan_status: 'inactive',
+          current_leverage: 1
+        })
+        .eq('id', contractToDelete.user_id);
+
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
+      }
+
+      setSuccess('Contrato excluído permanentemente!');
+      await fetchContracts();
+      setShowDeleteModal(false);
+      setContractToDelete(null);
+    } catch (error: any) {
+      setError(error.message);
+    }
   };
 
-  const getStatusLabel = (status: string) => {
-    const statusOption = statusOptions.find(s => s.value === status);
-    return statusOption?.label || status;
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
   };
 
-  const getSourceDisplayName = (source: string) => {
-    const names = {
-      'user': 'Usuário Cadastrado',
-      'waitlist': 'Fila de Espera',
-      'consultation': 'Formulário Consultoria'
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const getPlanTypeLabel = (planType: string) => {
+    const labels: { [key: string]: string } = {
+      'bitcoin': 'Bitcoin',
+      'mini-indice': 'Mini Índice',
+      'mini-dolar': 'Mini Dólar',
+      'portfolio-completo': 'Portfólio Completo'
     };
-    return names[source as keyof typeof names] || source;
+    return labels[planType] || planType;
   };
 
-  const getSourceColor = (source: string) => {
-    switch (source) {
-      case 'user': return 'bg-blue-100 text-blue-800';
-      case 'waitlist': return 'bg-orange-100 text-orange-800';
-      case 'consultation': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getBillingPeriodLabel = (period: string) => {
+    const labels: { [key: string]: string } = {
+      'monthly': 'Mensal',
+      'semiannual': 'Semestral',
+      'annual': 'Anual'
+    };
+    return labels[period] || period;
   };
-
-  const getSourceIcon = (source: string) => {
-    switch (source) {
-      case 'user': return Users;
-      case 'waitlist': return Clock;
-      case 'consultation': return Calendar;
-      default: return Users;
-    }
-  };
-
-  // Calculate metrics
-  const totalUniqueLeads = uniqueLeads.length;
-  const userLeads = uniqueLeads.filter(l => l.source === 'user').length;
-  const waitlistLeads = uniqueLeads.filter(l => l.source === 'waitlist').length;
-  const consultationLeads = uniqueLeads.filter(l => l.source === 'consultation').length;
-
-  // Calculate leads this month
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-  const thisMonthLeads = uniqueLeads.filter(lead => {
-    const leadDate = new Date(lead.created_at);
-    return leadDate.getMonth() === currentMonth && leadDate.getFullYear() === currentYear;
-  }).length;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
+  const activeContracts = contracts.filter(c => c.is_active);
+  const cancelledContracts = contracts.filter(c => !c.is_active);
+  const totalContracts = contracts.length;
+  const churnRate = totalContracts > 0 ? (cancelledContracts.length / totalContracts) * 100 : 0;
+
+  // Churn mensal (últimos 30 dias)
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const recentCancellations = cancelledContracts.filter(c => 
+    new Date(c.updated_at) >= thirtyDaysAgo
+  );
+  const monthlyChurnRate = totalContracts > 0 ? (recentCancellations.length / totalContracts) * 100 : 0;
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <Target className="h-8 w-8 text-green-600 mr-3" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Central de Leads</h2>
-            <p className="text-gray-600">Leads únicos de todas as fontes (sem duplicação por email)</p>
-          </div>
+      {/* Métricas de Churn */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <h3 className="text-sm font-medium text-gray-500">Contratos Ativos</h3>
+          <p className="text-2xl font-bold text-green-600">{activeContracts.length}</p>
         </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <h3 className="text-sm font-medium text-gray-500">Contratos Cancelados</h3>
+          <p className="text-2xl font-bold text-red-600">{cancelledContracts.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <h3 className="text-sm font-medium text-gray-500">Taxa de Churn Total</h3>
+          <p className="text-2xl font-bold text-red-600">{churnRate.toFixed(1)}%</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <h3 className="text-sm font-medium text-gray-500">Churn Mensal (30d)</h3>
+          <p className="text-2xl font-bold text-orange-600">{monthlyChurnRate.toFixed(1)}%</p>
+        </div>
+      </div>
+
+      {/* Botão Criar Contrato */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Criar Contrato
+        </button>
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
           <AlertCircle className="h-5 w-5 mr-2" />
           {error}
           <button onClick={() => setError(null)} className="ml-auto text-red-500 hover:text-red-700">×</button>
@@ -388,417 +576,377 @@ const AdminLeadsPanel: React.FC = () => {
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+        <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
           <CheckCircle className="h-5 w-5 mr-2" />
           {success}
           <button onClick={() => setSuccess(null)} className="ml-auto text-green-500 hover:text-green-700">×</button>
         </div>
       )}
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
-          <div className="flex items-center">
-            <Target className="h-8 w-8 text-green-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Leads Únicos</p>
-              <p className="text-2xl font-bold text-green-600">{totalUniqueLeads}</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <Users className="h-8 w-8 text-blue-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Usuários</p>
-              <p className="text-2xl font-bold text-blue-600">{userLeads}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <Clock className="h-8 w-8 text-orange-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Fila de Espera</p>
-              <p className="text-2xl font-bold text-orange-600">{waitlistLeads}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-blue-600" />
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Leads Este Mês</p>
-              <p className="text-2xl font-bold text-blue-600">{thisMonthLeads}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Filtros</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Buscar por nome, email ou telefone..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Fonte</label>
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value as any)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">Todas as Fontes</option>
-              <option value="user">Usuários Cadastrados</option>
-              <option value="waitlist">Fila de Espera</option>
-              <option value="consultation">Formulários Consultoria</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">Todos os Status</option>
-              <option value="sem_contato">Sem Contato</option>
-              <option value="contatado">Contatado</option>
-              <option value="respondeu">Respondeu</option>
-              <option value="interessado">Interessado</option>
-              <option value="reuniao_agendada">Reunião Agendada</option>
-              <option value="convertido">Convertido</option>
-              <option value="nao_interessado">Não Interessado</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Leads Table */}
-      <div className="bg-white rounded-lg shadow-sm">
+      {/* Tabela de Contratos */}
+      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Lista de Leads Únicos ({filteredLeads.length} de {totalUniqueLeads})
-          </h3>
-          <p className="text-sm text-gray-600">
-            Todos os leads únicos por email, sem duplicação entre fontes
-          </p>
+          <h2 className="text-lg font-semibold text-gray-900">Contratos de Clientes</h2>
         </div>
-
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fonte</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capital</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalhes</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Registro</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cliente
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nome do Usuário
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Plano
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Valor
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Alavancagem
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Período
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contrato
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLeads.map((lead, index) => {
-                const SourceIcon = getSourceIcon(lead.source);
-                
-                return (
-                  <tr key={`${lead.email}-${index}`} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {lead.full_name.charAt(0).toUpperCase()}
+              {contracts.map((contract) => (
+                <tr key={contract.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">
+                        {contract.user_profiles?.email || 'Email não encontrado'}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        ID: {contract.user_id.substring(0, 8)}...
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">
+                        {contract.user_profiles?.full_name || 'Nome não cadastrado'}
+                      </div>
+                      {contract.user_profiles?.phone && (
+                        <div className="text-gray-500 text-xs">
+                          {contract.user_profiles.phone}
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{lead.full_name}</div>
-                          <div className="text-sm text-gray-500">{lead.email}</div>
-                          <div className="text-sm text-gray-500">{lead.phone}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${
-                          lead.source === 'user' ? 'bg-blue-100' :
-                          lead.source === 'waitlist' ? 'bg-orange-100' : 'bg-purple-100'
-                        }`}>
-                          <SourceIcon className={`h-4 w-4 ${
-                            lead.source === 'user' ? 'text-blue-600' :
-                            lead.source === 'waitlist' ? 'text-orange-600' : 'text-purple-600'
-                          }`} />
-                        </div>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getSourceColor(lead.source)}`}>
-                          {getSourceDisplayName(lead.source)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">
-                        {lead.capital_available ? (
-                          <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                            {lead.capital_available}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 text-xs">Não informado</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        {lead.portfolio_type && (
-                          <div className="text-gray-900 font-medium">
-                            Interesse: {lead.portfolio_type}
-                          </div>
-                        )}
-                        {lead.consultation_type && (
-                          <div className="text-gray-900 font-medium">
-                            Consultoria: {lead.consultation_type}
-                          </div>
-                        )}
-                        {lead.status && (
-                          <div className="text-gray-500 text-xs">
-                            Status: {lead.status}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {editingId === contract.id ? (
                       <select
-                        value={leadStatuses[lead.email] || 'sem_contato'}
-                        onChange={(e) => setLeadStatuses(prev => ({
-                          ...prev,
-                          [lead.email]: e.target.value
-                        }))}
-                        className={`text-xs px-2 py-1 rounded-full border-0 ${getStatusColor(leadStatuses[lead.email] || 'sem_contato')}`}
+                        value={editForm.plan_type || ''}
+                        onChange={(e) => setEditForm({ ...editForm, plan_type: e.target.value })}
+                        className="text-sm border rounded px-2 py-1"
                       >
-                        {statusOptions.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
+                        <option value="bitcoin">Bitcoin</option>
+                        <option value="mini-indice">Mini Índice</option>
+                        <option value="mini-dolar">Mini Dólar</option>
+                        <option value="portfolio-completo">Portfólio Completo</option>
                       </select>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+                    ) : (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {getPlanTypeLabel(contract.plan_type)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {editingId === contract.id ? (
+                      <input
+                        type="number"
+                        value={editForm.monthly_value || ''}
+                        onChange={(e) => setEditForm({ ...editForm, monthly_value: parseFloat(e.target.value) })}
+                        className="text-sm border rounded px-2 py-1 w-24"
+                      />
+                    ) : (
+                      <div>
+                        <div className="font-medium">{formatCurrency(contract.monthly_value)}</div>
+                        <div className="text-gray-500 text-xs">{getBillingPeriodLabel(contract.billing_period)}</div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(lead.created_at).toLocaleTimeString('pt-BR', { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleContactLead(lead)}
-                        className="text-blue-600 hover:text-blue-800 mr-3"
-                        title="Contatar com mensagens padronizadas"
-                      >
-                        <Send className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => window.open(`https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${lead.full_name}, sou da Quant Broker. Vi seu interesse em nossos Portfólios de IA. Como posso ajudar?`, '_blank')}
-                        className="text-green-600 hover:text-green-800"
-                        title="WhatsApp direto"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {editingId === contract.id ? (
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={editForm.leverage_multiplier || ''}
+                        onChange={(e) => setEditForm({ ...editForm, leverage_multiplier: parseInt(e.target.value) })}
+                        className="text-sm border rounded px-2 py-1 w-16"
+                      />
+                    ) : (
+                      <span className="font-medium">{contract.leverage_multiplier}x</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div>
+                      <div>{formatDate(contract.contract_start)}</div>
+                      <div className="text-gray-500">até {formatDate(contract.contract_end)}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      contract.is_active 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {contract.is_active ? 'Ativo' : 'Cancelado'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-2">
+                      {contract.contract_file_url ? (
+                        <>
+                          <a
+                            href={contract.contract_file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            <FileText className="h-4 w-4" />
+                            Ver PDF
+                          </a>
+                          <button
+                            onClick={() => handleDeleteContractFile(contract.id)}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                            title="Excluir arquivo do contrato"
+                          >
+                            Excluir
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-sm text-gray-500">Não anexado</span>
+                      )}
+                      
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleFileUpload(contract.id, file);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                        <div className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors">
+                          {uploadingContract === contract.id ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                          ) : (
+                            <>
+                              <Upload className="h-3 w-3" />
+                              <span>Anexar PDF</span>
+                            </>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2">
+                      {editingId === contract.id ? (
+                        <>
+                          <button
+                            onClick={handleSave}
+                            className="text-green-600 hover:text-green-900"
+                            title="Salvar alterações"
+                          >
+                            <Save className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Cancelar edição"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(contract)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Editar contrato"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          {contract.is_active && (
+                            <button
+                              onClick={() => handleCancelContract(contract)}
+                              className="text-orange-600 hover:text-orange-900"
+                              title="Cancelar contrato"
+                            >
+                              <UserX className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setContractToRevoke(contract);
+                              setShowRevokeModal(true);
+                            }}
+                            className="text-orange-600 hover:text-orange-900"
+                            title="Revogar contrato (desativar mas manter histórico)"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setContractToDelete(contract);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                            title="Excluir contrato permanentemente"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
-        {filteredLeads.length === 0 && (
+        {contracts.length === 0 && (
           <div className="text-center py-12">
-            <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {searchTerm || filterSource !== 'all' ? 'Nenhum lead encontrado' : 'Nenhum lead cadastrado'}
-            </h3>
-            <p className="text-gray-600">
-              {searchTerm || filterSource !== 'all' 
-                ? 'Tente ajustar os filtros de busca' 
-                : 'Os leads aparecerão aqui conforme forem sendo captados'
-              }
-            </p>
+            <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum contrato encontrado</h3>
+            <p className="text-gray-600 mb-4">Comece criando seu primeiro contrato de cliente</p>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Criar Primeiro Contrato
+            </button>
           </div>
         )}
       </div>
 
-      {/* Lead Sources Breakdown */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribuição por Fonte</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Users className="h-8 w-8 text-blue-600" />
+      {/* Modal de Cancelamento */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Cancelar Contrato</h3>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <div className="text-2xl font-bold text-blue-600">{userLeads}</div>
-            <div className="text-sm text-gray-600">Usuários Cadastrados</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {totalUniqueLeads > 0 ? ((userLeads / totalUniqueLeads) * 100).toFixed(1) : 0}% do total
+            
+            <p className="text-gray-600 mb-4">
+              Tem certeza que deseja cancelar o contrato de{' '}
+              <strong>{cancellingContract?.user_profiles?.full_name || 'usuário'}</strong>?
+            </p>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Motivo do cancelamento *
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                rows={3}
+                placeholder="Descreva o motivo do cancelamento..."
+                required
+              />
             </div>
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Clock className="h-8 w-8 text-orange-600" />
-            </div>
-            <div className="text-2xl font-bold text-orange-600">{waitlistLeads}</div>
-            <div className="text-sm text-gray-600">Fila de Espera</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {totalUniqueLeads > 0 ? ((waitlistLeads / totalUniqueLeads) * 100).toFixed(1) : 0}% do total
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Calendar className="h-8 w-8 text-purple-600" />
-            </div>
-            <div className="text-2xl font-bold text-purple-600">{consultationLeads}</div>
-            <div className="text-sm text-gray-600">Formulários Consultoria</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {totalUniqueLeads > 0 ? ((consultationLeads / totalUniqueLeads) * 100).toFixed(1) : 0}% do total
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmCancelContract}
+                disabled={!cancelReason.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirmar Cancelamento
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Modal de Contato */}
-      {showContactModal && selectedLead && (
+      {/* Modal de Revogação */}
+      {showRevokeModal && contractToRevoke && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Contatar Lead
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {selectedLead.full_name} • {selectedLead.email}
-                </p>
-              </div>
+              <h2 className="text-xl font-bold text-gray-900">Revogar Contrato</h2>
               <button
-                onClick={() => setShowContactModal(false)}
+                onClick={() => setShowRevokeModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* Tipo de Atendimento */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tipo de Atendimento
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {contactTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      type="button"
-                      onClick={() => {
-                        setContactType(type.value);
-                        if (type.value !== 'personalizada') {
-                          setCustomMessage('');
-                        }
-                      }}
-                      className={`p-3 border-2 rounded-lg transition-all text-left ${
-                        contactType === type.value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
-                    >
-                      <div className="text-sm font-medium">{type.label}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mensagem Personalizada */}
-              {contactType === 'personalizada' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mensagem Personalizada
-                  </label>
-                  <textarea
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Digite sua mensagem personalizada..."
-                  />
-                </div>
-              )}
-
-              {/* Preview da Mensagem */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preview da Mensagem
-                </label>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {getMessagePreview() || 'Selecione um tipo de atendimento para ver a mensagem'}
+            <div className="p-6 space-y-4">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Ban className="h-5 w-5 text-orange-600 mr-2" />
+                  <div>
+                    <p className="text-orange-800 text-sm font-medium">
+                      Revogar contrato de {contractToRevoke.user_profiles?.full_name}
+                    </p>
+                    <p className="text-orange-700 text-xs">
+                      O contrato será desativado mas mantido no histórico
+                    </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => navigator.clipboard.writeText(getMessagePreview())}
-                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
-                >
-                  <Copy className="h-3 w-3 mr-1" />
-                  Copiar mensagem
-                </button>
               </div>
 
-
-              {/* Status Atual */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-900 mb-2">Status Atual do Lead</h4>
-                <p className="text-sm text-blue-800">
-                  Status atual: <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(leadStatuses[selectedLead.email] || 'sem_contato')}`}>
-                    {getStatusLabel(leadStatuses[selectedLead.email] || 'sem_contato')}
-                  </span>
-                </p>
-                <p className="text-xs text-blue-700 mt-1">
-                  Após enviar a mensagem, o status será automaticamente alterado para "Contatado".
-                </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Motivo da Revogação *
+                </label>
+                <textarea
+                  value={revokeReason}
+                  onChange={(e) => setRevokeReason(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Descreva o motivo da revogação..."
+                  rows={4}
+                  required
+                />
               </div>
 
-              {/* Ações */}
               <div className="flex gap-3">
                 <button
-                  onClick={handleSendMessage}
-                  disabled={sendingMessage || !getMessagePreview()}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  onClick={handleRevokeContract}
+                  disabled={!revokeReason.trim()}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {sendingMessage ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Enviar via WhatsApp
-                    </>
-                  )}
+                  Confirmar Revogação
                 </button>
                 <button
-                  onClick={() => setShowContactModal(false)}
+                  onClick={() => setShowRevokeModal(false)}
                   className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
                 >
                   Cancelar
@@ -808,8 +956,270 @@ const AdminLeadsPanel: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Exclusão */}
+      {showDeleteModal && contractToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Excluir Contrato</h2>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Trash2 className="h-5 w-5 text-red-600 mr-2" />
+                  <div>
+                    <p className="text-red-800 text-sm font-medium">
+                      Excluir permanentemente o contrato de {contractToDelete.user_profiles?.full_name}
+                    </p>
+                    <p className="text-red-700 text-xs">
+                      ⚠️ Esta ação não pode ser desfeita! O contrato será removido completamente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 className="font-semibold text-yellow-900 mb-2">Consequências da Exclusão:</h4>
+                <ul className="text-sm text-yellow-800 space-y-1">
+                  <li>• Contrato será removido permanentemente do banco de dados</li>
+                  <li>• Plano do usuário será resetado para "none"</li>
+                  <li>• Alavancagem será resetada para 1x</li>
+                  <li>• Histórico de pagamentos será perdido</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteContract}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Confirmar Exclusão
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Contract Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Criar Novo Contrato</h2>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddContract} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Selecionar Cliente *
+                  </label>
+                  {loadingUsers && (
+                    <div className="text-sm text-blue-600 mb-2">
+                      Carregando usuários...
+                    </div>
+                  )}
+                  <select
+                    value={newContract.user_id}
+                    onChange={(e) => setNewContract({...newContract, user_id: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loadingUsers}
+                    required
+                  >
+                    <option value="">
+                      {loadingUsers ? 'Carregando usuários...' : 'Selecione um usuário'}
+                    </option>
+                    {loadingUsers ? (
+                      <option disabled>Aguarde...</option>
+                    ) : (
+                      availableUsers.map(user => (
+                        <option key={user.id} value={user.id}>
+                          {user.full_name || 'Nome não informado'} ({user.email}) - ID: {user.id.substring(0, 8)}...
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {availableUsers.length > 0 
+                      ? `${availableUsers.length} usuários disponíveis` 
+                      : 'Nenhum usuário encontrado'
+                    }
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Plano *
+                  </label>
+                  <select
+                    value={newContract.plan_type}
+                    onChange={(e) => setNewContract({...newContract, plan_type: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="bitcoin">Bitcoin</option>
+                    <option value="mini-indice">Mini Índice</option>
+                    <option value="mini-dolar">Mini Dólar</option>
+                    <option value="portfolio-completo">Portfólio Completo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Período de Cobrança *
+                  </label>
+                  <select
+                    value={newContract.billing_period}
+                    onChange={(e) => setNewContract({...newContract, billing_period: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="monthly">Mensal</option>
+                    <option value="semiannual">Semestral</option>
+                    <option value="annual">Anual</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Valor Mensal (R$) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newContract.monthly_value}
+                    onChange={(e) => setNewContract({...newContract, monthly_value: parseFloat(e.target.value) || 0})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Multiplicador de Alavancagem *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={newContract.leverage_multiplier}
+                    onChange={(e) => setNewContract({...newContract, leverage_multiplier: parseInt(e.target.value) || 1})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Parceiro de Indicação (Opcional)
+                  </label>
+                  {loadingSuppliers && (
+                    <div className="text-sm text-blue-600 mb-2">
+                      Carregando fornecedores...
+                    </div>
+                  )}
+                  <select
+                    value={newContract.referral_partner_id}
+                    onChange={(e) => setNewContract({...newContract, referral_partner_id: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={loadingSuppliers}
+                  >
+                    <option value="">
+                      {loadingSuppliers ? 'Carregando fornecedores...' : 'Nenhum parceiro (indicação direta)'}
+                    </option>
+                    {availableSuppliers.map(supplier => (
+                      <option key={supplier.id} value={supplier.id}>
+                        {supplier.supplier_name} ({supplier.supplier_email}) - {supplier.contract_type}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {availableSuppliers.length > 0 
+                      ? `${availableSuppliers.length} parceiros disponíveis` 
+                      : 'Nenhum fornecedor ativo encontrado'
+                    }
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Fim do Contrato
+                    {newContract.billing_period === 'monthly' 
+                      ? ' (calculado automaticamente)' 
+                      : ' (calculado automaticamente) *'
+                    }
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={newContract.contract_end}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-blue-50 text-gray-700"
+                      readOnly
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <Calendar className="h-5 w-5 text-blue-500" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Data calculada automaticamente: {newContract.billing_period === 'semiannual' ? '+6 meses' : newContract.billing_period === 'annual' ? '+1 ano' : '+1 mês'} da data de início
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Informações do Contrato</h4>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>• O contrato será criado para o usuário com o email informado</p>
+                  <p>• A data de fim será calculada automaticamente baseada no período</p>
+                  <p>• O perfil do usuário será atualizado com o plano contratado</p>
+                  <p>• A alavancagem será aplicada automaticamente</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Criar Contrato
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AdminLeadsPanel;
+export default AdminContractsPanel;
