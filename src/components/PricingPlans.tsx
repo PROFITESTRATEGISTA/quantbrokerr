@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Check, Star, TrendingUp, Shield, Building2, Settings, Eye, EyeOff, MessageCircle } from 'lucide-react';
+import { Check, Star, TrendingUp, Shield, Building2, Settings, Eye, EyeOff, MessageCircle, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import WaitlistModal from './WaitlistModal';
 import { useAuth } from '../hooks/useAuth';
@@ -426,6 +426,17 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   {getButtonText(plan.id)}
                 </button>
 
+                {/* CTA para Ver Resultados */}
+                <button
+                  onClick={() => {
+                    // Redirect to results page (requires login)
+                    window.location.href = '/resultados';
+                  }}
+                  className="w-full mt-2 py-2 px-4 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-all flex items-center justify-center text-sm sm:text-base"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Ver Resultados Detalhados
+                </button>
                 {/* WhatsApp button for semiannual and annual plans */}
                 {(billingPeriod === 'semiannual' || billingPeriod === 'annual') && plan.isAvailable && (
                   <button
@@ -526,6 +537,66 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             </div>
           </div>
 
+          {/* B3 Emoluments Alert */}
+          <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                <span className="text-blue-600 font-bold text-xl">📊</span>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">
+                  📈 Custos Operacionais B3 (Emolumentos)
+                </h3>
+                <p className="text-blue-800 text-sm">
+                  Além dos custos da plataforma, existem taxas operacionais da B3 por operação
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-blue-300 mb-4">
+              <h4 className="font-semibold text-gray-900 mb-3">💰 Emolumentos B3 por Operação:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="font-medium text-blue-900 mb-1">Bitcoin Futuro</div>
+                  <div className="text-blue-700">Conforme tabela B3</div>
+                  <div className="text-xs text-blue-600">Varia por volume</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="font-medium text-blue-900 mb-1">Mini Índice</div>
+                  <div className="text-blue-700">Conforme tabela B3</div>
+                  <div className="text-xs text-blue-600">Varia por volume</div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="font-medium text-blue-900 mb-1">Mini Dólar</div>
+                  <div className="text-blue-700">Conforme tabela B3</div>
+                  <div className="text-xs text-blue-600">Varia por volume</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-cyan-100 border border-cyan-300 rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-cyan-900 mb-2">📋 Informações Importantes:</h4>
+              <ul className="text-sm text-cyan-800 space-y-1">
+                <li>• Os emolumentos são cobrados pela B3 diretamente na sua conta</li>
+                <li>• Valores variam conforme volume operado e tipo de ativo</li>
+                <li>• Consulte a tabela oficial em: <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
+                <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
+              </ul>
+            </div>
+            
+            <div className="text-center">
+              <button
+                onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                Falar com Consultor Quant Broker
+              </button>
+              <p className="text-xs text-blue-700 mt-2">
+                Entenda todos os custos, resultados e metodologia no detalhe
+              </p>
+            </div>
+          </div>
           <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Comparativo Rápido dos Portfólios
