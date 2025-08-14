@@ -6,6 +6,23 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
+  const [currentTitleIndex, setCurrentTitleIndex] = React.useState(0);
+  
+  const titleVariations = [
+    "Portfólios de IA Quant Broker - Copy Trading Automatizado",
+    "Copie Algoritmos Institucionais - Copy Trading Automatizado", 
+    "Copie Algoritmos Quantitativos - Copy Trading Automatizado",
+    "Copie Algoritmos Inteligentes - Copy Trading Automatizado"
+  ];
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTitleIndex((prev) => (prev + 1) % titleVariations.length);
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const reviews = [
     {
       name: "M.S.",
@@ -45,8 +62,11 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Portfólios de IA Quant Broker - Copy Trading Automatizado
+            <span 
+              className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent transition-all duration-1000 ease-in-out"
+              key={currentTitleIndex}
+            >
+              {titleVariations[currentTitleIndex]}
             </span>
           </h1>
 
