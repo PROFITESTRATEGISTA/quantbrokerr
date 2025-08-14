@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Ambulance as Cancel } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2 } from 'lucide-react';
+                            setContractToDelete(contract);
+                            setShowDeleteModal(true);
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                          title="Excluir contrato permanentemente"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
 
 interface Contract {
   id: string;
