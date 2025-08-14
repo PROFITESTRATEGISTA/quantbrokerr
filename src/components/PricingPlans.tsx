@@ -125,6 +125,16 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     setHiddenOffers(newHidden);
   };
 
+  const getPlanTypeLabel = (planId: string) => {
+    const labels: { [key: string]: string } = {
+      'bitcoin': 'Portfólio Bitcoin',
+      'mini-indice': 'Portfólio Mini Índice', 
+      'mini-dolar': 'Portfólio Mini Dólar',
+      'portfolio-completo': 'Portfólio Completo'
+    };
+    return labels[planId] || planId;
+  };
+
   const plans: Plan[] = [
     {
       id: 'bitcoin',
