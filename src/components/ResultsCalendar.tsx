@@ -51,7 +51,6 @@ const ResultsCalendar: React.FC = () => {
   const [riskSettings, setRiskSettings] = useState({
     dailyLossLimit: 5.0,
     monthlyLossLimit: 15.0,
-    maxDrawdown: 20.0,
     stopLossPercentage: 2.0,
     isActive: true
   });
@@ -431,7 +430,7 @@ const ResultsCalendar: React.FC = () => {
             </h2>
 
             <div className="bg-gradient-to-br from-red-900/20 via-slate-800/40 to-orange-900/20 rounded-xl p-6 border border-red-500/30">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                   {/* Current Risk Metrics */}
                   <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-600">
                     <div className="flex items-center gap-2 mb-2">
@@ -475,29 +474,6 @@ const ResultsCalendar: React.FC = () => {
                     ) : (
                       <div className="text-xl font-bold text-orange-400">
                         -{riskSettings.monthlyLossLimit.toFixed(1)}%
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendingDown className="w-4 h-4 text-yellow-400" />
-                      <span className="text-xs text-gray-400">Drawdown Máximo</span>
-                    </div>
-                    {editingRisk ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={riskSettings.maxDrawdown}
-                          onChange={(e) => setRiskSettings({...riskSettings, maxDrawdown: parseFloat(e.target.value) || 0})}
-                          className="w-16 px-2 py-1 text-sm bg-slate-700 border border-slate-500 rounded text-white focus:border-yellow-500 focus:outline-none"
-                        />
-                        <span className="text-yellow-400 font-bold">%</span>
-                      </div>
-                    ) : (
-                      <div className="text-xl font-bold text-yellow-400">
-                        -{riskSettings.maxDrawdown.toFixed(1)}%
                       </div>
                     )}
                   </div>
@@ -599,10 +575,6 @@ const ResultsCalendar: React.FC = () => {
                     <div>
                       <h5 className="font-medium text-orange-300 mb-2">Limite de Perda Mensal</h5>
                       <p>Se a perda mensal atingir {riskSettings.monthlyLossLimit}%, o sistema para as operações até o próximo mês.</p>
-                    </div>
-                    <div>
-                      <h5 className="font-medium text-yellow-300 mb-2">Drawdown Máximo</h5>
-                      <p>Controle do drawdown máximo permitido de {riskSettings.maxDrawdown}% do capital total.</p>
                     </div>
                     <div>
                       <h5 className="font-medium text-purple-300 mb-2">Stop Loss Automático</h5>
