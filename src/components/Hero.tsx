@@ -10,9 +10,9 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
   
   const titleVariations = [
     "Portfólios de IA Quant Broker",
-    "Copie Algoritmos Institucionais", 
-    "Copie Algoritmos Quantitativos",
-    "Copie Algoritmos Inteligentes"
+    "Algoritmos Institucionais", 
+    "Algoritmos Quantitativos",
+    "Algoritmos Inteligentes"
   ];
 
   React.useEffect(() => {
