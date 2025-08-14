@@ -9,7 +9,6 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
   const [currentTitleIndex, setCurrentTitleIndex] = React.useState(0);
   
   const titleVariations = [
-    "Portfólios de IA Quant Broker",
     "Algoritmos Institucionais", 
     "Algoritmos Quantitativos",
     "Algoritmos Inteligentes"
