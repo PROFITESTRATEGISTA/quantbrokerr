@@ -472,6 +472,60 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           </div>
 
           {/* Quick Comparison Section */}
+          {/* Copy Platform Cost Alert */}
+          <div className="mt-8 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <span className="text-orange-600 font-bold text-xl">💳</span>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-orange-900 mb-2">
+                  ⚠️ Custo Adicional da Plataforma de Copy
+                </h3>
+                <p className="text-orange-800 text-sm">
+                  Além do plano escolhido, há uma taxa adicional da plataforma de copy trading
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-orange-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">Taxa da Plataforma de Copy Trading</h4>
+                  <p className="text-sm text-gray-600">Cobrança mensal separada para uso da tecnologia de replicação</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
+                  <div className="text-sm text-gray-500">por mês</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 bg-orange-100 border border-orange-300 rounded-lg p-4">
+              <h4 className="font-semibold text-orange-900 mb-2">📋 Resumo de Custos Totais:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-white rounded-lg p-3 border border-orange-200">
+                  <div className="font-medium text-gray-900 mb-1">Mini Índice</div>
+                  <div className="text-orange-600 font-bold">R$ 400 + R$ 100 = R$ 500/mês</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-orange-200">
+                  <div className="font-medium text-gray-900 mb-1">Mini Dólar</div>
+                  <div className="text-orange-600 font-bold">R$ 550 + R$ 100 = R$ 650/mês</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-orange-200">
+                  <div className="font-medium text-gray-900 mb-1">Portfólio Completo</div>
+                  <div className="text-orange-600 font-bold">R$ 750 + R$ 100 = R$ 850/mês</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-orange-800">
+                💡 <strong>Importante:</strong> A taxa da plataforma é cobrada separadamente e é necessária para o funcionamento do copy trading
+              </p>
+            </div>
+          </div>
+
           <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Comparativo Rápido dos Portfólios
