@@ -20,6 +20,14 @@ const Footer: React.FC = () => {
             </span>
           </div>
           
+          {/* Estrategista TS */}
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-400 text-sm">Uma empresa</span>
+            <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Estrategista TS
+            </span>
+          </div>
+          
           {/* Endereço */}
           <div className="flex items-center justify-center space-x-2 mb-4">
             <MapPin className="h-4 w-4 text-blue-400" />
