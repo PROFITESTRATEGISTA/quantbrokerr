@@ -118,19 +118,19 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     {
       id: 'bitcoin',
       name: 'Portfólio Bitcoin',
-      description: 'Operações com Bitcoin Futuro na B3 via Mosaico BTG — vagas limitadas',
+      description: 'Operações com Bitcoin Futuro na B3 via Mosaico BTG',
       price: billingPeriod === 'annual' ? 'R$ 2.160,00' : billingPeriod === 'semiannual' ? 'R$ 1.440,00' : 'R$ 300,00',
       originalPrice: billingPeriod === 'annual' ? 'R$ 3.600,00' : billingPeriod === 'semiannual' ? 'R$ 1.800,00' : undefined,
       minCapital: 'R$ 3.000',
-      dailyRisk: 'R$ 100 a R$ 200',
+      dailyRisk: 'R$ 400 a R$ 600',
       leverage: 'Até 1x',
       riskControl: 'IA no Controle de Risco',
       features: [
-        'Copy premium com execução sem spread',
-        'Setup de tendência com inteligência artificial',
+        'Copy premium com baixo spread',
+        'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
-        'Compatível com contas Mosaico BTG',
-        'Sem necessidade de configurar parâmetros'
+        'Copy Bitcoin',
+        'Plano semestral apenas no PIX'
       ],
       isAvailable: isPlanAvailable('bitcoin')
     },
@@ -161,7 +161,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       price: billingPeriod === 'annual' ? 'R$ 3.960,00' : billingPeriod === 'semiannual' ? 'R$ 2.640,00' : 'R$ 550,00',
       originalPrice: billingPeriod === 'annual' ? 'R$ 6.600,00' : billingPeriod === 'semiannual' ? 'R$ 3.300,00' : undefined,
       minCapital: 'R$ 10.000',
-      dailyRisk: 'R$ 600',
+      dailyRisk: 'R$ 400 a R$ 600',
       leverage: 'Até 1x',
       riskControl: 'IA no Controle de Risco',
       features: [
@@ -176,7 +176,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     {
       id: 'portfolio-completo',
       name: 'Portfólio Completo',
-      description: 'Acesso a todas as estratégias com gestão diversificada',
+      description: 'Acesso a todas as estratégias com gestão diversificada + Bitcoin BÔNUS',
       price: billingPeriod === 'annual' ? 'R$ 5.400,00' : billingPeriod === 'semiannual' ? 'R$ 3.600,00' : 'R$ 750,00',
       originalPrice: billingPeriod === 'annual' ? 'R$ 9.000,00' : billingPeriod === 'semiannual' ? 'R$ 4.500,00' : undefined,
       minCapital: 'R$ 15.000',
@@ -187,7 +187,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Copy premium com baixo spread',
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
-        'Copy de todas as estratégias',
+        'Copy de todas as estratégias + Bitcoin BÔNUS',
         'Plano semestral apenas no PIX'
       ],
       isRecommended: true,
