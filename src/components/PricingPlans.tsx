@@ -459,6 +459,142 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               Apenas 50 vagas disponíveis - Para planos semestrais e anuais via PIX, entre em contato com nossa equipe
             </p>
           </div>
+
+          {/* Quick Comparison Section */}
+          <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              Comparativo Rápido dos Portfólios
+            </h3>
+            <p className="text-gray-600 text-center mb-8 max-w-3xl mx-auto">
+              Entenda as principais diferenças entre cada portfólio para escolher o ideal para seu perfil
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {/* Mini Índice - Maior Giro */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-200">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-600 font-bold text-lg">📈</span>
+                  </div>
+                  <h4 className="text-lg font-bold text-blue-900 mb-2">Mini Índice</h4>
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    MAIOR GIRO
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Operações/dia:</span>
+                    <span className="font-semibold text-blue-600">6-8 operações</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Frequência:</span>
+                    <span className="font-semibold text-blue-600">Alta</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Estilo:</span>
+                    <span className="font-semibold text-blue-600">Múltiplas oportunidades</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Ideal para:</span>
+                    <span className="font-semibold text-blue-600">Ação constante</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini Dólar - Menor Giro */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-green-200">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-green-600 font-bold text-lg">💵</span>
+                  </div>
+                  <h4 className="text-lg font-bold text-green-900 mb-2">Mini Dólar</h4>
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    MENOR GIRO
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Operações/dia:</span>
+                    <span className="font-semibold text-green-600">2-4 operações</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Frequência:</span>
+                    <span className="font-semibold text-green-600">Seletiva</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Estilo:</span>
+                    <span className="font-semibold text-green-600">Movimentos grandes</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Ideal para:</span>
+                    <span className="font-semibold text-green-600">Precisão e paciência</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Portfólio Completo - 3 Ativos + Bitcoin */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-purple-200">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-purple-600 font-bold text-lg">🎯</span>
+                  </div>
+                  <h4 className="text-lg font-bold text-purple-900 mb-2">Portfólio Completo</h4>
+                  <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    3 ATIVOS + BITCOIN BÔNUS
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Ativos inclusos:</span>
+                    <span className="font-semibold text-purple-600">4 ativos</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Mini Índice:</span>
+                    <span className="font-semibold text-purple-600">✓ Incluso</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Mini Dólar:</span>
+                    <span className="font-semibold text-purple-600">✓ Incluso</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Bitcoin BÔNUS:</span>
+                    <span className="font-semibold text-orange-600">🎁 GRÁTIS</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Estratégias:</span>
+                    <span className="font-semibold text-purple-600">Proprietárias</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Comparison */}
+            <div className="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <h4 className="text-lg font-bold text-gray-900 mb-4 text-center">
+                Resumo Comparativo
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="font-semibold text-blue-900 mb-2">Para quem quer AÇÃO</div>
+                  <div className="text-sm text-blue-700">
+                    <strong>Mini Índice</strong> - Maior número de operações diárias
+                  </div>
+                </div>
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <div className="font-semibold text-green-900 mb-2">Para quem quer PRECISÃO</div>
+                  <div className="text-sm text-green-700">
+                    <strong>Mini Dólar</strong> - Operações mais seletivas e certeiras
+                  </div>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <div className="font-semibold text-purple-900 mb-2">Para quem quer TUDO</div>
+                  <div className="text-sm text-purple-700">
+                    <strong>Portfólio Completo</strong> - Máxima diversificação + Bitcoin BÔNUS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <WaitlistModal
