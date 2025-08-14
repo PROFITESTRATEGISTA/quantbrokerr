@@ -9,10 +9,10 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
   const [currentTitleIndex, setCurrentTitleIndex] = React.useState(0);
   
   const titleVariations = [
-    "Portfólios de IA Quant Broker - Copy Trading Automatizado",
-    "Copie Algoritmos Institucionais - Copy Trading Automatizado", 
-    "Copie Algoritmos Quantitativos - Copy Trading Automatizado",
-    "Copie Algoritmos Inteligentes - Copy Trading Automatizado"
+    "Portfólios de IA Quant Broker",
+    "Copie Algoritmos Institucionais", 
+    "Copie Algoritmos Quantitativos",
+    "Copie Algoritmos Inteligentes"
   ];
 
   React.useEffect(() => {
