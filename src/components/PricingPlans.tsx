@@ -38,6 +38,16 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
   useEffect(() => {
     fetchPortfolioOffers();
+    // Load hidden offers from localStorage on component mount
+    const savedHiddenOffers = localStorage.getItem('hiddenOffers');
+    if (savedHiddenOffers) {
+      try {
+        const parsed = JSON.parse(savedHiddenOffers);
+        setHiddenOffers(new Set(parsed));
+      } catch (error) {
+        console.error('Error parsing hidden offers:', error);
+      }
+    }
   }, []);
 
   const fetchPortfolioOffers = async () => {
@@ -123,6 +133,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       newHidden.add(planId);
     }
     setHiddenOffers(newHidden);
+    
+    // Persist to localStorage
+    localStorage.setItem('hiddenOffers', JSON.stringify(Array.from(newHidden)));
   };
 
   const getPlanTypeLabel = (planId: string) => {
@@ -320,12 +333,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                       <button
                         onClick={() => toggleOfferVisibility(plan.id)}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
-                          hiddenOffers.has(plan.id) ? 'bg-red-600' : 'bg-gray-400'
+                          hiddenOffers.has(plan.id) ? 'bg-gray-400' : 'bg-red-600'
                         }`}
                       >
                         <span
                           className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                            hiddenOffers.has(plan.id) ? 'translate-x-5' : 'translate-x-1'
+                            hiddenOffers.has(plan.id) ? 'translate-x-1' : 'translate-x-5'
                           }`}
                         />
                       </button>
@@ -352,11 +365,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                     
                     <div className="text-center mt-2">
                       <span className={`text-xs font-medium ${
-                        isPlanAvailable(plan.id) ? 'text-green-600' : 'text-orange-600'
+                        hiddenOffers.has(plan.id) ? 'text-red-600' : 'text-green-600'
                       }`}>
-                        {updating === plan.id ? 'Atualizando...' : (
-                          isPlanAvailable(plan.id) ? 'Disponível' : 'Fila de Espera'
-                        )}
+                        {hiddenOffers.has(plan.id) ? 'Oferta Oculta' : 'Oferta Visível'}
                       </span>
                     </div>
                   </div>
