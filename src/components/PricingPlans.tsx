@@ -34,6 +34,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const { isAdmin } = useAuth();
+  const [hiddenOffers, setHiddenOffers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchPortfolioOffers();
@@ -112,6 +113,16 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     } finally {
       setUpdating(null);
     }
+  };
+
+  const toggleOfferVisibility = (planId: string) => {
+    const newHidden = new Set(hiddenOffers);
+    if (newHidden.has(planId)) {
+      newHidden.delete(planId);
+    } else {
+      newHidden.add(planId);
+    }
+    setHiddenOffers(newHidden);
   };
 
   const plans: Plan[] = [
@@ -195,6 +206,18 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
     }
   ];
 
+  // Filter out hidden offers for display
+  const visiblePlans = plans.filter(plan => !hiddenOffers.has(plan.id));
+  
+  // Determine grid layout based on number of visible plans
+  const getGridLayout = () => {
+    const count = visiblePlans.length;
+    if (count === 1) return 'grid-cols-1 max-w-md mx-auto';
+    if (count === 2) return 'grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto';
+    if (count === 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+    return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
+  };
+
   return (
     <React.Fragment>
       <div className="bg-gray-50 py-16">
@@ -263,8 +286,8 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {plans.map((plan) => (
+          <div className={`grid ${getGridLayout()} gap-6 lg:gap-8`}>
+            {visiblePlans.map((plan) => (
               <div
                 key={plan.id}
                 className={`relative bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border-2 transition-all hover:shadow-xl ${
@@ -275,10 +298,28 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               >
                 {/* Admin Switch - Only visible when admin controls are shown */}
                 {isAdmin && showAdminControls && (
-                  <div className="absolute -top-3 -right-3 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10">
+                  <div className="absolute -top-3 -right-3 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-10 min-w-[120px]">
                     <div className="flex items-center gap-2 mb-2">
                       <Settings className="h-4 w-4 text-gray-600" />
                       <span className="text-xs font-medium text-gray-700">Admin</span>
+                    </div>
+                    
+                    {/* Hide/Show Toggle */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs text-gray-600">Ocultar</span>
+                      <button
+                        onClick={() => toggleOfferVisibility(plan.id)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${
+                          hiddenOffers.has(plan.id) ? 'bg-red-600' : 'bg-gray-400'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                            hiddenOffers.has(plan.id) ? 'translate-x-5' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-xs text-gray-600">Mostrar</span>
                     </div>
                     
                     <div className="flex items-center gap-2">
@@ -377,6 +418,31 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </div>
             ))}
           </div>
+
+          {/* Hidden Offers Admin Panel */}
+          {isAdmin && showAdminControls && hiddenOffers.size > 0 && (
+            <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
+              <h4 className="font-semibold text-red-900 mb-3 flex items-center">
+                <Eye className="h-4 w-4 mr-2" />
+                Ofertas Ocultas ({hiddenOffers.size})
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {plans.filter(plan => hiddenOffers.has(plan.id)).map(plan => (
+                  <div key={plan.id} className="bg-white rounded-lg p-3 border border-red-300">
+                    <div className="text-sm font-medium text-gray-900 mb-1">
+                      {getPlanTypeLabel(plan.id)}
+                    </div>
+                    <button
+                      onClick={() => toggleOfferVisibility(plan.id)}
+                      className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded transition-colors"
+                    >
+                      Mostrar Novamente
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mt-16 text-center">
             <p className="text-sm sm:text-base text-gray-600 mb-4 px-4">
