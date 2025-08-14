@@ -728,7 +728,7 @@ export default function AdminContractsPanel() {
                           onClick={handleCancel}
                           className="text-gray-600 hover:text-gray-900"
                         >
-                          <Cancel className="h-4 w-4" />
+                          <X className="h-4 w-4" />
                         </button>
                       </>
                     ) : (
