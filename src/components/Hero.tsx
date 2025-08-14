@@ -833,11 +833,10 @@ const AdminContractsPanel: React.FC = () => {
             <p className="text-gray-600 mb-4">Comece criando seu primeiro contrato de cliente</p>
             <button
               onClick={() => setShowAddModal(true)}
-import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2 } from 'lucide-react';
-              className="group px-8 py-4 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all flex items-center justify-center backdrop-blur-sm"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
-              {currentTitleIndex <= 2 ? "Agendar Reunião" : "Falar com Especialista"}
+              Criar Primeiro Contrato
             </button>
           </div>
         )}
