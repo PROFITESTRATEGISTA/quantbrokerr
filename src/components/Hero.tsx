@@ -833,10 +833,11 @@ const AdminContractsPanel: React.FC = () => {
             <p className="text-gray-600 mb-4">Comece criando seu primeiro contrato de cliente</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2 } from 'lucide-react';
+              className="group px-8 py-4 border border-slate-600 text-slate-300 font-semibold rounded-lg hover:bg-slate-800/50 hover:border-cyan-500/50 transition-all flex items-center justify-center backdrop-blur-sm"
             >
               <Plus className="w-4 h-4" />
-              Criar Primeiro Contrato
+              {currentTitleIndex <= 2 ? "Agendar Reunião" : "Falar com Especialista"}
             </button>
           </div>
         )}
@@ -1162,19 +1163,6 @@ const AdminContractsPanel: React.FC = () => {
                       : 'Nenhum fornecedor ativo encontrado'
                     }
                   </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Data de Início do Contrato *
-                  </label>
-                  <input
-                    type="date"
-                    value={newContract.contract_start}
-                    onChange={(e) => setNewContract({...newContract, contract_start: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
                 </div>
 
                 <div>
