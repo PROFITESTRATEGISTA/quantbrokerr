@@ -1,14 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Ambulance as Cancel } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Edit3, Save, X, Trash2, Building, Calendar, DollarSign, FileText, AlertCircle, CheckCircle, Upload, ExternalLink, UserX, Ban, Edit2 } from 'lucide-react';
-                            setContractToDelete(contract);
-                            setShowDeleteModal(true);
-                          }}
-                          className="text-red-600 hover:text-red-900"
-                          title="Excluir contrato permanentemente"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+import { supabase } from '../../lib/supabase';
 
 interface Contract {
   id: string;
@@ -35,7 +27,7 @@ interface Contract {
   };
 }
 
-export default function AdminContractsPanel() {
+const AdminContractsPanel: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -66,6 +58,7 @@ export default function AdminContractsPanel() {
   const [availableSuppliers, setAvailableSuppliers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Load users when modal opens
   useEffect(() => {
@@ -418,12 +411,27 @@ export default function AdminContractsPanel() {
 
       if (error) throw error;
 
+      // Update user profile to reset plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: 'none',
+          plan_status: 'inactive',
+          current_leverage: 1
+        })
+        .eq('id', contractToRevoke.user_id);
+
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
+      }
+
+      setSuccess('Contrato revogado com sucesso!');
       await fetchContracts();
       setShowRevokeModal(false);
       setContractToRevoke(null);
       setRevokeReason('');
-    } catch (error) {
-      console.error('Erro ao revogar contrato:', error);
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
@@ -431,6 +439,19 @@ export default function AdminContractsPanel() {
     if (!contractToDelete) return;
 
     try {
+      // Delete contract file if exists
+      if (contractToDelete.contract_file_url) {
+        const url = new URL(contractToDelete.contract_file_url);
+        const filePath = url.pathname.split('/').pop();
+        
+        if (filePath) {
+          await supabase.storage
+            .from('client-contracts')
+            .remove([`client-contracts/${filePath}`]);
+        }
+      }
+
+      // Delete contract from database
       const { error } = await supabase
         .from('client_contracts')
         .delete()
@@ -438,11 +459,26 @@ export default function AdminContractsPanel() {
 
       if (error) throw error;
 
+      // Update user profile to reset plan
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          contracted_plan: 'none',
+          plan_status: 'inactive',
+          current_leverage: 1
+        })
+        .eq('id', contractToDelete.user_id);
+
+      if (updateError) {
+        console.warn('Warning updating user profile:', updateError);
+      }
+
+      setSuccess('Contrato excluído permanentemente!');
       await fetchContracts();
       setShowDeleteModal(false);
       setContractToDelete(null);
-    } catch (error) {
-      console.error('Erro ao excluir contrato:', error);
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
@@ -519,7 +555,6 @@ export default function AdminContractsPanel() {
         </div>
       </div>
 
-      {/* Alerts */}
       {/* Botão Criar Contrato */}
       <div className="flex justify-end">
         <button
@@ -531,6 +566,7 @@ export default function AdminContractsPanel() {
         </button>
       </div>
 
+      {/* Alerts */}
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
           <AlertCircle className="h-5 w-5 mr-2" />
@@ -723,46 +759,87 @@ export default function AdminContractsPanel() {
                       </label>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    {editingId === contract.id ? (
-                      <>
-                        <button
-                          onClick={handleSave}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          <Save className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={handleCancel}
-                          className="text-gray-600 hover:text-gray-900"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => handleEdit(contract)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        {contract.is_active && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2">
+                      {editingId === contract.id ? (
+                        <>
                           <button
-                            onClick={() => handleCancelContract(contract)}
-                            className="text-orange-600 hover:text-orange-900"
+                            onClick={handleSave}
+                            className="text-green-600 hover:text-green-900"
+                            title="Salvar alterações"
                           >
-                            <UserX className="h-4 w-4" />
+                            <Save className="h-4 w-4" />
                           </button>
-                        )}
-                      </>
-                    )}
+                          <button
+                            onClick={handleCancel}
+                            className="text-gray-600 hover:text-gray-900"
+                            title="Cancelar edição"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(contract)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Editar contrato"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          {contract.is_active && (
+                            <button
+                              onClick={() => handleCancelContract(contract)}
+                              className="text-orange-600 hover:text-orange-900"
+                              title="Cancelar contrato"
+                            >
+                              <UserX className="h-4 w-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setContractToRevoke(contract);
+                              setShowRevokeModal(true);
+                            }}
+                            className="text-orange-600 hover:text-orange-900"
+                            title="Revogar contrato (desativar mas manter histórico)"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setContractToDelete(contract);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                            title="Excluir contrato permanentemente"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {contracts.length === 0 && (
+          <div className="text-center py-12">
+            <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum contrato encontrado</h3>
+            <p className="text-gray-600 mb-4">Comece criando seu primeiro contrato de cliente</p>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Criar Primeiro Contrato
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modal de Cancelamento */}
@@ -1143,4 +1220,6 @@ export default function AdminContractsPanel() {
       )}
     </div>
   );
-}
+};
+
+export default AdminContractsPanel;
