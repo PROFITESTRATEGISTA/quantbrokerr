@@ -105,32 +105,6 @@ const QuantBrokerSection: React.FC = () => {
           ))}
         </div>
 
-        {/* Competitive Differentials */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Diferenciais Competitivos</h3>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              O que nos torna únicos no mercado de trading automatizado
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {differentials.map((diff, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition-shadow border border-gray-100">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <diff.icon className="h-10 w-10 text-white" />
-                </div>
-                <div className="mb-4">
-                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
-                    {diff.highlight}
-                  </span>
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-4">{diff.title}</h4>
-                <p className="text-gray-600 leading-relaxed">{diff.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Call-to-Action Section */}
         <div id="consultation-form-section">
