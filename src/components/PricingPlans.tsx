@@ -494,13 +494,13 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-4 px-4 font-medium text-gray-900">Assessoria Trader BTG</td>
                   <td className="py-4 px-4 text-center">
-                    <span className="text-orange-600 font-semibold">Pago</span>
+                    <span className="text-green-600 font-semibold">FREE</span>
                   </td>
                   <td className="py-4 px-4 text-center">
-                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                    <span className="text-green-600 font-bold">🎁 FREE</span>
                   </td>
                   <td className="py-4 px-4 text-center">
-                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                    <span className="text-green-600 font-bold">🎁 FREE</span>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-100 hover:bg-gray-50">
