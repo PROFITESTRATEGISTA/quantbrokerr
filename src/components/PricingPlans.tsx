@@ -572,7 +572,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• <strong>Taxa da Plataforma:</strong> R$ 100/mês cobrada separadamente para copy trading</li>
                 <li>• <strong>Emolumentos B3:</strong> Cobrados pela B3 diretamente na sua conta por operação</li>
-                <li>• <strong>Valores B3:</strong> Variam conforme volume operado - consulte <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target=\"_blank" className="text-blue-600 hover:text-blue-800 underline">B3.com.br/tarifas</a></li>
+                <li>• <strong>Valores B3:</strong> Variam conforme volume operado - consulte <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-blue-600 hover:text-blue-800 underline">B3.com.br/tarifas</a></li>
                 <li>• <strong>Transparência:</strong> Nossa equipe esclarece todos os custos detalhadamente</li>
               </ul>
             </div>
