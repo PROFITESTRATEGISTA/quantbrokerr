@@ -484,17 +484,17 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
 
           {/* Quick Comparison Section */}
           {/* Copy Platform Cost Alert */}
-          <div className="mt-8 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+          <div className="mt-8 bg-gradient-to-r from-orange-50 to-cyan-50 border border-orange-200 rounded-xl p-6">
             <div className="flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
                 <span className="text-orange-600 font-bold text-xl">💳</span>
               </div>
               <div className="text-center">
                 <h3 className="text-xl font-bold text-orange-900 mb-2">
-                  ⚠️ Custo Adicional da Plataforma de Copy
+                  ⚠️ Custos Adicionais: Plataforma + B3
                 </h3>
                 <p className="text-orange-800 text-sm">
-                  Além do plano escolhido, há uma taxa adicional da plataforma de copy trading
+                  Além do plano escolhido, há custos da plataforma de copy e emolumentos B3
                 </p>
               </div>
             </div>
@@ -542,47 +542,30 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           {/* B3 Emoluments Alert */}
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                <span className="text-blue-600 font-bold text-xl">📊</span>
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-blue-900 mb-2">
-                  📈 Custos Operacionais B3 (Emolumentos)
-                </h3>
-                <p className="text-blue-800 text-sm">
-                  Além dos custos da plataforma, existem taxas operacionais da B3 por operação
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Taxa da Plataforma */}
+              <div className="bg-white rounded-lg p-4 border border-orange-300">
+                <h4 className="font-semibold text-gray-900 mb-3">💳 Taxa da Plataforma de Copy</h4>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
+                  <div className="text-sm text-gray-500">por mês</div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  Cobrança mensal separada para uso da tecnologia de replicação
                 </p>
               </div>
-            </div>
-            
-            <div className="bg-white rounded-lg p-4 border border-blue-300 mb-4">
-              <h4 className="font-semibold text-gray-900 mb-3">💰 Emolumentos B3 por Operação:</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                  <div className="font-medium text-blue-900 mb-1">Bitcoin Futuro</div>
-                  <div className="text-blue-700">Conforme tabela B3</div>
-                  <div className="text-xs text-blue-600">Varia por volume</div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                  <div className="font-medium text-blue-900 mb-1">Mini Índice</div>
-                  <div className="text-blue-700">Conforme tabela B3</div>
-                  <div className="text-xs text-blue-600">Varia por volume</div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                  <div className="font-medium text-blue-900 mb-1">Mini Dólar</div>
-                  <div className="text-blue-700">Conforme tabela B3</div>
-                  <div className="text-xs text-blue-600">Varia por volume</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-cyan-100 border border-cyan-300 rounded-lg p-4 mb-4">
+              
+              {/* Emolumentos B3 */}
+              <div className="bg-white rounded-lg p-4 border border-blue-300">
+                <h4 className="font-semibold text-gray-900 mb-3">📊 Emolumentos B3 por Operação</h4>
+            <div className="mt-4 bg-cyan-100 border border-cyan-300 rounded-lg p-4">
               <h4 className="font-semibold text-cyan-900 mb-2">📋 Informações Importantes:</h4>
               <ul className="text-sm text-cyan-800 space-y-1">
-                <li>• Os emolumentos são cobrados pela B3 diretamente na sua conta</li>
-                <li>• Valores variam conforme volume operado e tipo de ativo</li>
-                <li>• Consulte a tabela oficial em: <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
-                <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
+                <li>• <strong>Taxa da Plataforma:</strong> R$ 100/mês cobrada separadamente</li>
+                <li>• <strong>Emolumentos B3:</strong> Cobrados diretamente na sua conta pela B3</li>
+                <li>• <strong>Valores B3:</strong> Variam conforme volume operado e tipo de ativo</li>
+                <li>• <strong>Tabela oficial:</strong> <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
+                <li>• <strong>Suporte:</strong> Nossa equipe esclarece todos os custos detalhadamente</li>
               </ul>
             </div>
             
@@ -595,7 +578,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 Falar com Consultor Quant Broker
               </button>
               <p className="text-xs text-blue-700 mt-2">
-                Entenda todos os custos, resultados e metodologia no detalhe
+                Entenda todos os custos (plataforma + B3), resultados e metodologia no detalhe
               </p>
             </div>
           </div>
