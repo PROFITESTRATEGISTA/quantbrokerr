@@ -937,6 +937,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
             <div className="text-center">
               <h3 className="text-xl font-bold text-orange-900 mb-2">⚠️ Custos Adicionais: Plataforma + Emolumentos B3</h3>
               <p className="text-orange-800 text-sm">Além do plano escolhido, há custos da plataforma de copy trading e emolumentos B3</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-white rounded-lg p-4 border border-orange-300">
               <div className="flex items-center justify-between">
                 <div>
@@ -997,14 +1001,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                   <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
                 </ul>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
-                <div className="text-sm text-gray-500">por mês</div>
-              </div>
-            <h4 className="font-semibold text-orange-900 mb-2">📋 Resumo de Custos Totais:</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="bg-white rounded-lg p-3 border border-orange-200">
-          </div>
+            </div>
             <button
               onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 shadow-lg"
@@ -1012,7 +1009,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
               <MessageCircle className="h-5 w-5 mr-2" />
               Esclarecer Todos os Custos com Consultor
             </button>
-            <p className="text-xs text-orange-700 mt-2">Entenda todos os custos, emolumentos e metodologia no detalhe</p>
+            <p className="text-xs text-orange-700 mt-2">
               Entenda todos os custos, resultados e metodologia no detalhe
             </p>
           </div>
