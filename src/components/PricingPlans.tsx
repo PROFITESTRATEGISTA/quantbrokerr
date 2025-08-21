@@ -914,9 +914,19 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                     onClick={() => toggleOfferVisibility(plan.id)}
                     className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded transition-colors"
                   >
+                    Mostrar
+                  </button>
+                </div>
+              ))}
             </div>
-                <div className="font-medium text-gray-900 mb-1">Portfólio Completo</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          </div>
+        )}
+
+        <WaitlistModal
+          isOpen={showWaitlistModal}
+          onClose={() => setShowWaitlistModal(false)}
+          portfolioType={selectedPortfolio}
+        />
       </div>
     </div>
   );
