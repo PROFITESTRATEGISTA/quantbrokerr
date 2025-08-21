@@ -597,6 +597,131 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </p>
             </div>
           </div>
+          
+          {/* Tax Benefits and Quant Platform Section */}
+          <div className="mt-8 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                <span className="text-green-600 font-bold text-xl">💰</span>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-green-900 mb-2">
+                  🎯 Benefícios Fiscais + Plataforma Quant Exclusiva
+                </h3>
+                <p className="text-green-800 text-sm">
+                  Descontos especiais no IR e acesso à tecnologia avançada para planos longos
+                </p>
+              </div>
+            </div>
+            
+            {/* Tax Benefits Section */}
+            <div className="bg-white rounded-lg p-4 border border-green-300 mb-4">
+              <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="text-green-600 mr-2">📊</span>
+                Desconto no Imposto de Renda (Trading & Swing Trading)
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                  <div className="font-medium text-yellow-900 mb-1">Plano Mensal</div>
+                  <div className="text-yellow-700 font-bold">Desconto Especial no IR</div>
+                  <div className="text-xs text-yellow-600">Emissão de DARFs com desconto</div>
+                </div>
+                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                  <div className="font-medium text-green-900 mb-1">Plano Semestral</div>
+                  <div className="text-green-700 font-bold">DARFs 100% GRÁTIS</div>
+                  <div className="text-xs text-green-600">Emissão automatizada gratuita</div>
+                </div>
+                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                  <div className="font-medium text-emerald-900 mb-1">Plano Anual</div>
+                  <div className="text-emerald-700 font-bold">DARFs 100% GRÁTIS</div>
+                  <div className="text-xs text-emerald-600">Emissão automatizada gratuita</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Quant Platform Section */}
+            <div className="bg-white rounded-lg p-4 border border-green-300 mb-4">
+              <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="text-purple-600 mr-2">🚀</span>
+                Plataforma Quant Exclusiva (Semestral & Anual)
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <div className="flex items-center mb-2">
+                    <span className="text-purple-600 font-bold text-lg mr-2">🎁</span>
+                    <div className="font-medium text-purple-900">2.000 Tokens Gratuitos</div>
+                  </div>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    <li>• Análises avançadas de mercado</li>
+                    <li>• Backtests personalizados</li>
+                    <li>• Relatórios detalhados de performance</li>
+                    <li>• Simulações de estratégias</li>
+                  </ul>
+                </div>
+                <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                  <div className="flex items-center mb-2">
+                    <span className="text-indigo-600 font-bold text-lg mr-2">🤖</span>
+                    <div className="font-medium text-indigo-900">Pack de Robôs Gratuitos</div>
+                  </div>
+                  <ul className="text-sm text-indigo-800 space-y-1">
+                    <li>• Robôs de análise técnica</li>
+                    <li>• Alertas automáticos de mercado</li>
+                    <li>• Scanners de oportunidades</li>
+                    <li>• Ferramentas de backtesting</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            {/* Summary Benefits */}
+            <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-300 rounded-lg p-4">
+              <h4 className="font-semibold text-green-900 mb-3 text-center">
+                🎯 Resumo dos Benefícios por Plano
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="font-semibold text-yellow-900 mb-2">📅 Plano Mensal</div>
+                  <div className="space-y-1 text-yellow-800">
+                    <div>✓ Desconto especial no IR</div>
+                    <div>✓ DARFs com desconto</div>
+                    <div>✓ Suporte completo</div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-green-900 mb-2">📅 Plano Semestral</div>
+                  <div className="space-y-1 text-green-800">
+                    <div>✓ DARFs 100% GRÁTIS</div>
+                    <div>✓ 2.000 tokens Quant</div>
+                    <div>✓ Pack robôs gratuitos</div>
+                    <div>✓ 20% desconto no plano</div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-emerald-900 mb-2">📅 Plano Anual</div>
+                  <div className="space-y-1 text-emerald-800">
+                    <div>✓ DARFs 100% GRÁTIS</div>
+                    <div>✓ 2.000 tokens Quant</div>
+                    <div>✓ Pack robôs gratuitos</div>
+                    <div>✓ 40% desconto no plano</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-4">
+              <button
+                onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20benefícios%20fiscais%2C%20DARFs%20gratuitas%20e%20acesso%20à%20Plataforma%20Quant%20com%20tokens%20e%20robôs%20gratuitos.%20Podem%20me%20explicar%20como%20funciona%3F', '_blank')}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-lg"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                Saber Mais sobre Benefícios Fiscais
+              </button>
+              <p className="text-xs text-green-700 mt-2">
+                Entenda como economizar no IR e acessar tecnologia exclusiva
+              </p>
+            </div>
+          </div>
+          
           <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Comparativo Rápido dos Portfólios
