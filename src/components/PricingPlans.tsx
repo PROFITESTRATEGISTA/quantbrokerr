@@ -165,12 +165,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Operações via MetaTrader 5',
         'Copy Bitcoin',
         'Plano semestral apenas no PIX',
-        ...(billingPeriod !== 'monthly' ? [
-          'Desconto em IR para Trading e Swing Trading',
-          'DARFs automatizadas GRÁTIS',
-          'Acesso à Plataforma Quant (2000 tokens)',
-          'Pack de Robôs GRÁTIS'
-        ] : [])
+        'Desconto em IR para Trading e Swing Trading',
+        'DARFs automatizadas GRÁTIS',
+        'Acesso à Plataforma Quant (2000 tokens)',
+        'Pack de Robôs GRÁTIS'
       ],
       isAvailable: isPlanAvailable('bitcoin')
     },
@@ -190,12 +188,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Operações via MetaTrader 5',
         'Copy Mini Índice',
         'Plano semestral apenas no PIX',
-        ...(billingPeriod !== 'monthly' ? [
-          'Desconto em IR para Trading e Swing Trading',
-          'DARFs automatizadas GRÁTIS',
-          'Acesso à Plataforma Quant (2000 tokens)',
-          'Pack de Robôs GRÁTIS'
-        ] : [])
+        'Desconto em IR para Trading e Swing Trading',
+        'DARFs automatizadas GRÁTIS',
+        'Acesso à Plataforma Quant (2000 tokens)',
+        'Pack de Robôs GRÁTIS'
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('mini-indice')
@@ -216,12 +212,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Operações via MetaTrader 5',
         'Copy Mini Dólar',
         'Plano semestral apenas no PIX',
-        ...(billingPeriod !== 'monthly' ? [
-          'Desconto em IR para Trading e Swing Trading',
-          'DARFs automatizadas GRÁTIS',
-          'Acesso à Plataforma Quant (2000 tokens)',
-          'Pack de Robôs GRÁTIS'
-        ] : [])
+        'Desconto em IR para Trading e Swing Trading',
+        'DARFs automatizadas GRÁTIS',
+        'Acesso à Plataforma Quant (2000 tokens)',
+        'Pack de Robôs GRÁTIS'
       ],
       isAvailable: isPlanAvailable('mini-dolar')
     },
@@ -241,12 +235,10 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Operações via MetaTrader 5',
         'Copy de todas as estratégias + Bitcoin BÔNUS',
         'Plano semestral apenas no PIX',
-        ...(billingPeriod !== 'monthly' ? [
-          'Desconto em IR para Trading e Swing Trading',
-          'DARFs automatizadas GRÁTIS',
-          'Acesso à Plataforma Quant (2000 tokens)',
-          'Pack de Robôs GRÁTIS'
-        ] : [])
+        'Desconto em IR para Trading e Swing Trading',
+        'DARFs automatizadas GRÁTIS',
+        'Acesso à Plataforma Quant (2000 tokens)',
+        'Pack de Robôs GRÁTIS'
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('portfolio-completo')
