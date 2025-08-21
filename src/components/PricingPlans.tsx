@@ -928,15 +928,15 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           </p>
         </div>
 
-        {/* Cost Information */}
+        {/* Combined Platform and B3 Costs Section */}
         <div className="mt-8 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
           <div className="flex items-center justify-center mb-4">
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
               <span className="text-orange-600 font-bold text-xl">💳</span>
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-bold text-orange-900 mb-2">
-                ⚠️ Custo Adicional da Plataforma de Copy
+              <h3 className="text-xl font-bold text-orange-900 mb-2">⚠️ Custos Adicionais: Plataforma + Emolumentos B3</h3>
+              <p className="text-orange-800 text-sm">Além do plano escolhido, há custos da plataforma de copy trading e emolumentos B3</p>
               </h3>
               <p className="text-orange-800 text-sm">
                 Além do plano escolhido, há uma taxa adicional da plataforma de copy trading
@@ -944,100 +944,83 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 border border-orange-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-1">Taxa da Plataforma de Copy Trading</h4>
-                <p className="text-sm text-gray-600">Cobrança mensal separada para uso da tecnologia de replicação</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="bg-white rounded-lg p-4 border border-orange-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">Taxa da Plataforma de Copy Trading</h4>
+                  <p className="text-sm text-gray-600">Cobrança mensal separada para uso da tecnologia de replicação</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
+                  <div className="text-sm text-gray-500">por mês</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
-                <div className="text-sm text-gray-500">por mês</div>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 border border-orange-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-1">Emolumentos B3 por Operação</h4>
+                  <p className="text-sm text-gray-600">Taxas operacionais da B3 cobradas por operação realizada</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-orange-600">Conforme B3</div>
+                  <div className="text-sm text-gray-500">por operação</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 bg-orange-100 border border-orange-300 rounded-lg p-4">
+          <div className="bg-orange-100 border border-orange-300 rounded-lg p-4 mb-4">
             <h4 className="font-semibold text-orange-900 mb-2">📋 Resumo de Custos Totais:</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="bg-white rounded-lg p-3 border border-orange-200">
                 <div className="font-medium text-gray-900 mb-1">Mini Índice</div>
                 <div className="text-orange-600 font-bold">R$ 400 + R$ 100 = R$ 500/mês</div>
+                <div className="text-xs text-gray-500">+ emolumentos B3 por operação</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-orange-200">
                 <div className="font-medium text-gray-900 mb-1">Mini Dólar</div>
                 <div className="text-orange-600 font-bold">R$ 550 + R$ 100 = R$ 650/mês</div>
+                <div className="text-xs text-gray-500">+ emolumentos B3 por operação</div>
               </div>
               <div className="bg-white rounded-lg p-3 border border-orange-200">
                 <div className="font-medium text-gray-900 mb-1">Portfólio Completo</div>
                 <div className="text-orange-600 font-bold">R$ 750 + R$ 100 = R$ 850/mês</div>
+                <div className="text-xs text-gray-500">+ emolumentos B3 por operação</div>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 text-center">
-            <p className="text-sm text-orange-800">
-              💡 <strong>Importante:</strong> A taxa da plataforma é cobrada separadamente e é necessária para o funcionamento do copy trading
-            </p>
-          </div>
-        </div>
-
-        {/* B3 Costs Information */}
-        <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-              <span className="text-blue-600 font-bold text-xl">📊</span>
-            </div>
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-blue-900 mb-2">
-                📈 Custos Operacionais B3 (Emolumentos)
-              </h3>
-              <p className="text-blue-800 text-sm">
-                Além dos custos da plataforma, existem taxas operacionais da B3 por operação
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-4 border border-blue-300 mb-4">
-            <h4 className="font-semibold text-gray-900 mb-3">💰 Emolumentos B3 por Operação:</h4>
+          <div className="bg-cyan-100 border border-cyan-300 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-cyan-900 mb-2">📋 Informações Importantes:</h4>
+                <ul className="text-sm text-cyan-800 space-y-1">
+                  <li>• A taxa da plataforma (R$ 100/mês) é cobrada separadamente</li>
+                  <li>• Os emolumentos são cobrados pela B3 diretamente na sua conta</li>
+                  <li>• Valores dos emolumentos variam conforme volume operado e tipo de ativo</li>
+                  <li>• Consulte a tabela oficial em: <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
+                  <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
+                </ul>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
+                <div className="text-sm text-gray-500">por mês</div>
+              </div>
+            <h4 className="font-semibold text-orange-900 mb-2">📋 Resumo de Custos Totais:</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="font-medium text-blue-900 mb-1">Bitcoin Futuro</div>
-                <div className="text-blue-700">Conforme tabela B3</div>
-                <div className="text-xs text-blue-600">Varia por volume</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="font-medium text-blue-900 mb-1">Mini Índice</div>
-                <div className="text-blue-700">Conforme tabela B3</div>
-                <div className="text-xs text-blue-600">Varia por volume</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <div className="font-medium text-blue-900 mb-1">Mini Dólar</div>
-                <div className="text-blue-700">Conforme tabela B3</div>
-                <div className="text-xs text-blue-600">Varia por volume</div>
-              </div>
-            </div>
+              <div className="bg-white rounded-lg p-3 border border-orange-200">
           </div>
-
-          <div className="bg-cyan-100 border border-cyan-300 rounded-lg p-4 mb-4">
-            <h4 className="font-semibold text-cyan-900 mb-2">📋 Informações Importantes:</h4>
-            <ul className="text-sm text-cyan-800 space-y-1">
-              <li>• Os emolumentos são cobrados pela B3 diretamente na sua conta</li>
-              <li>• Valores variam conforme volume operado e tipo de ativo</li>
-              <li>• Consulte a tabela oficial em: <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
-              <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
-            </ul>
-          </div>
-
-          <div className="text-center">
             <button
               onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 shadow-lg"
             >
               <MessageCircle className="h-5 w-5 mr-2" />
-              Falar com Consultor Quant Broker
+              Esclarecer Todos os Custos com Consultor
             </button>
-            <p className="text-xs text-blue-700 mt-2">
+            <p className="text-xs text-orange-700 mt-2">Entenda todos os custos, emolumentos e metodologia no detalhe</p>
               Entenda todos os custos, resultados e metodologia no detalhe
             </p>
           </div>
