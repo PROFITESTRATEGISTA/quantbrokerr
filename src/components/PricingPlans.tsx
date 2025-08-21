@@ -438,6 +438,170 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           ))}
         </div>
 
+        {/* Comparativo Completo de Benefícios */}
+        <div className="mt-16 bg-white rounded-2xl shadow-lg p-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            📊 Comparativo Completo de Benefícios
+          </h3>
+          
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b-2 border-gray-200">
+                  <th className="text-left py-4 px-4 font-semibold text-gray-900">Benefício</th>
+                  <th className="text-center py-4 px-4 font-semibold text-blue-600">Mensal</th>
+                  <th className="text-center py-4 px-4 font-semibold text-green-600">Semestral</th>
+                  <th className="text-center py-4 px-4 font-semibold text-purple-600">Anual</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium text-gray-900">IR Trading/Swing Trading</td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-semibold">✓ Desconto</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium text-gray-900">DARFs Automatizadas</td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-orange-600 font-semibold">Pago</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium text-gray-900">Pack de Robôs</td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-semibold">FREE</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 Master</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 Master</span>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium text-gray-900">Assessoria Trader BTG</td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-orange-600 font-semibold">Pago</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-4 px-4 font-medium text-gray-900">Tokens Plataforma Quant</td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-purple-600 font-semibold">2000/mês</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-purple-600 font-semibold">2000/mês</span>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <span className="text-purple-600 font-semibold">2000/mês</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Economia Total */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6">
+            <h4 className="text-xl font-bold text-gray-900 mb-6 text-center">
+              💰 Economia Total nos Planos Longos
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Plano Semestral */}
+              <div className="bg-white rounded-xl p-6 border-2 border-green-500 shadow-lg">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Crown className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h5 className="text-lg font-bold text-green-900">Plano Semestral</h5>
+                </div>
+                
+                <div className="space-y-2 text-sm text-green-800 mb-4">
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    <span>20% desconto</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    <span>IR grátis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    <span>DARFs grátis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    <span>Pack Master</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    <span>Assessoria BTG</span>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">Economia: R$ 2.000+</div>
+                </div>
+              </div>
+
+              {/* Plano Anual */}
+              <div className="bg-white rounded-xl p-6 border-2 border-purple-500 shadow-lg">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Award className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h5 className="text-lg font-bold text-purple-900">Plano Anual</h5>
+                </div>
+                
+                <div className="space-y-2 text-sm text-purple-800 mb-4">
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>40% desconto</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>IR grátis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>DARFs grátis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>Pack Master</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 mr-2 text-purple-600" />
+                    <span>Assessoria BTG</span>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">Economia: R$ 4.000+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <WaitlistModal
           isOpen={showWaitlistModal}
