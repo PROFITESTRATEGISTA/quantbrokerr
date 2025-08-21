@@ -135,35 +135,6 @@ const InvestmentComparison: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-16 bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
-            Estratégia Recomendada: Portfólio de IA + Renda Fixa
-          </h3>
-          <p className="text-gray-700 text-center mb-6 max-w-3xl mx-auto">
-            Combine o melhor dos dois mundos: a segurança da renda fixa com o alto potencial de retorno dos Portfólios de IA. 
-            Esta estratégia permite diversificação inteligente e maximização do retorno sobre capital.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h4 className="font-bold text-blue-900 mb-2">Renda Fixa (70%)</h4>
-              <p className="text-2xl font-bold text-blue-600 mb-1">R$ 70.000</p>
-              <p className="text-sm text-gray-600">Rendimento: ~R$ 700/mês (1% a.m.)</p>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h4 className="font-bold text-green-900 mb-2">Portfólio de IA (30%)</h4>
-              <p className="text-2xl font-bold text-green-600 mb-1">R$ 30.000</p>
-              <p className="text-sm text-gray-600">Potencial: ~R$ 6.000/mês (20% a.m.)</p>
-            </div>
-          </div>
-          
-          <div className="text-center mt-6">
-            <p className="text-lg font-semibold text-gray-900">
-              Rendimento Total Potencial: <span className="text-green-600">R$ 6.700/mês</span>
-            </p>
-            <p className="text-sm text-gray-600">Sobre capital de R$ 100.000</p>
-          </div>
-        </div>
       </div>
     </div>
   );
