@@ -490,103 +490,76 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 <span className="text-orange-600 font-bold text-xl">💳</span>
               </div>
               <div className="text-center">
-                <h3 className="text-xl font-bold text-orange-900 mb-2">
-                  💰 Custos Operacionais Completos
-                </h3>
-                <p className="text-orange-800 text-sm">
-                  Além do plano escolhido, há custos da plataforma de copy e emolumentos B3
-                </p>
+                <h3 className="text-xl font-bold text-orange-900 mb-2">💰 Custos Operacionais Completos</h3>
+                <p className="text-orange-800 text-sm">Além do plano escolhido, há custos da plataforma de copy e emolumentos B3</p>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-6 border border-orange-300">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg p-4 border border-orange-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Taxa da Plataforma de Copy Trading</h4>
-                  <div className="flex items-center justify-between bg-orange-50 p-3 rounded-lg">
-                    <span className="text-sm text-gray-600">Cobrança mensal separada</span>
+                  <h4 className="font-semibold text-gray-900 mb-2">Taxa da Plataforma de Copy Trading</h4>
+                  <div className="flex items-center justify-between bg-orange-50 p-2 rounded-lg mb-3">
+                    <span className="text-xs text-gray-600">Cobrança mensal separada</span>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-orange-600">R$ 100,00</div>
+                      <div className="text-lg font-bold text-orange-600">R$ 100,00</div>
                       <div className="text-xs text-gray-500">por mês</div>
+                    </div>
+                  </div>
+                  
+                  <h4 className="font-semibold text-gray-900 mb-2">💰 Emolumentos B3 por Operação:</h4>
+                  <div className="grid grid-cols-1 gap-2 text-xs">
+                    <div className="bg-blue-50 rounded p-2 border border-blue-200">
+                      <div className="font-medium text-blue-900">Bitcoin Futuro</div>
+                      <div className="text-blue-700">Conforme tabela B3</div>
+                    </div>
+                    <div className="bg-blue-50 rounded p-2 border border-blue-200">
+                      <div className="font-medium text-blue-900">Mini Índice</div>
+                      <div className="text-blue-700">Conforme tabela B3</div>
+                    </div>
+                    <div className="bg-blue-50 rounded p-2 border border-blue-200">
+                      <div className="font-medium text-blue-900">Mini Dólar</div>
+                      <div className="text-blue-700">Conforme tabela B3</div>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">📋 Custos Totais por Plano:</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center bg-blue-50 p-2 rounded">
+                  <h4 className="font-semibold text-gray-900 mb-2">📋 Resumo de Custos Totais:</h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between items-center bg-blue-50 p-2 rounded border border-blue-200">
                       <span className="font-medium text-gray-700">Mini Índice:</span>
-                      <span className="font-bold text-orange-600">R$ 500/mês</span>
+                      <span className="font-bold text-orange-600">R$ 400 + R$ 100 + B3*</span>
                     </div>
-                    <div className="flex justify-between items-center bg-green-50 p-2 rounded">
+                    <div className="flex justify-between items-center bg-green-50 p-2 rounded border border-green-200">
                       <span className="font-medium text-gray-700">Mini Dólar:</span>
-                      <span className="font-bold text-orange-600">R$ 650/mês</span>
+                      <span className="font-bold text-orange-600">R$ 550 + R$ 100 + B3*</span>
                     </div>
-                    <div className="flex justify-between items-center bg-purple-50 p-2 rounded">
+                    <div className="flex justify-between items-center bg-purple-50 p-2 rounded border border-purple-200">
                       <span className="font-medium text-gray-700">Portfólio Completo:</span>
-                      <span className="font-bold text-orange-600">R$ 850/mês</span>
+                      <span className="font-bold text-orange-600">R$ 750 + R$ 100 + B3*</span>
                     </div>
+                  </div>
+                  
+                  <div className="mt-3 bg-cyan-100 border border-cyan-300 rounded p-2">
+                    <h5 className="font-semibold text-cyan-900 text-xs mb-1">📋 Informações Importantes:</h5>
+                    <ul className="text-xs text-cyan-800 space-y-1">
+                      <li>• Os emolumentos são cobrados pela B3 diretamente na sua conta</li>
+                      <li>• Valores variam conforme volume operado e tipo de ativo</li>
+                      <li>• Nossa equipe pode esclarecer todos os custos detalhadamente</li>
+                    </ul>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="mt-4 text-center">
-              <p className="text-sm text-orange-800">
+            <div className="mt-3 text-center">
+              <p className="text-xs text-orange-800 mb-2">
                 💡 <strong>Importante:</strong> A taxa da plataforma é cobrada separadamente e é necessária para o funcionamento do copy trading
               </p>
-            </div>
-          </div>
-
-          {/* B3 Emoluments Alert */}
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
-            >
-              <MessageCircle className="h-5 w-5 mr-2" />
-              Falar com Consultor Quant Broker
-            </button>
-            <p className="text-xs text-blue-700 mt-2">
-              Entenda todos os custos, resultados e metodologia no detalhe
-            </p>
-            </div>
-                  <div className="text-orange-600 font-bold">R$ 550 + R$ 100 + B3 = R$ 650/mês*</div>
-          <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-              Comparativo Rápido dos Portfólios
-                  <div className="text-orange-600 font-bold">R$ 750 + R$ 100 + B3 = R$ 850/mês*</div>
-            <p className="text-gray-600 text-center mb-8 max-w-3xl mx-auto">
-              Entenda as principais diferenças entre cada portfólio para escolher o ideal para seu perfil
-              <p className="text-xs text-orange-700 mt-3 text-center">
+              <p className="text-xs text-orange-700">
                 * Valores dos emolumentos B3 variam conforme volume operado
               </p>
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              {/* Mini Índice - Maior Giro */}
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-200">
-                <div className="text-center mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-blue-600 font-bold text-lg">📈</span>
-                  </div>
-                  <h4 className="text-lg font-bold text-blue-900 mb-2">Mini Índice</h4>
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    MAIOR GIRO
-                  </span>
-                </div>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Operações/dia:</span>
-                    <span className="font-semibold text-blue-600">6-8 operações</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Frequência:</span>
-                    <span className="font-semibold text-blue-600">Alta</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Estilo:</span>
                     <span className="font-semibold text-blue-600">Múltiplas oportunidades</span>
                   </div>
                   <div className="flex justify-between">
@@ -680,12 +653,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   <div className="text-sm text-green-700">
                     <strong>Mini Dólar</strong> - Operações mais seletivas e certeiras
                   </div>
-                </div>
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg text-sm mt-2"
                 <div className="p-4 bg-purple-50 rounded-lg">
-                  <div className="font-semibold text-purple-900 mb-2">Para quem quer TUDO</div>
+                <MessageCircle className="h-4 w-4 mr-2" />
                   <div className="text-sm text-purple-700">
                     <strong>Portfólio Completo</strong> - Máxima diversificação + Bitcoin BÔNUS
-                  </div>
+              <p className="text-xs text-cyan-700 mt-1">
                 💡 <strong>Importante:</strong> Taxa da plataforma + emolumentos B3 são cobrados separadamente
               </div>
             </div>
