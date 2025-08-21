@@ -468,6 +468,102 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           ))}
         </div>
 
+        {/* Seção de Custos Operacionais */}
+        <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+              <Building2 className="h-6 w-6 mr-3 text-blue-600" />
+              Custos Operacionais Separados
+            </h3>
+            <p className="text-gray-600 max-w-3xl mx-auto">
+              Além da mensalidade do Portfólio de IA, existem custos operacionais cobrados separadamente pelo BTG Pactual e B3
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Custo de Plataforma */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calculator className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-blue-900 mb-2">Custo de Plataforma</h4>
+                <div className="text-3xl font-bold text-blue-600 mb-2">R$ 100,00</div>
+                <div className="text-sm text-blue-700 mb-4">por mês (pago separadamente)</div>
+                <p className="text-sm text-blue-800 leading-relaxed">
+                  Tecnologia de copy trade de ponta via MetaTrader 5 no Mosaico BTG
+                </p>
+              </div>
+            </div>
+
+            {/* Emolumentos B3 */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-green-900 mb-2">Emolumentos B3</h4>
+                <div className="text-lg font-bold text-green-600 mb-2">Conforme Operação</div>
+                <div className="text-sm text-green-700 mb-4">taxas da bolsa</div>
+                <p className="text-sm text-green-800 leading-relaxed mb-4">
+                  Taxas oficiais da B3 aplicadas conforme regulamentação
+                </p>
+                <a
+                  href="https://b3.com.br/tarifas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Conhecer Tarifas B3
+                </a>
+              </div>
+            </div>
+
+            {/* Corretagem Zerada */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Gift className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-purple-900 mb-2">Corretagem Zerada</h4>
+                <div className="text-3xl font-bold text-purple-600 mb-2">R$ 0,00</div>
+                <div className="text-sm text-purple-700 mb-4">por operação</div>
+                <p className="text-sm text-purple-800 leading-relaxed">
+                  BTG Pactual oferece corretagem zero para todas as operações de trading
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Resumo dos Custos */}
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+            <div className="text-center">
+              <h4 className="text-lg font-bold text-yellow-900 mb-3">
+                💡 Resumo dos Custos Totais
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div className="bg-white rounded-lg p-4 border border-yellow-200">
+                  <h5 className="font-semibold text-yellow-900 mb-2">Custos Fixos Mensais</h5>
+                  <ul className="text-yellow-800 space-y-1 text-left">
+                    <li>• Mensalidade Portfólio de IA: R$ 300 a R$ 750</li>
+                    <li>• Custo Plataforma BTG: R$ 100,00</li>
+                    <li>• <strong>Total Fixo:</strong> R$ 400 a R$ 850/mês</li>
+                  </ul>
+                </div>
+                <div className="bg-white rounded-lg p-4 border border-yellow-200">
+                  <h5 className="font-semibold text-yellow-900 mb-2">Custos Variáveis</h5>
+                  <ul className="text-yellow-800 space-y-1 text-left">
+                    <li>• Emolumentos B3: Conforme operação</li>
+                    <li>• Corretagem BTG: R$ 0,00 (zerada)</li>
+                    <li>• <strong>Vantagem:</strong> Sem surpresas na corretagem</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Comparativo Completo de Benefícios */}
         <div className="mt-16 bg-white rounded-2xl shadow-lg p-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
