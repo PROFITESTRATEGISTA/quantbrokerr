@@ -294,28 +294,18 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                 Plano Mensal
               </button>
               <button 
-                onClick={() => onToggleBilling('semiannual')}
-                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base ${
-                  billingPeriod === 'semiannual' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'
-                }`}
+                disabled
+                className="px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base bg-gray-300 text-gray-500 cursor-not-allowed"
               >
-                <span className="hidden sm:inline">Plano Semestral (PIX)</span>
-                <span className="sm:hidden">Semestral (PIX)</span>
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  20% OFF
-                </span>
+                <span className="hidden sm:inline">Não Funcional</span>
+                <span className="sm:hidden">Não Funcional</span>
               </button>
               <button 
-                onClick={() => onToggleBilling('annual')}
-                className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base ${
-                  billingPeriod === 'annual' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'
-                }`}
+                disabled
+                className="px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors relative text-sm sm:text-base bg-gray-300 text-gray-500 cursor-not-allowed"
               >
-                <span className="hidden sm:inline">Plano Anual (PIX)</span>
-                <span className="sm:hidden">Anual (PIX)</span>
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  40% OFF
-                </span>
+                <span className="hidden sm:inline">Não Funcional</span>
+                <span className="sm:hidden">Não Funcional</span>
               </button>
             </div>
             
