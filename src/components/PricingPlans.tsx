@@ -23,6 +23,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
   const [updatingAvailability, setUpdatingAvailability] = useState<string | null>(null);
   const { isAdmin } = useAuth();
   const [hiddenOffers, setHiddenOffers] = useState<Set<string>>(new Set());
+  const [showAdminControls, setShowAdminControls] = useState(false);
 
   useEffect(() => {
     fetchPortfolioOffers();
@@ -675,7 +676,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
             </div>
 
             {/* Plano Anual */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-purple-500">
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-purple-500 relative">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
                   <Award className="h-4 w-4 mr-1" />
