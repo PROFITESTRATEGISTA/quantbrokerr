@@ -161,7 +161,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       riskControl: 'IA no Controle de Risco',
       features: [
         'Copy premium com baixo spread',
-        'Robô inteligente com saídas e stops dinâmicos',
+        'Portfólio inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Bitcoin',
         'Plano semestral apenas no PIX',
@@ -184,7 +184,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       riskControl: 'IA no Controle de Risco',
       features: [
         'Copy premium com baixo spread',
-        'Robô inteligente com saídas e stops dinâmicos',
+        'Portfólio inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Índice',
         'Plano semestral apenas no PIX',
@@ -208,7 +208,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       riskControl: 'IA no Controle de Risco',
       features: [
         'Copy premium com baixo spread',
-        'Robô inteligente com saídas e stops dinâmicos',
+        'Portfólio inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Dólar',
         'Plano semestral apenas no PIX',
@@ -231,7 +231,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
       riskControl: 'IA no Controle de Risco',
       features: [
         'Copy premium com baixo spread',
-        'Robô inteligente com saídas e stops dinâmicos',
+        'Portfólio inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy de todas as estratégias + Bitcoin BÔNUS',
         'Plano semestral apenas no PIX',
