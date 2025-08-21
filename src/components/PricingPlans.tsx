@@ -491,7 +491,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </div>
               <div className="text-center">
                 <h3 className="text-xl font-bold text-orange-900 mb-2">
-                  ⚠️ Custos Adicionais: Plataforma + B3
+                  💰 Custos Operacionais Completos
                 </h3>
                 <p className="text-orange-800 text-sm">
                   Além do plano escolhido, há custos da plataforma de copy e emolumentos B3
@@ -540,54 +540,28 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
           </div>
 
           {/* B3 Emoluments Alert */}
-          <div className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
-            <div className="flex items-center justify-center mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Taxa da Plataforma */}
-              <div className="bg-white rounded-lg p-4 border border-orange-300">
-                <h4 className="font-semibold text-gray-900 mb-3">💳 Taxa da Plataforma de Copy</h4>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
-                  <div className="text-sm text-gray-500">por mês</div>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  Cobrança mensal separada para uso da tecnologia de replicação
-                </p>
-              </div>
-              
-              {/* Emolumentos B3 */}
-              <div className="bg-white rounded-lg p-4 border border-blue-300">
-                <h4 className="font-semibold text-gray-900 mb-3">📊 Emolumentos B3 por Operação</h4>
-            <div className="mt-4 bg-cyan-100 border border-cyan-300 rounded-lg p-4">
-              <h4 className="font-semibold text-cyan-900 mb-2">📋 Informações Importantes:</h4>
-              <ul className="text-sm text-cyan-800 space-y-1">
-                <li>• <strong>Taxa da Plataforma:</strong> R$ 100/mês cobrada separadamente</li>
-                <li>• <strong>Emolumentos B3:</strong> Cobrados diretamente na sua conta pela B3</li>
-                <li>• <strong>Valores B3:</strong> Variam conforme volume operado e tipo de ativo</li>
-                <li>• <strong>Tabela oficial:</strong> <a href="https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/" target="_blank" className="text-cyan-600 hover:text-cyan-800 underline">B3.com.br/tarifas</a></li>
-                <li>• <strong>Suporte:</strong> Nossa equipe esclarece todos os custos detalhadamente</li>
-              </ul>
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+            >
+              <MessageCircle className="h-5 w-5 mr-2" />
+              Falar com Consultor Quant Broker
+            </button>
+            <p className="text-xs text-blue-700 mt-2">
+              Entenda todos os custos, resultados e metodologia no detalhe
+            </p>
             </div>
-            
-            <div className="text-center">
-              <button
-                onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20entender%20melhor%20sobre%20os%20custos%20operacionais%2C%20emolumentos%20B3%20e%20metodologia%20dos%20Portfólios%20de%20IA.%20Podem%20me%20explicar%20tudo%20no%20detalhe%3F', '_blank')}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
-              >
-                <MessageCircle className="h-5 w-5 mr-2" />
-                Falar com Consultor Quant Broker
-              </button>
-              <p className="text-xs text-blue-700 mt-2">
-                Entenda todos os custos (plataforma + B3), resultados e metodologia no detalhe
-              </p>
-            </div>
-          </div>
+                  <div className="text-orange-600 font-bold">R$ 550 + R$ 100 + B3 = R$ 650/mês*</div>
           <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Comparativo Rápido dos Portfólios
-            </h3>
+                  <div className="text-orange-600 font-bold">R$ 750 + R$ 100 + B3 = R$ 850/mês*</div>
             <p className="text-gray-600 text-center mb-8 max-w-3xl mx-auto">
               Entenda as principais diferenças entre cada portfólio para escolher o ideal para seu perfil
+              <p className="text-xs text-orange-700 mt-3 text-center">
+                * Valores dos emolumentos B3 variam conforme volume operado
+              </p>
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -712,7 +686,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   <div className="text-sm text-purple-700">
                     <strong>Portfólio Completo</strong> - Máxima diversificação + Bitcoin BÔNUS
                   </div>
-                </div>
+                💡 <strong>Importante:</strong> Taxa da plataforma + emolumentos B3 são cobrados separadamente
               </div>
             </div>
           </div>
