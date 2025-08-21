@@ -48,7 +48,6 @@ const HomePage: React.FC = () => {
         />
       </div>
       <InvestmentComparison />
-      <BenefitsSection />
       <Testimonials />
       <FAQ />
     </Layout>
