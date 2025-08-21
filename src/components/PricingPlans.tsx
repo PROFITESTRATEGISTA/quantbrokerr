@@ -499,33 +499,35 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-4 border border-orange-300">
-              <div className="flex items-center justify-between">
+            <div className="bg-white rounded-lg p-6 border border-orange-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-1">Taxa da Plataforma de Copy Trading</h4>
-                  <p className="text-sm text-gray-600">Cobrança mensal separada para uso da tecnologia de replicação</p>
+                  <h4 className="font-semibold text-gray-900 mb-3">Taxa da Plataforma de Copy Trading</h4>
+                  <div className="flex items-center justify-between bg-orange-50 p-3 rounded-lg">
+                    <span className="text-sm text-gray-600">Cobrança mensal separada</span>
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-orange-600">R$ 100,00</div>
+                      <div className="text-xs text-gray-500">por mês</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-orange-600">R$ 100,00</div>
-                  <div className="text-sm text-gray-500">por mês</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-4 bg-orange-100 border border-orange-300 rounded-lg p-4">
-              <h4 className="font-semibold text-orange-900 mb-2">📋 Resumo de Custos Totais:</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-white rounded-lg p-3 border border-orange-200">
-                  <div className="font-medium text-gray-900 mb-1">Mini Índice</div>
-                  <div className="text-orange-600 font-bold">R$ 400 + R$ 100 = R$ 500/mês</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-200">
-                  <div className="font-medium text-gray-900 mb-1">Mini Dólar</div>
-                  <div className="text-orange-600 font-bold">R$ 550 + R$ 100 = R$ 650/mês</div>
-                </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-200">
-                  <div className="font-medium text-gray-900 mb-1">Portfólio Completo</div>
-                  <div className="text-orange-600 font-bold">R$ 750 + R$ 100 = R$ 850/mês</div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">📋 Custos Totais por Plano:</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center bg-blue-50 p-2 rounded">
+                      <span className="font-medium text-gray-700">Mini Índice:</span>
+                      <span className="font-bold text-orange-600">R$ 500/mês</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-green-50 p-2 rounded">
+                      <span className="font-medium text-gray-700">Mini Dólar:</span>
+                      <span className="font-bold text-orange-600">R$ 650/mês</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-purple-50 p-2 rounded">
+                      <span className="font-medium text-gray-700">Portfólio Completo:</span>
+                      <span className="font-bold text-orange-600">R$ 850/mês</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
