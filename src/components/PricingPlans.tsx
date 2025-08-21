@@ -456,18 +456,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
               </thead>
               <tbody>
                 <tr className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-4 px-4 font-medium text-gray-900">IR Trading/Swing Trading</td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="text-green-600 font-semibold">✓ Desconto</span>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <span className="text-green-600 font-bold">🎁 GRÁTIS</span>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-4 px-4 font-medium text-gray-900">DARFs Automatizadas</td>
                   <td className="py-4 px-4 text-center">
                     <span className="text-orange-600 font-semibold">Pago</span>
@@ -506,7 +494,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-4 px-4 font-medium text-gray-900">Tokens Plataforma Quant</td>
                   <td className="py-4 px-4 text-center">
-                    <span className="text-purple-600 font-semibold">2000/mês</span>
+                    <span className="text-purple-600 font-semibold">500/mês</span>
                   </td>
                   <td className="py-4 px-4 text-center">
                     <span className="text-purple-600 font-semibold">2000/mês</span>
