@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Star, BarChart3, MessageCircle, Settings, Shield, TrendingUp, ExternalLink, Gift, Crown, Zap, Calculator, FileText, Building2, Award } from 'lucide-react';
 import { supabase, useAuth } from '../lib/supabase';
-import WaitlistModal from './WaitlistModal';
+import { useAuth } from '../hooks/useAuth';
 
 interface PricingPlansProps {
   onSelectPlan: (planId: string) => void;
