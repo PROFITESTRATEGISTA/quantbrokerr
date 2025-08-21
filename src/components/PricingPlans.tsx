@@ -304,36 +304,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
               💳 <span className="text-blue-600">Planos Semestrais e Anuais:</span> Pagamento apenas no PIX
             </p>
           </div>
-
-          {/* BTG Costs Explanation */}
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 mb-8 border border-blue-200">
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center justify-center">
-                <Building2 className="h-5 w-5 mr-2" />
-                Custos Operacionais via Mosaico BTG
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="bg-white rounded-lg p-4 border border-blue-200">
-                  <h4 className="font-semibold text-blue-900 mb-2">Custos de Plataforma</h4>
-                  <p className="text-blue-800">Taxa padrão do Mosaico BTG para uso do MetaTrader 5</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-green-200">
-                  <h4 className="font-semibold text-green-900 mb-2">Emolumentos B3</h4>
-                  <p className="text-green-800">Taxas da bolsa aplicadas conforme regulamentação</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-purple-200">
-                  <h4 className="font-semibold text-purple-900 mb-2">Corretagem Zerada</h4>
-                  <p className="text-purple-800">BTG Pactual oferece corretagem zero para operações</p>
-                </div>
-              </div>
-              <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-xs text-yellow-800">
-                  <strong>Importante:</strong> Custos de plataforma e emolumentos são cobrados diretamente pelo BTG Pactual/B3, 
-                  separados da mensalidade do Portfólio de IA. Corretagem é zerada para todas as operações.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className={`grid ${getGridCols()} gap-6 lg:gap-8`}>
