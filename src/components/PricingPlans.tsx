@@ -560,6 +560,34 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               <p className="text-xs text-orange-700">
                 * Valores dos emolumentos B3 variam conforme volume operado
               </p>
+            </div>
+          </div>
+
+          {/* Trading Frequency Comparison */}
+          <div className="mt-12 bg-white rounded-xl p-8 shadow-lg border border-gray-200">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              🎯 Comparativo de Frequência de Operações
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Mini Índice - Maior Giro */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-200">
+                <div className="text-center mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-600 font-bold text-lg">📈</span>
+                  </div>
+                  <h4 className="text-lg font-bold text-blue-900 mb-2">Mini Índice</h4>
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    MAIOR GIRO
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Operações/dia:</span>
+                    <span className="font-semibold text-blue-600">6-12 operações</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Frequência:</span>
                     <span className="font-semibold text-blue-600">Múltiplas oportunidades</span>
                   </div>
                   <div className="flex justify-between">
@@ -653,23 +681,38 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                   <div className="text-sm text-green-700">
                     <strong>Mini Dólar</strong> - Operações mais seletivas e certeiras
                   </div>
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg text-sm mt-2"
+                </div>
                 <div className="p-4 bg-purple-50 rounded-lg">
-                <MessageCircle className="h-4 w-4 mr-2" />
+                  <div className="font-semibold text-purple-900 mb-2">Para quem quer DIVERSIFICAÇÃO</div>
                   <div className="text-sm text-purple-700">
                     <strong>Portfólio Completo</strong> - Máxima diversificação + Bitcoin BÔNUS
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 text-center">
+              <a
+                href="https://wa.me/5511975333355?text=Olá%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20custos%20operacionais%20completos%20dos%20planos."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-semibold rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg text-sm mt-2"
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Esclarecer Custos Completos
+              </a>
               <p className="text-xs text-cyan-700 mt-1">
                 💡 <strong>Importante:</strong> Taxa da plataforma + emolumentos B3 são cobrados separadamente
-              </div>
+              </p>
             </div>
           </div>
         </div>
 
         <WaitlistModal
-        isOpen={showWaitlistModal}
-        onClose={() => setShowWaitlistModal(false)}
-        portfolioType={selectedPortfolio}
-      />
+          isOpen={showWaitlistModal}
+          onClose={() => setShowWaitlistModal(false)}
+          portfolioType={selectedPortfolio}
+        />
       </div>
     </React.Fragment>
   );
