@@ -164,7 +164,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Bitcoin',
-        'Plano semestral apenas no PIX'
+        'Plano semestral apenas no PIX',
+        'Desconto especial no Imposto de Renda',
+        'DARFs com desconto para trading'
       ],
       isAvailable: isPlanAvailable('bitcoin')
     },
@@ -183,7 +185,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Índice',
-        'Plano semestral apenas no PIX'
+        'Plano semestral apenas no PIX',
+        billingPeriod === 'monthly' ? 'Desconto especial no Imposto de Renda' : 'DARFs 100% GRÁTIS (emissão automatizada)',
+        ...(billingPeriod !== 'monthly' ? [
+          '🎁 2.000 tokens Plataforma Quant GRÁTIS',
+          '🤖 Pack de robôs de análise GRÁTIS'
+        ] : ['DARFs com desconto para trading'])
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('mini-indice')
@@ -203,7 +210,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy Mini Dólar',
-        'Plano semestral apenas no PIX'
+        'Plano semestral apenas no PIX',
+        billingPeriod === 'monthly' ? 'Desconto especial no Imposto de Renda' : 'DARFs 100% GRÁTIS (emissão automatizada)',
+        ...(billingPeriod !== 'monthly' ? [
+          '🎁 2.000 tokens Plataforma Quant GRÁTIS',
+          '🤖 Pack de robôs de análise GRÁTIS'
+        ] : ['DARFs com desconto para trading'])
       ],
       isAvailable: isPlanAvailable('mini-dolar')
     },
@@ -222,7 +234,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
         'Robô inteligente com saídas e stops dinâmicos',
         'Operações via MetaTrader 5',
         'Copy de todas as estratégias + Bitcoin BÔNUS',
-        'Plano semestral apenas no PIX'
+        'Plano semestral apenas no PIX',
+        billingPeriod === 'monthly' ? 'Desconto especial no Imposto de Renda' : 'DARFs 100% GRÁTIS (emissão automatizada)',
+        ...(billingPeriod !== 'monthly' ? [
+          '🎁 2.000 tokens Plataforma Quant GRÁTIS',
+          '🤖 Pack de robôs de análise GRÁTIS'
+        ] : ['DARFs com desconto para trading'])
       ],
       isRecommended: true,
       isAvailable: isPlanAvailable('portfolio-completo')
