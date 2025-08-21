@@ -48,26 +48,6 @@ const LocationContent: React.FC = () => {
           </p>
         </div>
 
-        {/* Main Locations */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {locations.map((location, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <div className="flex items-center mb-4">
-                <MapPin className="h-6 w-6 text-blue-600 mr-2" />
-                <h3 className="text-xl font-bold text-gray-900">
-                  {location.city} - {location.state}
-                </h3>
-              </div>
-              
-              <p className="text-gray-600 mb-6">{location.description}</p>
-              
-              <div className="text-xs text-gray-400 italic">
-                {location.keywords}
-              </div>
-            </div>
-          ))}
-        </div>
-
         {/* Local SEO Content */}
         <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
