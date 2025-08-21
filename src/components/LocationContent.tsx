@@ -68,20 +68,6 @@ const LocationContent: React.FC = () => {
           ))}
         </div>
 
-        {/* Service Areas Grid */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Áreas de Atendimento - Copy Trading IA
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {serviceAreas.map((area, index) => (
-              <div key={index} className="bg-blue-50 p-3 rounded-lg text-center">
-                <span className="text-sm font-medium text-blue-800">{area}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Local SEO Content */}
         <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
