@@ -836,7 +836,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                   <tr>
                     <td className="py-4 px-4 font-medium text-gray-900">Pack de Robôs</td>
                     <td className="py-4 px-4 text-center">
-                      <span className="text-green-600 font-bold">🎁 Free</span>
+                      <span className="text-green-600 font-semibold">FREE</span>
                     </td>
                     <td className="py-4 px-4 text-center">
                       <span className="text-green-600 font-bold">🎁 Master</span>
