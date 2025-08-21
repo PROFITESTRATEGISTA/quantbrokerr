@@ -37,17 +37,6 @@ const LocationContent: React.FC = () => {
   return (
     <div className="bg-gray-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Portfólios de IA Quant Broker em Todo o Brasil
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Atendemos investidores em todas as principais cidades brasileiras com tecnologia de copy trading Quant Broker via Mosaico BTG
-            tecnologia de copy trading via BTG Pactual
-          </p>
-        </div>
-
         {/* Local SEO Content */}
         <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
