@@ -937,10 +937,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
             <div className="text-center">
               <h3 className="text-xl font-bold text-orange-900 mb-2">⚠️ Custos Adicionais: Plataforma + Emolumentos B3</h3>
               <p className="text-orange-800 text-sm">Além do plano escolhido, há custos da plataforma de copy trading e emolumentos B3</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-white rounded-lg p-4 border border-orange-300">
               <div className="flex items-center justify-between">
                 <div>
