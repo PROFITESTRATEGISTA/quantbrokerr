@@ -492,16 +492,259 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
             </div>
           )}
 
+          {/* Benefits Cards Section */}
+          <div className="mt-16 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8">
+            <h3 className="text-3xl font-bold text-gray-900 mb-2 text-center">
+              🎁 Benefícios Exclusivos por Período
+            </h3>
+            <p className="text-gray-600 text-center mb-8 max-w-3xl mx-auto">
+              Veja todos os benefícios inclusos em cada período de assinatura
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Plano Mensal */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-blue-600 font-bold text-xl">📅</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-blue-900 mb-2">Plano Mensal</h4>
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    FLEXIBILIDADE
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">IR Trading/Swing:</span>
+                    <span className="font-semibold text-blue-600">✓ Desconto</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">DARFs:</span>
+                    <span className="font-semibold text-orange-600">Pago</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Pack de Robôs:</span>
+                    <span className="font-semibold text-orange-600">Free</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Tokens Análise:</span>
+                    <span className="font-semibold text-blue-600">2000/mês</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Backtest IA:</span>
+                    <span className="font-semibold text-blue-600">✓ Incluso</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Criação Robôs IA:</span>
+                    <span className="font-semibold text-blue-600">✓ Incluso</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plano Semestral */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-green-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    MAIS POPULAR
+                  </span>
+                </div>
+                
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-green-600 font-bold text-xl">💰</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-green-900 mb-2">Plano Semestral</h4>
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    20% OFF + BÔNUS
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">IR Trading/Swing:</span>
+                    <span className="font-semibold text-green-600">🎁 GRÁTIS</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">DARFs:</span>
+                    <span className="font-semibold text-green-600">🎁 GRÁTIS</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Pack de Robôs:</span>
+                    <span className="font-semibold text-green-600">🎁 Master</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Tokens Análise:</span>
+                    <span className="font-semibold text-green-600">2000/mês</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Backtest IA:</span>
+                    <span className="font-semibold text-green-600">✓ Incluso</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Criação Robôs IA:</span>
+                    <span className="font-semibold text-green-600">✓ Incluso</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plano Anual */}
+              <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-purple-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-purple-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    MÁXIMO DESCONTO
+                  </span>
+                </div>
+                
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-purple-600 font-bold text-xl">👑</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-purple-900 mb-2">Plano Anual</h4>
+                  <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    40% OFF + PREMIUM
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">IR Trading/Swing:</span>
+                    <span className="font-semibold text-purple-600">🎁 GRÁTIS</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">DARFs:</span>
+                    <span className="font-semibold text-purple-600">🎁 GRÁTIS</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Pack de Robôs:</span>
+                    <span className="font-semibold text-purple-600">🎁 Master</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Tokens Análise:</span>
+                    <span className="font-semibold text-purple-600">2000/mês</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Backtest IA:</span>
+                    <span className="font-semibold text-purple-600">✓ Incluso</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 text-sm">Criação Robôs IA:</span>
+                    <span className="font-semibold text-purple-600">✓ Incluso</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Comparison Summary */}
+            <div className="mt-12 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <h4 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                📊 Comparativo de Benefícios por Período
+              </h4>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Benefício</th>
+                      <th className="text-center py-3 px-4 font-semibold text-blue-900">Mensal</th>
+                      <th className="text-center py-3 px-4 font-semibold text-green-900">Semestral</th>
+                      <th className="text-center py-3 px-4 font-semibold text-purple-900">Anual</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">Desconto no Preço</td>
+                      <td className="py-3 px-4 text-center text-gray-500">-</td>
+                      <td className="py-3 px-4 text-center text-green-600 font-bold">20% OFF</td>
+                      <td className="py-3 px-4 text-center text-purple-600 font-bold">40% OFF</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">IR Trading/Swing Trading</td>
+                      <td className="py-3 px-4 text-center text-blue-600">✓ Desconto</td>
+                      <td className="py-3 px-4 text-center text-green-600 font-bold">🎁 GRÁTIS</td>
+                      <td className="py-3 px-4 text-center text-purple-600 font-bold">🎁 GRÁTIS</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">DARFs Automatizadas</td>
+                      <td className="py-3 px-4 text-center text-orange-600">Pago</td>
+                      <td className="py-3 px-4 text-center text-green-600 font-bold">🎁 GRÁTIS</td>
+                      <td className="py-3 px-4 text-center text-purple-600 font-bold">🎁 GRÁTIS</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">Pack de Robôs</td>
+                      <td className="py-3 px-4 text-center text-orange-600">Free</td>
+                      <td className="py-3 px-4 text-center text-green-600 font-bold">🎁 Master</td>
+                      <td className="py-3 px-4 text-center text-purple-600 font-bold">🎁 Master</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">Tokens Análise Mensal</td>
+                      <td className="py-3 px-4 text-center text-blue-600">2000</td>
+                      <td className="py-3 px-4 text-center text-green-600">2000</td>
+                      <td className="py-3 px-4 text-center text-purple-600">2000</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">Backtest com IA</td>
+                      <td className="py-3 px-4 text-center text-blue-600">✓</td>
+                      <td className="py-3 px-4 text-center text-green-600">✓</td>
+                      <td className="py-3 px-4 text-center text-purple-600">✓</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-medium text-gray-700">Criação Robôs Traders IA</td>
+                      <td className="py-3 px-4 text-center text-blue-600">✓</td>
+                      <td className="py-3 px-4 text-center text-green-600">✓</td>
+                      <td className="py-3 px-4 text-center text-purple-600">✓</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <h5 className="font-semibold text-blue-900 mb-2">💡 Plano Mensal</h5>
+                  <p className="text-blue-800 text-sm">
+                    Ideal para testar a plataforma com flexibilidade total
+                  </p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <h5 className="font-semibold text-green-900 mb-2">🎯 Plano Semestral</h5>
+                  <p className="text-green-800 text-sm">
+                    <strong>Melhor custo-benefício:</strong> 20% OFF + IR e DARFs grátis + Pack Master
+                  </p>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4 text-center">
+                  <h5 className="font-semibold text-purple-900 mb-2">👑 Plano Anual</h5>
+                  <p className="text-purple-800 text-sm">
+                    <strong>Máximo desconto:</strong> 40% OFF + todos os benefícios premium
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-16 text-center">
             <p className="text-sm sm:text-base text-gray-600 mb-4 px-4">
               Apenas 50 vagas disponíveis - Para planos semestrais e anuais via PIX, entre em contato com nossa equipe
             </p>
           </div>
-
+                        <a 
+                          href="https://notabroker.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          🎁 GRÁTIS
+                        </a>
           {/* Quick Comparison Section */}
           {/* Copy Platform Cost Alert */}
           <div className="mt-8 bg-gradient-to-r from-orange-50 to-cyan-50 border border-orange-200 rounded-xl p-6">
-            <div className="flex items-center justify-center mb-4">
+                        <a 
+                          href="https://notabroker.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          🎁 GRÁTIS
+                        </a>
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
                 <span className="text-orange-600 font-bold text-xl">💳</span>
               </div>
@@ -511,15 +754,36 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-4 border border-orange-300">
+                        <a 
+                          href="https://estrategistasolutions.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Free
+                        </a>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Taxa da Plataforma de Copy Trading</h4>
-                  <div className="flex items-center justify-between bg-orange-50 p-2 rounded-lg mb-3">
+                        <a 
+                          href="https://estrategistasolutions.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          🎁 Master
+                        </a>
                     <span className="text-xs text-gray-600">Cobrança mensal separada</span>
                     <div className="text-right">
                       <div className="text-lg font-bold text-orange-600">R$ 100,00</div>
-                      <div className="text-xs text-gray-500">por mês</div>
+                        <a 
+                          href="https://estrategistasolutions.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          🎁 Master
+                        </a>
                     </div>
                   </div>
                   
@@ -529,13 +793,53 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, billingPeriod
                       <div className="font-medium text-blue-900">Bitcoin Futuro</div>
                       <div className="text-blue-700">Conforme tabela B3</div>
                     </div>
-                    <div className="bg-blue-50 rounded p-2 border border-blue-200">
+                        <a 
+                          href="https://devhubtrader.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-cyan-600 hover:text-cyan-800 underline"
+                        >
+                          2000 tokens
+                        </a>
                       <div className="font-medium text-blue-900">Mini Índice</div>
                       <div className="text-blue-700">Conforme tabela B3</div>
                     </div>
                     <div className="bg-blue-50 rounded p-2 border border-blue-200">
                       <div className="font-medium text-blue-900">Mini Dólar</div>
                       <div className="text-blue-700">Conforme tabela B3</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-green-900 mb-3">🏦 Assessoria Trader BTG</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-green-800">Corretagem:</span>
+                        <a 
+                          href="https://mosaicoinvestimentos.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          R$ 0,00
+                        </a>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-green-800">PROFIT PRO:</span>
+                        <a 
+                          href="https://mosaicoinvestimentos.com.br" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-green-600 hover:text-green-800 underline"
+                        >
+                          🎁 GRÁTIS
+                        </a>
+                      </div>
+                      <div className="text-xs text-green-700">
+                        ✓ Assessoria especializada BTG<br/>
+                        ✓ Corretagem zero para traders<br/>
+                        ✓ Plataforma PROFIT PRO inclusa
+                      </div>
                     </div>
                   </div>
                 </div>
