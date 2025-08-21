@@ -1022,10 +1022,29 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           </h3>
           <p className="text-gray-600 text-center mb-8 max-w-3xl mx-auto">
             Entenda as principais diferenças entre cada portfólio para escolher o ideal para seu perfil
-                <h4 className="text-lg font-bold text-green-900 mb-2">Mini Dólar</h4>
-                </div>
-              <div className="p-4 bg-blue-50 rounded-lg">
-      />
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h4 className="text-lg font-bold text-green-900 mb-2">Mini Índice</h4>
+              <p className="text-sm text-gray-600">Ideal para iniciantes com risco controlado</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h4 className="text-lg font-bold text-green-900 mb-2">Mini Dólar</h4>
+              <p className="text-sm text-gray-600">Para traders experientes que buscam volatilidade</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h4 className="text-lg font-bold text-green-900 mb-2">Portfólio Completo</h4>
+              <p className="text-sm text-gray-600">Diversificação máxima com todas as estratégias</p>
+            </div>
+          </div>
+        </div>
+
+        <WaitlistModal
+          isOpen={showWaitlistModal}
+          onClose={() => setShowWaitlistModal(false)}
+          portfolioType={selectedPortfolio}
+        />
+      </div>
     </div>
   );
 };
