@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import Hero from '../components/Hero';
 import QuantBrokerSection from '../components/QuantBrokerSection';
@@ -11,6 +12,8 @@ import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 
 const HomePage: React.FC = () => {
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'semiannual' | 'annual'>('monthly');
+
   const handleSelectPlan = (planId: string) => {
     if (planId === 'bitcoin') {
       // Redirect to login or tutorial
@@ -39,8 +42,8 @@ const HomePage: React.FC = () => {
       <div id="pricing-section">
         <PricingPlans 
           onSelectPlan={handleSelectPlan} 
-          billingPeriod="monthly"
-          onToggleBilling={() => {}}
+          billingPeriod={billingPeriod}
+          onToggleBilling={setBillingPeriod}
           recommendedPlan={null}
         />
       </div>
