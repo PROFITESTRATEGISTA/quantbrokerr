@@ -15,9 +15,9 @@ const PlanosPage: React.FC = () => {
     } else {
       // Direct to Stripe checkout for other plans
       const stripeLinks = {
-        'mini-indice': 'https://buy.stripe.com/cN217HePO833c6IcNo',
-        'mini-dolar': 'https://buy.stripe.com/8wM03DgXW3MNc6I3cf',
-        'portfolio-completo': 'https://buy.stripe.com/7sY5kD4Hravx7XYfeK9R60O'
+        'mini-indice': 'https://www.asaas.com/c/xbfb1ehxgyt90ort',
+        'mini-dolar': 'https://www.asaas.com/c/nkwungjievdsugf8',
+        'portfolio-completo': 'https://www.asaas.com/c/nzm53d1loayb64l4'
       };
       
       const link = stripeLinks[planId as keyof typeof stripeLinks];
