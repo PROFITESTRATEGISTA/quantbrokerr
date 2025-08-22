@@ -220,10 +220,8 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
     }
   ];
 
-  const visiblePlans = plans.filter(plan => !hiddenOffers.has(plan.id));
-
   const getGridCols = () => {
-    const count = visiblePlans.length;
+    const count = showAdminControls ? plans.length : plans.filter(plan => !hiddenOffers.has(plan.id)).length;
     if (count === 1) return 'grid-cols-1 max-w-md mx-auto';
     if (count === 2) return 'grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto';
     if (count === 3) return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
@@ -303,10 +301,16 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
         </div>
 
         <div className={`grid ${getGridCols()} gap-6 lg:gap-8`}>
-          {visiblePlans.map((plan) => (
+          {plans
+            .filter(plan => showAdminControls || !hiddenOffers.has(plan.id))
+            .map((plan) => (
             <div
               key={plan.id}
               className={`relative bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border-2 transition-all hover:shadow-xl ${
+                hiddenOffers.has(plan.id) && showAdminControls 
+                  ? 'opacity-50 border-red-300 bg-red-50' 
+                  : ''
+              } ${
                 plan.isRecommended || plan.id === recommendedPlan
                   ? 'border-blue-500 transform scale-105'
                   : 'border-gray-200 hover:border-blue-300'
@@ -360,6 +364,14 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                 </div>
               )}
 
+              {hiddenOffers.has(plan.id) && showAdminControls && (
+                <div className="absolute inset-0 bg-red-500/10 border-2 border-red-500 rounded-2xl flex items-center justify-center">
+                  <div className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">
+                    OFERTA OCULTA
+                  </div>
+                </div>
+              )}
+
               {(plan.isRecommended || plan.id === recommendedPlan) && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
@@ -404,17 +416,22 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
 
               <button
                 onClick={() => handlePlanClick(plan.id)}
+                disabled={hiddenOffers.has(plan.id) && !showAdminControls}
                 className={`w-full py-3 px-4 rounded-lg font-medium transition-all text-sm sm:text-base ${
+                  hiddenOffers.has(plan.id) && !showAdminControls
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 
                   plan.isRecommended || plan.id === recommendedPlan
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-gray-900 text-white hover:bg-gray-800'
                 }`}
               >
-                {getButtonText(plan.id)}
+                {hiddenOffers.has(plan.id) && !showAdminControls ? 'Oferta Indisponível' : getButtonText(plan.id)}
               </button>
 
               <button
                 onClick={() => { window.location.href = '/resultados'; }}
+                disabled={hiddenOffers.has(plan.id) && !showAdminControls}
                 className="w-full mt-2 py-2 px-4 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-all flex items-center justify-center text-sm sm:text-base"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
