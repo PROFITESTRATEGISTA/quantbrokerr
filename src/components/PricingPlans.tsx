@@ -426,13 +426,45 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
               </button>
 
               {(billingPeriod === 'semiannual' || billingPeriod === 'annual') && plan.isAvailable && (
-                <button
-                  onClick={() => window.open('https://wa.me/5511975333355?text=Olá%2C%20tenho%20interesse%20no%20' + encodeURIComponent(plan.name) + '%20no%20plano%20' + encodeURIComponent(billingPeriod === 'semiannual' ? 'semestral' : 'anual') + '.%20Pode%20me%20ajudar%20com%20o%20pagamento%20via%20PIX%3F', '_blank')}
-                  className="w-full mt-2 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center justify-center text-sm sm:text-base"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Falar com Suporte
-                </button>
+                {(() => {
+                  // Determine the correct Asaas link based on plan and billing period
+                  const getAsaasLink = (planId: string, period: string) => {
+                    if (period === 'semiannual') {
+                      switch (planId) {
+                        case 'mini-indice': return 'https://www.asaas.com/c/gqvtfal7d61hceox';
+                        case 'mini-dolar': return 'https://www.asaas.com/c/7vjo2ztulu31a1bf';
+                        case 'portfolio-completo': return 'https://www.asaas.com/c/5kbvy19u5ptvagos';
+                        default: return null;
+                      }
+                    } else if (period === 'annual') {
+                      switch (planId) {
+                        case 'mini-indice': return 'https://www.asaas.com/c/k4y1y8nyrszplydc';
+                        case 'mini-dolar': return 'https://www.asaas.com/c/7jczq71q2b3jl86n';
+                        case 'portfolio-completo': return 'https://www.asaas.com/c/18tvrzgpgeswrkqc';
+                        default: return null;
+                      }
+                    }
+                    return null;
+                  };
+                  
+                  const asaasLink = getAsaasLink(plan.id, billingPeriod);
+                  
+                  return (
+                    <button
+                      onClick={() => {
+                        if (asaasLink) {
+                          window.open(asaasLink, '_blank');
+                        } else {
+                          window.open('https://wa.me/5511975333355?text=Olá%2C%20tenho%20interesse%20no%20' + encodeURIComponent(plan.name) + '%20no%20plano%20' + encodeURIComponent(billingPeriod === 'semiannual' ? 'semestral' : 'anual') + '.%20Pode%20me%20ajudar%20com%20o%20pagamento%20via%20PIX%3F', '_blank');
+                        }
+                      }}
+                      className="w-full py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all flex items-center justify-center text-sm sm:text-base"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      {asaasLink ? 'Pagar com Asaas' : 'Falar com Suporte'}
+                    </button>
+                  );
+                })()}
               )}
             </div>
           ))}

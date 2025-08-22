@@ -138,7 +138,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTutorial }) => {
               className="inline-flex items-center px-8 py-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <TrendingUp className="h-5 w-5 mr-2" />
-              Contratar Alavancagem
+              <button
+                onClick={() => window.open('https://www.asaas.com/c/xfq6j4iq4p06eotk', '_blank')}
+                className="inline-flex items-center px-8 py-4 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <TrendingUp className="h-5 w-5 mr-2" />
+                Contratar Alavancagem
+              </button>
             </button>
           </div>
 
