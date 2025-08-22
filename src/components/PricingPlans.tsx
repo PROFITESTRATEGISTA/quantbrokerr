@@ -133,7 +133,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
       name: 'Portfólio Bitcoin',
       description: 'Operações com Bitcoin Futuro na B3 via Mosaico BTG',
       price: billingPeriod === 'annual' ? 'R$ 2.160,00' : billingPeriod === 'semiannual' ? 'R$ 1.440,00' : 'R$ 300,00',
-      originalPrice: billingPeriod === 'annual' ? 'R$ 3.600,00' : billingPeriod === 'semiannual' ? 'R$ 1.800,00' : undefined,
+      originalPrice: billingPeriod === 'annual' ? 'R$ 3.600,00' : billingPeriod === 'semiannual' ? 'R$ 1.800,00' : 'R$ 429,00',
       minCapital: 'R$ 3.000',
       dailyRisk: 'R$ 400 a R$ 600',
       leverage: 'Até 1x',
@@ -155,7 +155,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
       name: 'Portfólio Mini Índice',
       description: 'Ideal para operar com risco controlado e consistência',
       price: billingPeriod === 'annual' ? 'R$ 2.880,00' : billingPeriod === 'semiannual' ? 'R$ 1.920,00' : 'R$ 400,00',
-      originalPrice: billingPeriod === 'annual' ? 'R$ 4.800,00' : billingPeriod === 'semiannual' ? 'R$ 2.400,00' : undefined,
+      originalPrice: billingPeriod === 'annual' ? 'R$ 4.800,00' : billingPeriod === 'semiannual' ? 'R$ 2.400,00' : 'R$ 571,00',
       minCapital: 'R$ 5.000',
       dailyRisk: 'R$ 400 a R$ 600',
       leverage: 'Até 1x',
@@ -178,7 +178,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
       name: 'Portfólio Mini Dólar',
       description: 'Projetado para aproveitar movimentos explosivos do dólar',
       price: billingPeriod === 'annual' ? 'R$ 3.960,00' : billingPeriod === 'semiannual' ? 'R$ 2.640,00' : 'R$ 550,00',
-      originalPrice: billingPeriod === 'annual' ? 'R$ 6.600,00' : billingPeriod === 'semiannual' ? 'R$ 3.300,00' : undefined,
+      originalPrice: billingPeriod === 'annual' ? 'R$ 6.600,00' : billingPeriod === 'semiannual' ? 'R$ 3.300,00' : 'R$ 786,00',
       minCapital: 'R$ 10.000',
       dailyRisk: 'R$ 400 a R$ 600',
       leverage: 'Até 1x',
@@ -200,7 +200,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
       name: 'Portfólio Completo',
       description: 'Acesso a todas as estratégias com gestão diversificada + Bitcoin BÔNUS',
       price: billingPeriod === 'annual' ? 'R$ 5.400,00' : billingPeriod === 'semiannual' ? 'R$ 3.600,00' : 'R$ 750,00',
-      originalPrice: billingPeriod === 'annual' ? 'R$ 9.000,00' : billingPeriod === 'semiannual' ? 'R$ 4.500,00' : undefined,
+      originalPrice: billingPeriod === 'annual' ? 'R$ 9.000,00' : billingPeriod === 'semiannual' ? 'R$ 4.500,00' : 'R$ 1.071,00',
       minCapital: 'R$ 15.000',
       dailyRisk: 'R$ 400 a R$ 800',
       leverage: 'Até 1x',
@@ -261,7 +261,12 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                   : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              Plano Mensal
+              <span className="relative">
+                Plano Mensal
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                  30% OFF
+                </span>
+              </span>
             </button>
             <button
               onClick={() => onToggleBilling('semiannual')}
