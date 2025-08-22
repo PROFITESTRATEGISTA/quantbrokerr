@@ -422,7 +422,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
               </button>
 
               {(billingPeriod === 'semiannual' || billingPeriod === 'annual') && plan.isAvailable && (
-                {(() => {
+                (() => {
                   // Determine the correct Asaas link based on plan and billing period
                   const getAsaasLink = (planId: string, period: string) => {
                     if (period === 'semiannual') {
@@ -460,7 +460,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                       {asaasLink ? 'Pagar com Asaas' : 'Falar com Suporte'}
                     </button>
                   );
-                })()}
+                })()
               )}
             </div>
           ))}
