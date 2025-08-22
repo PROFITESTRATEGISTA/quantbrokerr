@@ -97,16 +97,29 @@ const AdminContractsPanel: React.FC = () => {
       setLoadingUsers(true);
       setError(null);
       
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, email, full_name')
-        .eq('is_active', true)
-        .order('full_name');
-
-      if (error) throw error;
+      // Use admin edge function to get users
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users?action=list`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       
-      console.log('✅ Users loaded:', data?.length || 0);
-      setAvailableUsers(data || []);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success && result.users) {
+        const activeUsers = result.users.filter((user: any) => user.is_active !== false);
+        setAvailableUsers(activeUsers);
+        console.log('✅ Users loaded for contracts:', activeUsers.length);
+      } else {
+        throw new Error(result.error || 'Erro ao carregar usuários');
+      }
+
     } catch (error: any) {
       console.error('Error fetching users:', error);
       setError(`Erro ao carregar usuários: ${error.message}`);
@@ -319,6 +332,9 @@ const AdminContractsPanel: React.FC = () => {
 
   const fetchContracts = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      
       const { data: contractsWithUsers, error } = await supabase
         .from('client_contracts')
         .select(`
@@ -332,9 +348,12 @@ const AdminContractsPanel: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('✅ Contracts loaded:', contractsWithUsers?.length || 0);
       setContracts(contractsWithUsers || []);
     } catch (error) {
-      console.error('Erro ao buscar contratos:', error);
+      console.error('Error fetching contracts:', error);
+      setError('Erro ao carregar contratos');
     } finally {
       setLoading(false);
     }
@@ -1055,7 +1074,7 @@ const AdminContractsPanel: React.FC = () => {
                     ) : (
                       availableUsers.map(user => (
                         <option key={user.id} value={user.id}>
-                          {user.full_name || 'Nome não informado'} ({user.email}) - ID: {user.id.substring(0, 8)}...
+                          {user.full_name || user.email} ({user.email})
                         </option>
                       ))
                     )}
@@ -1063,7 +1082,7 @@ const AdminContractsPanel: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1">
                     {availableUsers.length > 0 
                       ? `${availableUsers.length} usuários disponíveis` 
-                      : 'Nenhum usuário encontrado'
+                      : 'Nenhum usuário encontrado. Verifique se há usuários cadastrados.'
                     }
                   </p>
                 </div>
