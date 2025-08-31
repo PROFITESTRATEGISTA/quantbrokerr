@@ -229,7 +229,8 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 py-16">
+    <>
+      <div className="bg-gray-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -663,8 +664,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           onClose={() => setShowWaitlistModal(false)}
           portfolioType={selectedPortfolio}
         />
+        </div>
       </div>
-    </div>
+
       {/* Formulário de Consultoria */}
       <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
         <div className="text-center mb-8">
@@ -809,7 +811,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           </form>
         </div>
       </div>
-
+    </>
   );
 };
 
