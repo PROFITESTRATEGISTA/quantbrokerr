@@ -256,17 +256,15 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
           <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-8">
             <button
               onClick={() => onToggleBilling('monthly')}
-              className={`px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
+              className={`relative px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 billingPeriod === 'monthly' 
                   ? 'bg-blue-600 text-white' 
                   : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              <span className="relative">
-                Plano Mensal
-                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                  30% OFF
-                </span>
+              Plano Mensal
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                30% OFF
               </span>
             </button>
             <button
