@@ -647,9 +647,9 @@ const InvestmentComparisonChart: React.FC = () => {
           <div className="flex items-start">
             <AlertTriangle className="h-6 w-6 text-red-400 mr-3 mt-1" />
             <div>
-              <h4 className="font-semibold text-red-300 mb-2">⚠️ Aviso Importante sobre Riscos</h4>
-              <p className="text-sm text-red-200 leading-relaxed">
-                <strong className="text-red-400 bg-red-900/30 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
+              <h4 className="font-semibold text-white mb-2">⚠️ Aviso Importante sobre Riscos</h4>
+              <p className="text-sm text-white leading-relaxed">
+                <strong className="text-red-300 bg-red-900/30 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
                 Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
