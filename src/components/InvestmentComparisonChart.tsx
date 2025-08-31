@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { TrendingUp, Home, Shield, Zap, DollarSign, Calculator, AlertTriangle } from 'lucide-react';
 
 const InvestmentComparisonChart: React.FC = () => {
@@ -13,35 +13,38 @@ const InvestmentComparisonChart: React.FC = () => {
     const data = [];
 
     for (let i = 0; i <= months; i++) {
-      // CDI 10.5% a.a. líquido (após impostos e taxas)
+      // CDI 10.5% a.a. líquido
       const cdiMonthlyRate = 0.105 / 12; // 10.5% anual dividido por 12 meses
       const cdiValue = initialCapital * Math.pow(1 + cdiMonthlyRate, i);
 
-      // Imóvel: 0.5% a.m. líquido (6% a.a. após impostos, IPTU, manutenção)
-      const realEstateMonthlyRate = 0.005;
+      // Imóvel: 6% a.a. líquido (após impostos, IPTU, manutenção)
+      const realEstateMonthlyRate = 0.06 / 12; // 6% anual dividido por 12 meses
       const realEstateValue = initialCapital * Math.pow(1 + realEstateMonthlyRate, i);
 
-      // Portfólio IA: Meta 60% a.a. (4.8% a.m. médio) com drawdowns realistas
+      // Portfólio IA: Meta 60% a.a. (4.8% a.m. médio) com drawdowns realistas de até 25%
       let aiValue = initialCapital;
       
-      // Simular performance mensal realista com drawdowns
+      // Simular performance mensal realista com drawdowns de até 25%
       if (i > 0) {
-        const baseMonthlyRate = 0.048; // 4.8% mensal para atingir 60% anual
-        
         // Padrão de performance realista com meses negativos
         let monthlyPerformance;
-        if (i % 7 === 0) {
-          // Mês de drawdown severo (-15% a -25%)
-          monthlyPerformance = -0.15 - (Math.random() * 0.10); // -15% a -25%
+        
+        // Criar padrão mais realista de drawdowns
+        if (i % 8 === 0) {
+          // Mês de drawdown severo (-20% a -25%)
+          monthlyPerformance = -0.20 - (Math.random() * 0.05); // -20% a -25%
+        } else if (i % 6 === 0) {
+          // Mês de drawdown moderado (-10% a -15%)
+          monthlyPerformance = -0.10 - (Math.random() * 0.05); // -10% a -15%
         } else if (i % 4 === 0) {
-          // Mês de perda moderada (-5% a -10%)
-          monthlyPerformance = -0.05 - (Math.random() * 0.05); // -5% a -10%
+          // Mês de perda leve (-3% a -8%)
+          monthlyPerformance = -0.03 - (Math.random() * 0.05); // -3% a -8%
         } else if (i % 3 === 0) {
-          // Mês de performance baixa (0% a 3%)
-          monthlyPerformance = Math.random() * 0.03; // 0% a 3%
+          // Mês de performance baixa (1% a 4%)
+          monthlyPerformance = 0.01 + (Math.random() * 0.03); // 1% a 4%
         } else {
-          // Meses positivos (5% a 15%)
-          monthlyPerformance = 0.05 + (Math.random() * 0.10); // 5% a 15%
+          // Meses positivos (6% a 12%) para atingir meta de 60% a.a.
+          monthlyPerformance = 0.06 + (Math.random() * 0.06); // 6% a 12%
         }
         
         // Aplicar performance ao valor anterior
@@ -82,17 +85,17 @@ const InvestmentComparisonChart: React.FC = () => {
       risk: 'Limitado ao capital investido',
       liquidity: 'Alta (D+0)',
       advantages: [
+        'Meta: 60% a.a. líquido (Quant Broker)',
         'Alto poder de alavancagem (até 5x)',
         'Gestão automatizada 24/7',
         'Diversificação automática',
         'Liquidez imediata',
-        'Meta: 60% a.a. líquido',
         'Drawdown máximo: 25% mensal'
       ],
       considerations: [
         'Volatilidade de mercado',
         'Risco limitado ao capital',
-        'Meses de drawdown esperados',
+        'Meses de drawdown esperados (até -25%)',
         'Performance varia mensalmente'
       ]
     },
@@ -267,7 +270,7 @@ const InvestmentComparisonChart: React.FC = () => {
                     dataKey="cdi" 
                     stroke="#3b82f6" 
                     strokeWidth={3}
-                    name="CDI 8% a.a."
+                    name="CDI 10,5% a.a."
                     dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
                   />
                   <Line 
@@ -283,7 +286,7 @@ const InvestmentComparisonChart: React.FC = () => {
                 <BarChart data={[{
                   name: 'Resultado Final',
                   'Portfólio IA': finalData.portfolioIA,
-                  'CDI 8% a.a.': finalData.cdi,
+                  'CDI 10,5% a.a.': finalData.cdi,
                   'Imóvel 6% a.a.': finalData.imovel
                 }]} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -291,7 +294,7 @@ const InvestmentComparisonChart: React.FC = () => {
                   <YAxis stroke="#64748b" fontSize={12} tickFormatter={formatCurrency} />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="Portfólio IA" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="CDI 8% a.a." fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="CDI 10,5% a.a." fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Imóvel 6% a.a." fill="#6b7280" radius={[4, 4, 0, 0]} />
                 </BarChart>
               )}
@@ -542,8 +545,8 @@ const InvestmentComparisonChart: React.FC = () => {
               <h4 className="font-semibold text-yellow-900 mb-2">Aviso Importante sobre Riscos</h4>
               <p className="text-sm text-yellow-800 leading-relaxed">
                 <strong>Renda Variável:</strong> Os investimentos em Portfólios de IA estão sujeitos a riscos e podem resultar em perdas patrimoniais. 
-                Rentabilidades passadas não garantem resultados futuros. Os percentuais apresentados são estimativas baseadas em backtests 
-                e resultados históricos. <strong>Drawdown máximo esperado: 25% mensal.</strong> Meta da Quant Broker: 60% a.a. líquido.
+                Rentabilidades passadas não garantem resultados futuros. <strong>Meta da Quant Broker: 60% a.a. líquido.</strong> 
+                <strong>Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
                 <br /><br />
                 <strong>Comparação Educativa:</strong> Esta comparação tem fins educativos. CDI e imóveis têm características de risco diferentes. 
                 Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
