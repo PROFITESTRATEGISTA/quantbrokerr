@@ -7,6 +7,7 @@ import WhatIsAIPortfolio from '../components/WhatIsAIPortfolio';
 import LocationContent from '../components/LocationContent';
 import PricingPlans from '../components/PricingPlans';
 import InvestmentComparison from '../components/InvestmentComparison';
+import InvestmentComparisonChart from '../components/InvestmentComparisonChart';
 import BenefitsSection from '../components/BenefitsSection';
 import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
