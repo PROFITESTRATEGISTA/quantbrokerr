@@ -546,10 +546,6 @@ const InvestmentComparisonChart: React.FC = () => {
                     <span className="hidden sm:inline">Otimista</span>
                     <span className="sm:hidden">Otim.</span>
                   </th>
-                  <th className="text-center py-2 sm:py-4 px-2 sm:px-4 font-semibold text-blue-400 text-xs sm:text-sm">
-                    <span className="hidden sm:inline">CDI (10,5% a.a.)</span>
-                    <span className="sm:hidden">CDI</span>
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -579,10 +575,6 @@ const InvestmentComparisonChart: React.FC = () => {
                     <div className="text-xs sm:text-sm font-bold">R$ 2.000</div>
                     <div className="text-xs">20% a.m.</div>
                   </td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 87</div>
-                    <div className="text-xs">0,87% a.m.</div>
-                  </td>
                 </tr>
                 <tr className="border-b border-slate-600 hover:bg-slate-700/40 bg-blue-900/30 transition-colors">
                   <td className="py-2 sm:py-4 px-2 sm:px-4 font-medium text-blue-300">
@@ -610,10 +602,6 @@ const InvestmentComparisonChart: React.FC = () => {
                     <div className="text-xs sm:text-sm font-bold">R$ 6.000</div>
                     <div className="text-xs">20% a.m.</div>
                   </td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 262</div>
-                    <div className="text-xs">0,87% a.m.</div>
-                  </td>
                 </tr>
                 <tr className="border-b border-slate-600 hover:bg-slate-700/40 transition-colors">
                   <td className="py-2 sm:py-4 px-2 sm:px-4 font-medium text-purple-300">
@@ -640,10 +628,6 @@ const InvestmentComparisonChart: React.FC = () => {
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-green-300">
                     <div className="text-xs sm:text-sm font-bold">R$ 6.000</div>
                     <div className="text-xs">20% a.m.</div>
-                  </td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 87</div>
-                    <div className="text-xs">0,87% a.m.</div>
                   </td>
                 </tr>
               </tbody>
