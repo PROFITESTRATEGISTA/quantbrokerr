@@ -515,7 +515,7 @@ const InvestmentComparisonChart: React.FC = () => {
                     <p><strong>• Alavancagem:</strong> 3x limitado</p>
                     <p><strong>• Ganhos:</strong> R$ 2-3k/mês</p>
                     <p><strong>• Gestão:</strong> IA automática</p>
-                    <p><strong>• DD máx:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-1 sm:px-2 py-1 rounded text-xs">25%</span></p>
+                    <p><strong>• DD máx:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-1 sm:px-2 py-1 rounded text-xs">100%</span></p>
                     <p><strong>• Perfil:</strong> Arrojado</p>
                     <div className="text-xs text-red-200">Risco máx: -R$ 10.000</div>
                   </div>
@@ -625,20 +625,20 @@ const InvestmentComparisonChart: React.FC = () => {
                           <span className="sm:hidden">3x Cap</span>
                         </div>
                         <div className="text-xs text-purple-400">R$ 10k</div>
-                        <div className="text-xs text-red-400 font-medium">DD: 25%</div>
+                        <div className="text-xs text-red-400 font-medium">DD: 100%</div>
                       </div>
                     </div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-red-300">
-                    <div className="text-xs sm:text-sm font-bold">-R$ 2.000</div>
+                    <div className="text-xs sm:text-sm font-bold">-R$ 7.500</div>
                     <div className="text-xs">-20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-yellow-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 800</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 2.400</div>
                     <div className="text-xs">8% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-green-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 2.000</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 6.000</div>
                     <div className="text-xs">20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
