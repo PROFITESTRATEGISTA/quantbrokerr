@@ -392,29 +392,30 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Scenario Analysis */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 mb-12">
+        <div className="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-8 mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Perfis de Cliente: Estratégias com Portfólio de IA
+            Estratégias de Alavancagem: Portfólio de IA Quant Broker
           </h3>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Cliente Conservador - 1x Alavancagem */}
+            {/* Estratégia Renda Mensal - 1x Alavancagem */}
             <div className="bg-white rounded-xl p-6 border border-green-200">
               <div className="flex items-center mb-4">
                 <DollarSign className="h-6 w-6 text-green-600 mr-3" />
-                <h4 className="text-xl font-bold text-green-900">Cliente Conservador - Renda Mensal</h4>
+                <h4 className="text-xl font-bold text-green-900">Estratégia: Renda Mensal</h4>
               </div>
               
               <div className="space-y-4">
                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h5 className="font-semibold text-green-900 mb-3">🛡️ Alavancagem 1x - Foco em Renda</h5>
+                  <h5 className="font-semibold text-green-900 mb-3">🛡️ Alavancagem 1x - Foco em Renda Mensal</h5>
                   <div className="text-sm text-green-800 space-y-2">
-                    <p><strong>• Capital por R$ 10.000:</strong> Renda de R$ 800/mês</p>
-                    <p><strong>• Meta:</strong> 8% a.m. líquido (60% a.a.)</p>
+                    <p><strong>• Capital:</strong> R$ 10.000</p>
+                    <p><strong>• Renda mensal estimada:</strong> R$ 800 (8% a.m. líquido)</p>
+                    <p><strong>• Meta anual:</strong> 60% líquido (após custos e mensalidade)</p>
                     <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 10.000)</p>
-                    <p><strong>• Drawdown:</strong> Máximo 25% mensal</p>
-                    <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
                     <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
+                    <p><strong>• Drawdown máximo:</strong> 25% mensal</p>
+                    <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
                   </div>
                 </div>
                 
@@ -422,7 +423,7 @@ const InvestmentComparisonChart: React.FC = () => {
                   <h5 className="font-semibold text-blue-900 mb-3">📊 Exemplo Prático</h5>
                   <div className="text-sm text-blue-800 space-y-2">
                     <p><strong>Capital:</strong> R$ 10.000</p>
-                    <p><strong>Renda Mensal:</strong> R$ 800 (8% a.m.)</p>
+                    <p><strong>Renda Mensal:</strong> R$ 800 (8% a.m. líquido)</p>
                     <p><strong>Renda Anual:</strong> R$ 9.600</p>
                     <p><strong>Valor Final (1 ano):</strong> R$ 16.000</p>
                     <p><strong>Segurança:</strong> Perda máxima R$ 10.000</p>
@@ -431,11 +432,11 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
             </div>
 
-            {/* Cliente Arrojado - 2x+ Alavancagem */}
+            {/* Estratégia Ganho Explosivo - 2x+ Alavancagem */}
             <div className="bg-white rounded-xl p-6 border border-purple-200">
               <div className="flex items-center mb-4">
                 <TrendingUp className="h-6 w-6 text-purple-600 mr-3" />
-                <h4 className="text-xl font-bold text-purple-900">Cliente Arrojado - Ganho Explosivo</h4>
+                <h4 className="text-xl font-bold text-purple-900">Estratégia: Ganho de Capital</h4>
               </div>
               
               <div className="space-y-4">
@@ -443,11 +444,11 @@ const InvestmentComparisonChart: React.FC = () => {
                   <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem 2x a 5x - Ganhos Explosivos</h5>
                   <div className="text-sm text-purple-800 space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Alavancagem:</strong> 2x a 5x (R$ 20.000 a R$ 50.000 operando)</p>
-                    <p><strong>• Potencial:</strong> 120% a 300% a.a.</p>
-                    <p><strong>• Risco:</strong> Perda total possível (R$ 10.000)</p>
-                    <p><strong>• Perfil:</strong> Arrojado, busca ganhos explosivos</p>
+                    <p><strong>• Meta anual:</strong> 60% líquido</p>
+                    <p><strong>• Potencial com alavancagem:</strong> até 300% a.a.</p>
+                    <p><strong>• Alto poder de alavancagem</strong></p>
                     <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
+                    <p><strong>• Drawdown controlado:</strong> máx 25%</p>
                   </div>
                 </div>
                 
@@ -467,7 +468,7 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Key Insights */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-8 text-white mb-12">
+        <div className="bg-gradient-to-r from-green-600 to-purple-600 rounded-2xl p-8 text-white mb-12">
           <h3 className="text-2xl font-bold mb-6 text-center">
             Por que Portfólios de IA são a Melhor Alternativa?
           </h3>
@@ -479,7 +480,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2">Alto Retorno</h4>
               <p className="text-sm text-green-100">
-                Meta: 60% a.a. vs 10,5% a.a. do CDI
+                Meta: 60% a.a. líquido (Quant Broker)
               </p>
             </div>
             
@@ -516,7 +517,7 @@ const InvestmentComparisonChart: React.FC = () => {
                 Rentabilidades passadas não garantem resultados futuros. <strong>Meta da Quant Broker: 60% a.a. líquido.</strong> 
                 <strong>Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
                 <br /><br />
-                <strong>Comparação Educativa:</strong> Esta comparação tem fins educativos. CDI e Portfólios de IA têm características de risco diferentes. 
+                <strong>Análise Educativa:</strong> Esta análise tem fins educativos e mostra diferentes estratégias de alavancagem com Portfólios de IA. 
                 Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
