@@ -24,33 +24,48 @@ const InvestmentComparisonChart: React.FC = () => {
       
       // Simular performance mensal realista com drawdowns de até 25%
       if (i > 0) {
-        // Padrão de performance realista com meses negativos
-        let monthlyPerformance;
+        // Calcular valor alvo para atingir 60% a.a. no final do período
+        const targetAnnualReturn = 0.60; // 60% a.a.
+        const monthsInYear = 12;
+        const targetMonthlyReturn = Math.pow(1 + targetAnnualReturn, 1/monthsInYear) - 1; // ~3.9% a.m. composto
         
-        // Criar padrão mais realista de drawdowns
-        if (i % 8 === 0) {
-          // Mês de drawdown severo (-20% a -25%)
-          monthlyPerformance = -0.20 - (Math.random() * 0.05); // -20% a -25%
-        } else if (i % 6 === 0) {
-          // Mês de drawdown moderado (-10% a -15%)
-          monthlyPerformance = -0.10 - (Math.random() * 0.05); // -10% a -15%
-        } else if (i % 4 === 0) {
-          // Mês de perda leve (-3% a -8%)
-          monthlyPerformance = -0.03 - (Math.random() * 0.05); // -3% a -8%
-        } else if (i % 3 === 0) {
-          // Mês de performance baixa (1% a 4%)
-          monthlyPerformance = 0.01 + (Math.random() * 0.03); // 1% a 4%
+        // Valor alvo para este mês baseado na meta de 60% a.a.
+        const targetValue = initialCapital * Math.pow(1 + targetMonthlyReturn, i);
+        
+        // Criar volatilidade realista mas mantendo trajetória ascendente
+        let monthlyPerformance;
+        const previousValue = data[i - 1]?.portfolioIA || initialCapital;
+        
+        // Padrão de drawdowns controlados
+        if (i % 12 === 8) {
+          // Drawdown severo anual (-15% a -20%)
+          monthlyPerformance = -0.15 - (Math.random() * 0.05);
+        } else if (i % 8 === 5) {
+          // Drawdown moderado (-8% a -12%)
+          monthlyPerformance = -0.08 - (Math.random() * 0.04);
+        } else if (i % 6 === 3) {
+          // Perda leve (-3% a -6%)
+          monthlyPerformance = -0.03 - (Math.random() * 0.03);
         } else {
-          // Meses positivos (6% a 12%) para atingir meta de 60% a.a.
-          monthlyPerformance = 0.06 + (Math.random() * 0.06); // 6% a 12%
+          // Meses positivos - calcular performance necessária para atingir meta
+          const neededGrowth = targetValue / previousValue - 1;
+          // Adicionar volatilidade mas manter direção positiva
+          monthlyPerformance = Math.max(neededGrowth + (Math.random() * 0.08 - 0.02), 0.02);
         }
         
-        // Aplicar performance ao valor anterior
-        const previousValue = data[i - 1]?.portfolioIA || initialCapital;
         aiValue = previousValue * (1 + monthlyPerformance);
         
-        // Garantir que não fique negativo (proteção de capital)
-        aiValue = Math.max(aiValue, initialCapital * 0.1); // Máximo 90% de perda
+        // Ajustar para não ficar muito abaixo da meta no final
+        if (i > months * 0.8) { // Últimos 20% dos meses
+          const currentProgress = aiValue / initialCapital - 1;
+          const expectedProgress = targetValue / initialCapital - 1;
+          
+          if (currentProgress < expectedProgress * 0.8) {
+            // Boost para recuperar e atingir meta
+            const boostNeeded = (expectedProgress - currentProgress) * 0.3;
+            aiValue = aiValue * (1 + boostNeeded);
+          }
+        }
       }
 
       data.push({
