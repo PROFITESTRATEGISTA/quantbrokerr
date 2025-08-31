@@ -118,7 +118,7 @@ const Hero: React.FC<HeroProps> = ({ onViewPlans }) => {
 
         {/* Disclaimer */}
         <div className="mt-12 text-center">
-          <p className="text-xs text-slate-500 mb-1">Analista Responsável: Yallon Mazuti de Carvalho - CNPI-T 8964</p>
+          <p className="text-xs text-slate-500 mb-1">Analista Responsável: Stefano Padula - CNPI 9796</p>
           <p className="text-xs text-slate-600">Resultados passados não garantem lucros futuros</p>
         </div>
       </div>

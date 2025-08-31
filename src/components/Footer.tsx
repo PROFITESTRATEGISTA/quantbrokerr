@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
             
             <div className="text-gray-400 text-sm space-y-2">
               <p>
-                <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964
+                <strong>Analista Responsável:</strong> Stefano Padula - CNPI 9796
               </p>
               <p>
                 Este material é de caráter exclusivamente informativo e não constitui recomendação de investimento.

@@ -686,7 +686,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </h4>
               <p className="text-xs sm:text-sm text-white leading-relaxed">
                 <strong className="text-yellow-900 bg-yellow-200 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
-                <span className="hidden sm:inline"> Cenários baseados em performance mensal variável.</span> <strong>Analista:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
+                <span className="hidden sm:inline"> Cenários baseados em performance mensal variável.</span> <strong>Analista:</strong> Stefano Padula - CNPI 9796.
               </p>
             </div>
           </div>
