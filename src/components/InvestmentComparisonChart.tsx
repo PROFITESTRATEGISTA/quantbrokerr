@@ -392,139 +392,140 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Scenario Analysis */}
-        <div className="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-8 mb-12">
+        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-purple-950 rounded-2xl p-8 mb-12 border border-slate-700">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          <h3 className="text-2xl font-bold text-white mb-6 text-center">
             Estratégias de Alavancagem: Portfólio de IA Quant Broker
           </h3>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Estratégia Renda Mensal - 1x Alavancagem */}
-            <div className="bg-white rounded-xl p-6 border border-green-200">
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-green-500/30 backdrop-blur-sm">
               <div className="flex items-center mb-4">
-                <DollarSign className="h-6 w-6 text-green-600 mr-3" />
-                <h4 className="text-xl font-bold text-green-900">Estratégia: Renda Mensal</h4>
+                <DollarSign className="h-6 w-6 text-green-400 mr-3" />
+                <h4 className="text-xl font-bold text-green-300">Estratégia: Renda Mensal</h4>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h5 className="font-semibold text-green-900 mb-3">🛡️ Alavancagem 1x - Foco em Renda Mensal</h5>
-                  <div className="text-sm text-green-800 space-y-2">
-                    <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Renda mensal estimada:</strong> R$ 800 (8% a.m. líquido)</p>
-                    <p><strong>• Meta anual:</strong> 60% líquido (após custos e mensalidade)</p>
-                    <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 10.000)</p>
-                    <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
-                    <p><strong>• Drawdown máximo:</strong> 25% mensal</p>
+                <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30">
+                  <h5 className="font-semibold text-green-300 mb-3">🛡️ Alavancagem 1x - Foco em Renda Mensal</h5>
+                  <div className="text-sm text-green-200 space-y-2">
+                <tr className="border-b-2 border-slate-600 bg-slate-700/50">
+                  <th className="text-left py-4 px-4 font-semibold text-white">Estratégia</th>
+                  <th className="text-center py-4 px-4 font-semibold text-red-400">Pessimista</th>
+                  <th className="text-center py-4 px-4 font-semibold text-yellow-400">Moderado</th>
+                  <th className="text-center py-4 px-4 font-semibold text-green-400">Otimista</th>
+                  <th className="text-center py-4 px-4 font-semibold text-blue-400">CDI (10,5% a.a.)</th>
                     <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
                   </div>
                 </div>
-                
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h5 className="font-semibold text-blue-900 mb-3">📊 Exemplo Prático</h5>
-                  <div className="text-sm text-blue-800 space-y-2">
+                <tr className="border-b border-slate-600 hover:bg-slate-700/30">
+                  <td className="py-4 px-4 font-medium text-green-300">
+                      <div className="text-xs text-yellow-300 font-medium mb-1">😐 Moderado (40% a.a.) - DD 15%</div>
+                      <DollarSign className="h-5 w-5 text-green-400 mr-2" />
                     <p><strong>Capital:</strong> R$ 10.000</p>
-                    <p><strong>Renda Mensal:</strong> R$ 800 (8% a.m. líquido)</p>
-                    <p><strong>Renda Anual:</strong> R$ 9.600</p>
+                      <div className="text-xs text-red-300 font-medium mb-1">😰 Pessimista (20% a.a.) - DD 25%</div>
+                        <div className="text-xs text-slate-400">R$ 10.000</div>
                     <p><strong>Valor Final (1 ano):</strong> R$ 16.000</p>
-                    <p><strong>Segurança:</strong> Perda máxima R$ 10.000</p>
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
                   </div>
-                </div>
+                  <td className="py-4 px-4 text-center text-red-300">
+                <h4 className="text-xl font-bold text-purple-300">Estratégia: Ganho de Capital</h4>
+                    <div className="text-xs">20% a.a. • DD 25%</div>
+            <div className="bg-slate-800/50 rounded-xl p-6 border border-blue-500/40 backdrop-blur-sm relative">
+                  <td className="py-4 px-4 text-center text-yellow-300">
+                <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
+                    <div className="text-xs">40% a.a. • DD 15%</div>
+                  <div className="text-sm text-purple-200 space-y-2">
+                  <td className="py-4 px-4 text-center text-green-300">
               </div>
-            </div>
-
-            {/* Estratégia Ganho Explosivo - 2x+ Alavancagem */}
-            <div className="bg-white rounded-xl p-6 border border-purple-200">
-              <div className="flex items-center mb-4">
-                <TrendingUp className="h-6 w-6 text-purple-600 mr-3" />
-                <h4 className="text-xl font-bold text-purple-900">Estratégia: Ganho de Capital</h4>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem até 3x - Ganhos Explosivos</h5>
+                    <div className="text-xs">60% a.a. • DD 10%</div>
+                <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30">
+                  <td className="py-4 px-4 text-center text-blue-300">
+                    <p><strong>• Drawdown controlado:</strong> <span className="text-red-300 font-bold">máx 25% mensal</span></p>
                   <div className="text-sm text-purple-800 space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
                     <p><strong>• Meta anual:</strong> 60% líquido</p>
                     <p><strong>• Alavancagem máxima:</strong> 3x por R$ 10.000</p>
-                    <p><strong>• Potencial com 3x:</strong> até 180% a.a.</p>
-                    <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
-                    <p><strong>• Drawdown controlado:</strong> máx 25%</p>
-                  </div>
-                </div>
+                <tr className="border-b border-slate-600 hover:bg-slate-700/30 bg-blue-900/20">
+                  <td className="py-4 px-4 font-medium text-blue-300">
+                    <p><strong>• Drawdown máximo:</strong> <span className="text-red-300 font-bold">25% mensal</span></p>
+                      <TrendingUp className="h-5 w-5 text-blue-400 mr-2" />
+                      <div className="text-sm text-red-200">Perda total: -R$ 10.000 (risco máximo)</div>
                 
-                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                  <h5 className="font-semibold text-orange-900 mb-3">⚡ Cenário Explosivo</h5>
+                        <div className="text-xs text-blue-400">R$ 30.000 - RECOMENDADO</div>
+                      <div className="text-xs text-yellow-300 font-medium mb-1">😐 Moderado (120% a.a.) - DD 15%</div>
                   <div className="text-sm text-orange-800 space-y-2">
                     <p><strong>Alavancagem 3x:</strong></p>
-                    <p>• Ganho mensal: R$ 1.440 (14.4% sobre capital)</p>
-                    <p>• Potencial anual: R$ 17.280 (172.8% a.a.)</p>
-                    <p><strong>⚠️ Risco:</strong> Perda total R$ 10.000</p>
+                  <td className="py-4 px-4 text-center text-red-300">
+                      <div className="text-xs text-green-300 font-medium mb-1">🚀 Otimista (180% a.a.) - DD 10%</div>
+                    <div className="text-xs">20% a.a. • DD 25%</div>
                     <p><strong>🎯 Recompensa:</strong> Ganhos explosivos</p>
-                  </div>
+                  <td className="py-4 px-4 text-center text-yellow-300">
                 </div>
-              </div>
+                    <div className="text-xs">40% a.a. • DD 15%</div>
             </div>
-          </div>
+                  <td className="py-4 px-4 text-center text-green-300">
         </div>
-
+                    <div className="text-xs">60% a.a. • DD 10%</div>
         {/* Key Insights */}
-        <div className="bg-gradient-to-r from-green-600 to-purple-600 rounded-2xl p-8 text-white mb-12">
-          <h3 className="text-2xl font-bold mb-6 text-center">
+                  <td className="py-4 px-4 text-center text-blue-300">
+          <h3 className="text-2xl font-bold text-white mb-6 text-center">
             Por que Portfólios de IA são a Melhor Alternativa?
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <tr className="border-b border-slate-600 hover:bg-slate-700/30">
+                  <td className="py-4 px-4 font-medium text-purple-300">
                 <TrendingUp className="h-8 w-8 text-white" />
-              </div>
+                      <Calculator className="h-5 w-5 text-purple-400 mr-2" />
               <h4 className="font-bold mb-2">Alto Retorno</h4>
               <p className="text-sm text-green-100">
-                Meta: 60% a.a. líquido (Quant Broker)
+                        <div className="text-xs text-purple-400">R$ 10.000</div>
               </p>
             </div>
             
-            <div className="text-center">
+                  <td className="py-4 px-4 text-center text-red-300">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-white" />
+                    <div className="text-xs">Perda total • DD 25%</div>
               </div>
-              <h4 className="font-bold mb-2">Risco Controlado</h4>
-              <p className="text-sm text-blue-100">
-                DD máx: 25% | Capital protegido
+              <h4 className="font-bold mb-2 text-red-300">Drawdown Controlado</h4>
+              <p className="text-sm text-red-200">
+                <span className="font-bold">DD máx: 25% mensal</span> | Capital protegido
               </p>
-            </div>
+                  <td className="py-4 px-4 text-center text-green-300">
             
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calculator className="h-8 w-8 text-white" />
+                    <div className="text-xs">172.8% a.a. • DD 10%</div>
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-purple-500/30">
+                <Calculator className="h-8 w-8 text-purple-400" />
               </div>
-              <h4 className="font-bold mb-2">Alavancagem</h4>
-              <p className="text-sm text-purple-100">
+              <h4 className="font-bold mb-2 text-purple-300">Alavancagem Inteligente</h4>
+              <p className="text-sm text-purple-200">
                 Até 5x para maximizar ganhos
               </p>
             </div>
           </div>
         </div>
 
-        {/* Risk Disclaimer */}
-        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 rounded-2xl p-8 text-white mb-12 border border-slate-600">
+        <div className="mt-8 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-500/30 rounded-xl p-6 backdrop-blur-sm">
           <div className="flex items-start">
-            <AlertTriangle className="h-6 w-6 text-yellow-600 mr-3 mt-1" />
+            <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3 mt-1" />
             <div>
-              <h4 className="font-semibold text-yellow-900 mb-2">Aviso Importante sobre Riscos</h4>
-              <p className="text-sm text-yellow-800 leading-relaxed">
-                <strong>Renda Variável:</strong> Os investimentos em Portfólios de IA estão sujeitos a riscos e podem resultar em perdas patrimoniais. 
-                Rentabilidades passadas não garantem resultados futuros. <strong>Meta da Quant Broker: 60% a.a. líquido.</strong> 
-                <strong>Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
-                <br /><br />
-                <strong>Análise Educativa:</strong> Esta análise tem fins educativos e mostra diferentes estratégias de alavancagem com Portfólios de IA. 
+              <h4 className="font-semibold text-yellow-300 mb-2">Aviso Importante sobre Riscos</h4>
+              <p className="text-sm text-yellow-200 leading-relaxed">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+                <TrendingUp className="h-8 w-8 text-green-400" />
+                <strong className="text-red-300">Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
+              <h4 className="font-bold mb-2 text-green-300">Alto Retorno</h4>
+              <p className="text-sm text-green-200">
                 Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+                <Shield className="h-8 w-8 text-red-400" />
   );
 };
 
