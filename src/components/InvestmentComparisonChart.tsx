@@ -18,8 +18,6 @@ const InvestmentComparisonChart: React.FC = () => {
       const cdiValue = initialCapital * Math.pow(1 + cdiMonthlyRate, i);
 
       // Imóvel: 6% a.a. líquido (após impostos, IPTU, manutenção)
-      const realEstateMonthlyRate = 0.06 / 12; // 6% anual dividido por 12 meses
-      const realEstateValue = initialCapital * Math.pow(1 + realEstateMonthlyRate, i);
 
       // Portfólio IA: Meta 60% a.a. (4.8% a.m. médio) com drawdowns realistas de até 25%
       let aiValue = initialCapital;
@@ -59,10 +57,8 @@ const InvestmentComparisonChart: React.FC = () => {
         month: i,
         monthLabel: i === 0 ? 'Início' : `${i}º mês`,
         cdi: cdiValue,
-        imovel: realEstateValue,
         portfolioIA: aiValue,
         cdiReturn: ((cdiValue - initialCapital) / initialCapital) * 100,
-        imovelReturn: ((realEstateValue - initialCapital) / initialCapital) * 100,
         portfolioIAReturn: ((aiValue - initialCapital) / initialCapital) * 100
       });
     }
@@ -118,28 +114,6 @@ const InvestmentComparisonChart: React.FC = () => {
         'Rendimento limitado',
         'Imposto de Renda',
         'Perda para inflação'
-      ]
-    },
-    {
-      name: 'Investimento Imobiliário',
-      icon: Home,
-      color: '#6b7280',
-      finalValue: finalData.imovel,
-      finalReturn: finalData.imovelReturn,
-      monthlyReturn: 0.5,
-      annualReturn: 6.0,
-      risk: 'Médio (mercado imobiliário)',
-      liquidity: 'Baixa (meses para vender)',
-      advantages: [
-        'Ativo físico',
-        'Valorização histórica',
-        'Renda de aluguel'
-      ],
-      considerations: [
-        'Baixa liquidez',
-        'Custos de manutenção',
-        'IPTU e impostos',
-        'Risco de vacância'
       ]
     }
   ];
@@ -273,21 +247,12 @@ const InvestmentComparisonChart: React.FC = () => {
                     name="CDI 10,5% a.a."
                     dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="imovel" 
-                    stroke="#6b7280" 
-                    strokeWidth={3}
-                    name="Imóvel 6% a.a."
-                    dot={{ fill: '#6b7280', strokeWidth: 2, r: 3 }}
-                  />
                 </LineChart>
               ) : (
                 <BarChart data={[{
                   name: 'Resultado Final',
                   'Portfólio IA': finalData.portfolioIA,
-                  'CDI 10,5% a.a.': finalData.cdi,
-                  'Imóvel 6% a.a.': finalData.imovel
+                  'CDI 10,5% a.a.': finalData.cdi
                 }]} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
@@ -295,7 +260,6 @@ const InvestmentComparisonChart: React.FC = () => {
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="Portfólio IA" fill="#22c55e" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="CDI 10,5% a.a." fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Imóvel 6% a.a." fill="#6b7280" radius={[4, 4, 0, 0]} />
                 </BarChart>
               )}
             </ResponsiveContainer>
@@ -311,15 +275,11 @@ const InvestmentComparisonChart: React.FC = () => {
               <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
               <span className="text-sm font-medium text-gray-700">CDI (10,5% a.a. líquido)</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-gray-500 rounded mr-2"></div>
-              <span className="text-sm font-medium text-gray-700">Imóvel (6% a.a. líquido)</span>
-            </div>
           </div>
         </div>
 
         {/* Detailed Comparison Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
           {investments.map((investment, index) => (
             <div
               key={index}
@@ -475,12 +435,12 @@ const InvestmentComparisonChart: React.FC = () => {
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-gray-900 mb-2">Imóvel (6% a.a.)</h5>
+                  <h5 className="font-semibold text-gray-900 mb-2">CDI (10,5% a.a.)</h5>
                   <div className="text-sm text-gray-700 space-y-1">
-                    <p>• Capital: R$ {(initialCapital * 2).toLocaleString('pt-BR')} (entrada + financ.)</p>
-                    <p>• Valor em 3 anos: R$ {(finalData.imovel * 2).toLocaleString('pt-BR')}</p>
-                    <p>• Baixa liquidez</p>
-                    <p>• Custos de manutenção</p>
+                    <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
+                    <p>• Valor em 3 anos: R$ {finalData.cdi.toLocaleString('pt-BR')}</p>
+                    <p>• Segurança FGC</p>
+                    <p>• Rendimento previsível</p>
                   </div>
                 </div>
               </div>
@@ -489,19 +449,19 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Key Insights */}
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-8 text-white">
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-8 text-white mb-12">
           <h3 className="text-2xl font-bold mb-6 text-center">
             Por que Portfólios de IA são a Melhor Alternativa?
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="h-8 w-8 text-white" />
               </div>
               <h4 className="font-bold mb-2">Alto Retorno</h4>
               <p className="text-sm text-green-100">
-                Meta: 60% a.a. vs 10,5% do CDI
+                Meta: 60% a.a. vs 10,5% a.a. do CDI
               </p>
             </div>
             
@@ -517,20 +477,10 @@ const InvestmentComparisonChart: React.FC = () => {
             
             <div className="text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-white" />
-              </div>
-              <h4 className="font-bold mb-2">Alta Liquidez</h4>
-              <p className="text-sm text-purple-100">
-                Resgate imediato vs meses do imóvel
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calculator className="h-8 w-8 text-white" />
               </div>
               <h4 className="font-bold mb-2">Alavancagem</h4>
-              <p className="text-sm text-yellow-100">
+              <p className="text-sm text-purple-100">
                 Até 5x para maximizar ganhos
               </p>
             </div>
@@ -548,7 +498,7 @@ const InvestmentComparisonChart: React.FC = () => {
                 Rentabilidades passadas não garantem resultados futuros. <strong>Meta da Quant Broker: 60% a.a. líquido.</strong> 
                 <strong>Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
                 <br /><br />
-                <strong>Comparação Educativa:</strong> Esta comparação tem fins educativos. CDI e imóveis têm características de risco diferentes. 
+                <strong>Comparação Educativa:</strong> Esta comparação tem fins educativos. CDI e Portfólios de IA têm características de risco diferentes. 
                 Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
