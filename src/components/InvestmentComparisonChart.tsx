@@ -181,7 +181,7 @@ const InvestmentComparisonChart: React.FC = () => {
               Ver Resultados Reais Agora Mesmo
             </button>
             <p className="text-sm text-gray-500 mt-2">
-              Acesse nossos resultados mensais reais de 2024
+              Acesse nossos resultados mensais reais de 2024 e 2025
             </p>
           </div>
         </div>
