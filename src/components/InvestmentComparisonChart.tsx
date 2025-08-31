@@ -392,70 +392,73 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Scenario Analysis */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-12">
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Análise de Cenários: Renda Mensal vs Ganho de Capital
+            Perfis de Cliente: Estratégias com Portfólio de IA
           </h3>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Renda Mensal */}
-            <div className="bg-white rounded-xl p-6 border border-blue-200">
+            {/* Cliente Conservador - 1x Alavancagem */}
+            <div className="bg-white rounded-xl p-6 border border-green-200">
               <div className="flex items-center mb-4">
-                <DollarSign className="h-6 w-6 text-blue-600 mr-3" />
-                <h4 className="text-xl font-bold text-blue-900">Estratégia: Renda Mensal</h4>
+                <DollarSign className="h-6 w-6 text-green-600 mr-3" />
+                <h4 className="text-xl font-bold text-green-900">Cliente Conservador - Renda Mensal</h4>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-blue-900 mb-2">Portfólio IA (Meta: 60% a.a.)</h5>
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Renda mensal estimada: R$ {(initialCapital * 0.048).toLocaleString('pt-BR')}</p>
-                    <p>• Risco limitado ao capital investido</p>
-                    <p>• Liquidez imediata (D+0)</p>
-                    <p>• Drawdown máximo: 25% mensal</p>
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h5 className="font-semibold text-green-900 mb-3">🛡️ Alavancagem 1x - Foco em Renda</h5>
+                  <div className="text-sm text-green-800 space-y-2">
+                    <p><strong>• Capital por R$ 10.000:</strong> Renda de R$ 800/mês</p>
+                    <p><strong>• Meta:</strong> 8% a.m. líquido (60% a.a.)</p>
+                    <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 10.000)</p>
+                    <p><strong>• Drawdown:</strong> Máximo 25% mensal</p>
+                    <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
+                    <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-gray-900 mb-2">CDI (10,5% a.a.)</h5>
-                  <div className="text-sm text-gray-700 space-y-1">
-                    <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Renda mensal: R$ {(initialCapital * 0.00875).toLocaleString('pt-BR')}</p>
-                    <p>• Segurança FGC</p>
-                    <p>• Liquidez D+1</p>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h5 className="font-semibold text-blue-900 mb-3">📊 Exemplo Prático</h5>
+                  <div className="text-sm text-blue-800 space-y-2">
+                    <p><strong>Capital:</strong> R$ 10.000</p>
+                    <p><strong>Renda Mensal:</strong> R$ 800 (8% a.m.)</p>
+                    <p><strong>Renda Anual:</strong> R$ 9.600</p>
+                    <p><strong>Valor Final (1 ano):</strong> R$ 16.000</p>
+                    <p><strong>Segurança:</strong> Perda máxima R$ 10.000</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Ganho de Capital */}
-            <div className="bg-white rounded-xl p-6 border border-green-200">
+            {/* Cliente Arrojado - 2x+ Alavancagem */}
+            <div className="bg-white rounded-xl p-6 border border-purple-200">
               <div className="flex items-center mb-4">
-                <TrendingUp className="h-6 w-6 text-green-600 mr-3" />
-                <h4 className="text-xl font-bold text-green-900">Estratégia: Ganho de Capital</h4>
+                <TrendingUp className="h-6 w-6 text-purple-600 mr-3" />
+                <h4 className="text-xl font-bold text-purple-900">Cliente Arrojado - Ganho Explosivo</h4>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-green-900 mb-2">Portfólio IA (Meta: 60% a.a. + Alavancagem)</h5>
-                  <div className="text-sm text-green-800 space-y-1">
-                    <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Meta anual: 60% líquido</p>
-                    <p>• Potencial com alavancagem: até 300% a.a.</p>
-                    <p>• Alto poder de alavancagem</p>
-                    <p>• Gestão automatizada de risco</p>
-                    <p>• Drawdown controlado: máx 25%</p>
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem 2x a 5x - Ganhos Explosivos</h5>
+                  <div className="text-sm text-purple-800 space-y-2">
+                    <p><strong>• Capital:</strong> R$ 10.000</p>
+                    <p><strong>• Alavancagem:</strong> 2x a 5x (R$ 20.000 a R$ 50.000 operando)</p>
+                    <p><strong>• Potencial:</strong> 120% a 300% a.a.</p>
+                    <p><strong>• Risco:</strong> Perda total possível (R$ 10.000)</p>
+                    <p><strong>• Perfil:</strong> Arrojado, busca ganhos explosivos</p>
+                    <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-gray-900 mb-2">CDI (10,5% a.a.)</h5>
-                  <div className="text-sm text-gray-700 space-y-1">
-                    <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Valor em 3 anos: R$ {finalData.cdi.toLocaleString('pt-BR')}</p>
-                    <p>• Segurança FGC</p>
-                    <p>• Rendimento previsível</p>
+                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                  <h5 className="font-semibold text-orange-900 mb-3">⚡ Cenário Explosivo</h5>
+                  <div className="text-sm text-orange-800 space-y-2">
+                    <p><strong>Alavancagem 3x:</strong></p>
+                    <p>• Ganho mensal: R$ 2.400 (24% sobre capital)</p>
+                    <p>• Potencial anual: R$ 28.800 (288% a.a.)</p>
+                    <p><strong>⚠️ Risco:</strong> Perda total R$ 10.000</p>
+                    <p><strong>🎯 Recompensa:</strong> Ganhos explosivos</p>
                   </div>
                 </div>
               </div>
