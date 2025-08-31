@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingUp, Home, Shield, Zap, DollarSign, Calculator, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Home, Shield, Zap, DollarSign, Calculator, AlertTriangle, BarChart3 } from 'lucide-react';
 
 const InvestmentComparisonChart: React.FC = () => {
   const [timeframe, setTimeframe] = useState<'1year' | '3years' | '5years'>('3years');
