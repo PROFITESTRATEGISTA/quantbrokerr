@@ -529,5 +529,3 @@ const InvestmentComparisonChart: React.FC = () => {
 };
 
 export default InvestmentComparisonChart;
-
-export default InvestmentComparisonChart
