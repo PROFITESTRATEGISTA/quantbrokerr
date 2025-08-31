@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import PricingPlans from '../components/PricingPlans';
 import InvestmentComparison from '../components/InvestmentComparison';
+import InvestmentComparisonChart from '../components/InvestmentComparisonChart';
 import BenefitsSection from '../components/BenefitsSection';
 
 const PlanosPage: React.FC = () => {
