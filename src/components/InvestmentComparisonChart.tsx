@@ -441,12 +441,12 @@ const InvestmentComparisonChart: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem 2x a 5x - Ganhos Explosivos</h5>
+                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem até 3x - Ganhos Explosivos</h5>
                   <div className="text-sm text-purple-800 space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
                     <p><strong>• Meta anual:</strong> 60% líquido</p>
-                    <p><strong>• Potencial com alavancagem:</strong> até 300% a.a.</p>
-                    <p><strong>• Alto poder de alavancagem</strong></p>
+                    <p><strong>• Alavancagem máxima:</strong> 3x por R$ 10.000</p>
+                    <p><strong>• Potencial com 3x:</strong> até 180% a.a.</p>
                     <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
                     <p><strong>• Drawdown controlado:</strong> máx 25%</p>
                   </div>
@@ -456,8 +456,8 @@ const InvestmentComparisonChart: React.FC = () => {
                   <h5 className="font-semibold text-orange-900 mb-3">⚡ Cenário Explosivo</h5>
                   <div className="text-sm text-orange-800 space-y-2">
                     <p><strong>Alavancagem 3x:</strong></p>
-                    <p>• Ganho mensal: R$ 2.400 (24% sobre capital)</p>
-                    <p>• Potencial anual: R$ 28.800 (288% a.a.)</p>
+                    <p>• Ganho mensal: R$ 1.440 (14.4% sobre capital)</p>
+                    <p>• Potencial anual: R$ 17.280 (172.8% a.a.)</p>
                     <p><strong>⚠️ Risco:</strong> Perda total R$ 10.000</p>
                     <p><strong>🎯 Recompensa:</strong> Ganhos explosivos</p>
                   </div>
