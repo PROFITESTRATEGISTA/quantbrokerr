@@ -488,10 +488,11 @@ const InvestmentComparisonChart: React.FC = () => {
                     <div className="flex items-center">
                       <TrendingUp className="h-5 w-5 text-blue-400 mr-2" />
                       <div>
+                        <div className="text-sm font-bold text-blue-300">3x</div>
                         <div className="text-xs text-blue-400">R$ 30.000 - RECOMENDADO</div>
-                        <div className="text-xs text-red-300 font-medium mb-1">😰 Pessimista (60% a.a.) - DD 25%</div>
-                        <div className="text-xs text-yellow-300 font-medium mb-1">😐 Moderado (120% a.a.) - DD 15%</div>
-                        <div className="text-xs text-green-300 font-medium mb-1">🚀 Otimista (180% a.a.) - DD 10%</div>
+                        <div className="text-xs text-red-300 font-bold mb-1">😰 Pessimista (20% a.a.) - DD 25%</div>
+                        <div className="text-xs text-yellow-300 font-bold mb-1">😐 Moderado (120% a.a.) - DD 25%</div>
+                        <div className="text-xs text-green-300 font-bold mb-1">🚀 Otimista (180% a.a.) - DD 25%</div>
                       </div>
                     </div>
                   </td>
@@ -517,10 +518,11 @@ const InvestmentComparisonChart: React.FC = () => {
                     <div className="flex items-center">
                       <Calculator className="h-5 w-5 text-purple-400 mr-2" />
                       <div>
+                        <div className="text-sm font-bold text-purple-300">3x</div>
                         <div className="text-xs text-purple-400">R$ 10.000</div>
-                        <div className="text-xs text-red-300 font-medium mb-1">😰 Pessimista: Perda total • DD 25%</div>
-                        <div className="text-xs text-yellow-300 font-medium mb-1">😐 Moderado (80% a.a.) - DD 15%</div>
-                        <div className="text-xs text-green-300 font-medium mb-1">🚀 Otimista (172.8% a.a.) - DD 10%</div>
+                        <div className="text-xs text-red-300 font-bold mb-1">😰 Pessimista: Perda total • DD 25%</div>
+                        <div className="text-xs text-yellow-300 font-bold mb-1">😐 Moderado (80% a.a.) - DD 25%</div>
+                        <div className="text-xs text-green-300 font-bold mb-1">🚀 Otimista (172.8% a.a.) - DD 25%</div>
                       </div>
                     </div>
                   </td>
@@ -589,10 +591,11 @@ const InvestmentComparisonChart: React.FC = () => {
           <div className="flex items-start">
             <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3 mt-1" />
             <div>
-              <h4 className="font-semibold text-yellow-300 mb-2">Aviso Importante sobre Riscos</h4>
+              <h4 className="font-bold text-red-300 mb-3 text-lg">⚠️ DRAWDOWN MÁXIMO: 25% MENSAL</h4>
               <p className="text-sm text-yellow-200 leading-relaxed">
-                <strong className="text-red-300">Drawdown máximo esperado: 25% mensal.</strong> A análise inclui meses de perda para mostrar cenário realista.
-                Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
+                <strong className="text-red-300 text-base">TODAS as estratégias têm drawdown máximo de 25% mensal.</strong> 
+                Isso significa que em meses ruins, você pode ter perdas de até 25% do capital, mas nossa IA controla 
+                automaticamente os riscos. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
           </div>
