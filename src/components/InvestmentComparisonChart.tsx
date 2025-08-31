@@ -164,12 +164,26 @@ const InvestmentComparisonChart: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Comparativo de Investimentos: Portfólios de IA vs Mercado
+            Simulação: Portfólios de IA vs Mercado
           </h2>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-            Veja como os Portfólios de IA se comparam com CDI e investimentos imobiliários 
-            em diferentes cenários de tempo e capital
+            <strong>SIMULAÇÃO EDUCATIVA:</strong> Veja como os Portfólios de IA se comparam com CDI 
+            em diferentes cenários de tempo e capital. Dados baseados em projeções matemáticas.
           </p>
+          
+          {/* Botão para ver resultados reais */}
+          <div className="mt-6">
+            <button
+              onClick={() => window.location.href = '/resultados'}
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold rounded-xl hover:from-green-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"
+            >
+              <BarChart3 className="h-6 w-6" />
+              Ver Resultados Reais Agora Mesmo
+            </button>
+            <p className="text-sm text-gray-500 mt-2">
+              Acesse nossos resultados mensais reais de 2024
+            </p>
+          </div>
         </div>
 
         {/* Controls */}
@@ -225,6 +239,15 @@ const InvestmentComparisonChart: React.FC = () => {
 
         {/* Chart */}
         <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 mb-12">
+          <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-center">
+              <Calculator className="h-5 w-5 text-blue-600 mr-2" />
+              <span className="text-blue-800 font-semibold text-sm">
+                📊 SIMULAÇÃO EDUCATIVA - Dados baseados em projeções matemáticas
+              </span>
+            </div>
+          </div>
+          
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             <span className="hidden sm:inline">Evolução do Capital: {formatCurrency(initialCapital)} Inicial</span>
             <span className="sm:hidden">Capital: {formatCurrency(initialCapital)}</span>
@@ -686,8 +709,18 @@ const InvestmentComparisonChart: React.FC = () => {
               </h4>
               <p className="text-xs sm:text-sm text-white leading-relaxed">
                 <strong className="text-yellow-900 bg-yellow-200 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
-                <span className="hidden sm:inline"> Cenários baseados em performance mensal variável.</span> <strong>Analista:</strong> Stefano Padula - CNPI 9796.
+                <span className="hidden sm:inline"> Esta é uma SIMULAÇÃO EDUCATIVA baseada em projeções matemáticas.</span> <strong>Analista:</strong> Stefano Padula - CNPI 9796.
               </p>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => window.location.href = '/resultados'}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 font-bold rounded-lg hover:bg-orange-50 transition-all transform hover:scale-105 shadow-lg"
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  <span className="hidden sm:inline">Clique para Ver Resultados Reais Agora Mesmo</span>
+                  <span className="sm:hidden">Ver Resultados Reais</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
