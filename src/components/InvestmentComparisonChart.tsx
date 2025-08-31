@@ -392,60 +392,120 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Scenario Analysis */}
-        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-purple-950 rounded-2xl p-8 mb-12 border border-slate-700">
+        <div className="bg-gradient-to-br from-slate-900/90 via-blue-950/90 to-purple-950/90 rounded-2xl p-8 mb-12 border border-slate-600/50 backdrop-blur-sm">
           <h3 className="text-2xl font-bold text-white mb-6 text-center">
             Estratégias de Alavancagem: Portfólio de IA Quant Broker
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Estratégia Renda Mensal - 1x Alavancagem */}
-            <div className="bg-slate-800/50 rounded-xl p-6 border border-green-500/30 backdrop-blur-sm">
+          {/* Drawdown Warning */}
+          <div className="mb-8 bg-red-900/30 border border-red-500/50 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-400 mr-3" />
+              <h4 className="text-xl font-bold text-red-300">⚠️ Drawdown Máximo: 25% Mensal</h4>
+            </div>
+            <p className="text-red-200 text-center leading-relaxed">
+              <strong>IMPORTANTE:</strong> Todas as estratégias têm drawdown máximo controlado de <span className="text-red-300 font-bold">25% ao mês</span>. 
+              A IA monitora e controla riscos automaticamente para proteger seu capital.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Estratégia Conservador - 1x Alavancagem */}
+            <div className="bg-slate-800/60 rounded-xl p-6 border border-green-500/40 backdrop-blur-sm hover:bg-slate-800/70 transition-all">
               <div className="flex items-center mb-4">
-                <DollarSign className="h-6 w-6 text-green-400 mr-3" />
-                <h4 className="text-xl font-bold text-green-300">Estratégia: Renda Mensal</h4>
+                <Shield className="h-6 w-6 text-green-400 mr-3" />
+                <h4 className="text-xl font-bold text-green-300">Conservador</h4>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30">
+                <div className="bg-green-900/30 p-4 rounded-lg border border-green-500/40">
                   <h5 className="font-semibold text-green-300 mb-3">🛡️ Alavancagem 1x - Foco em Renda Mensal</h5>
                   <div className="text-sm text-green-200 space-y-2">
-                    <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
                     <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Valor Final (1 ano):</strong> R$ 16.000</p>
-                    <p><strong>• Drawdown controlado:</strong> <span className="text-red-300 font-bold">máx 25% mensal</span></p>
-                    <p><strong>• Meta anual:</strong> 60% líquido</p>
+                    <p><strong>• Renda mensal estimada:</strong> R$ 800 (8% a.m. líquido)</p>
+                    <p><strong>• Meta anual:</strong> 60% líquido (após custos e mensalidade)</p>
+                    <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 10.000)</p>
+                    <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
+                    <p><strong>• Drawdown máximo:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded">25% mensal</span></p>
+                    <p><strong>• Perfil:</strong> Conservador, busca renda consistente</p>
                   </div>
+                </div>
+                
+                <div className="text-xs text-green-300 bg-green-900/20 p-3 rounded-lg">
+                  <p><strong>💡 Ideal para:</strong> Quem busca renda mensal consistente com risco controlado</p>
                 </div>
               </div>
             </div>
-
-            {/* Estratégia Ganho de Capital - 3x Alavancagem */}
-            <div className="bg-slate-800/50 rounded-xl p-6 border border-purple-500/30 backdrop-blur-sm">
-              <div className="flex items-center mb-4">
-                <TrendingUp className="h-6 w-6 text-purple-400 mr-3" />
-                <h4 className="text-xl font-bold text-purple-300">Estratégia: Ganho de Capital</h4>
+            
+            {/* Estratégia Alavancagem Saudável - 3x */}
+            <div className="bg-slate-800/60 rounded-xl p-6 border border-blue-500/40 backdrop-blur-sm relative hover:bg-slate-800/70 transition-all">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center shadow-lg">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  RECOMENDADO
+                </span>
+              </div>
+              
+              <div className="flex items-center mb-4 mt-2">
+                <TrendingUp className="h-6 w-6 text-blue-400 mr-3" />
+                <h4 className="text-xl font-bold text-blue-300">Alavancagem Saudável</h4>
               </div>
               
               <div className="space-y-4">
-                <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30">
-                  <h5 className="font-semibold text-purple-300 mb-3">🚀 Alavancagem 3x - Foco em Crescimento</h5>
-                  <div className="text-sm text-purple-200 space-y-2">
-                    <p><strong>• Perfil:</strong> Agressivo, busca crescimento acelerado</p>
-                    <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Alavancagem máxima:</strong> 3x por R$ 10.000</p>
-                    <p><strong>• Drawdown máximo:</strong> <span className="text-red-300 font-bold">25% mensal</span></p>
-                    <p><strong>• Risco:</strong> <span className="text-red-300 font-bold">Perda total possível</span></p>
+                <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-500/40">
+                  <h5 className="font-semibold text-blue-300 mb-3">🎯 Alavancagem 3x - Equilíbrio Ideal</h5>
+                  <div className="text-sm text-blue-200 space-y-2">
+                    <p><strong>• Capital:</strong> R$ 30.000 (R$ 10.000 a cada 1x)</p>
+                    <p><strong>• Alavancagem:</strong> 3x (equilíbrio perfeito)</p>
+                    <p><strong>• Renda mensal estimada:</strong> R$ 2.400</p>
+                    <p><strong>• Meta anual:</strong> 60% líquido</p>
+                    <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 30.000)</p>
+                    <p><strong>• Drawdown máximo:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded">25% mensal</span></p>
+                    <p><strong>• Perfil:</strong> Moderado, busca crescimento consistente</p>
                   </div>
+                </div>
+                
+                <div className="text-xs text-blue-300 bg-blue-900/20 p-3 rounded-lg">
+                  <p><strong>🎯 Ideal para:</strong> Melhor relação risco x retorno. Estratégia mais equilibrada.</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Estratégia Ganho de Capital - até 3x */}
+            <div className="bg-slate-800/60 rounded-xl p-6 border border-purple-500/40 backdrop-blur-sm hover:bg-slate-800/70 transition-all">
+              <div className="flex items-center mb-4">
+                <Zap className="h-6 w-6 text-purple-400 mr-3" />
+                <h4 className="text-xl font-bold text-purple-300">Ganho de Capital</h4>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-purple-900/30 p-4 rounded-lg border border-purple-500/40">
+                  <h5 className="font-semibold text-purple-300 mb-3">🚀 Alavancagem 3x por R$ 10.000 - Ganhos Explosivos</h5>
+                  <div className="text-sm text-purple-200 space-y-2">
+                    <p><strong>• Capital:</strong> R$ 10.000</p>
+                    <p><strong>• Alavancagem:</strong> 3x por R$ 10.000 (limitado)</p>
+                    <p><strong>• Ganhos explosivos:</strong> R$ 2.000 a R$ 3.000/mês</p>
+                    <p><strong>• Potencial anual:</strong> até 180% a.a.</p>
+                    <p><strong>• Alto poder de alavancagem</strong></p>
+                    <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
+                    <p><strong>• Drawdown máximo:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded">25% mensal</span></p>
+                    <p><strong>• Perfil:</strong> Arrojado, busca ganhos explosivos</p>
+                    <div className="text-xs text-red-200">Perda total: -R$ 10.000 (risco máximo)</div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-purple-300 bg-purple-900/20 p-3 rounded-lg">
+                  <p><strong>🚀 Ideal para:</strong> Quem busca ganhos explosivos e aceita maior volatilidade</p>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Tabela de Cenários */}
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full text-sm border-collapse border border-slate-600 rounded-lg overflow-hidden">
+          
+          {/* Tabela Comparativa */}
+          <div className="overflow-x-auto bg-slate-800/60 rounded-xl border border-slate-600/50 backdrop-blur-sm">
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="border-b-2 border-slate-600 bg-slate-700/50">
+                <tr className="border-b-2 border-slate-600 bg-slate-700/60">
                   <th className="text-left py-4 px-4 font-semibold text-white">Estratégia</th>
                   <th className="text-center py-4 px-4 font-semibold text-red-400">Pessimista</th>
                   <th className="text-center py-4 px-4 font-semibold text-yellow-400">Moderado</th>
@@ -454,93 +514,88 @@ const InvestmentComparisonChart: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-600 hover:bg-slate-700/30">
+                <tr className="border-b border-slate-600 hover:bg-slate-700/40 transition-colors">
                   <td className="py-4 px-4 font-medium text-green-300">
                     <div className="flex items-center">
-                      <DollarSign className="h-5 w-5 text-green-400 mr-2" />
+                      <Shield className="h-5 w-5 text-green-400 mr-2" />
                       <div>
+                        <div className="font-bold">Conservador (1x)</div>
                         <div className="text-xs text-green-400">R$ 10.000</div>
-                        <div className="text-xs text-red-300 font-medium mb-1">😰 Pessimista (20% a.a.) - DD 25%</div>
-                        <div className="text-xs text-yellow-300 font-medium mb-1">😐 Moderado (40% a.a.) - DD 15%</div>
-                        <div className="text-xs text-green-300 font-medium mb-1">🚀 Otimista (60% a.a.) - DD 10%</div>
+                        <div className="text-xs text-red-400 font-medium">DD máx: 25% a.m.</div>
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-4 text-center text-red-300">
-                    <div className="text-lg font-bold">R$ 12.000</div>
+                    <div className="text-sm font-bold">R$ 167/mês</div>
                     <div className="text-xs">20% a.a. • DD 25%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-yellow-300">
-                    <div className="text-lg font-bold">R$ 14.000</div>
+                    <div className="text-sm font-bold">R$ 333/mês</div>
                     <div className="text-xs">40% a.a. • DD 15%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-green-300">
-                    <div className="text-lg font-bold">R$ 16.000</div>
+                    <div className="text-sm font-bold">R$ 800/mês</div>
                     <div className="text-xs">60% a.a. • DD 10%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-blue-300">
-                    <div className="text-lg font-bold">R$ 11.050</div>
-                    <div className="text-xs">10,5% a.a.</div>
+                    <div className="text-sm font-bold">R$ 87,50/mês</div>
+                    <div className="text-xs">10,5% a.a. líquido</div>
                   </td>
                 </tr>
-                <tr className="border-b border-slate-600 hover:bg-slate-700/30 bg-blue-900/20">
+                <tr className="border-b border-slate-600 hover:bg-slate-700/40 bg-blue-900/30 transition-colors">
                   <td className="py-4 px-4 font-medium text-blue-300">
                     <div className="flex items-center">
                       <TrendingUp className="h-5 w-5 text-blue-400 mr-2" />
                       <div>
-                        <div className="text-sm font-bold text-blue-300">3x</div>
+                        <div className="font-bold">Alavancagem Saudável (3x)</div>
                         <div className="text-xs text-blue-400">R$ 30.000 - RECOMENDADO</div>
-                        <div className="text-xs text-red-300 font-bold mb-1">😰 Pessimista (20% a.a.) - DD 25%</div>
-                        <div className="text-xs text-yellow-300 font-bold mb-1">😐 Moderado (120% a.a.) - DD 25%</div>
-                        <div className="text-xs text-green-300 font-bold mb-1">🚀 Otimista (180% a.a.) - DD 25%</div>
+                        <div className="text-xs text-red-400 font-medium">DD máx: 25% a.m.</div>
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-4 text-center text-red-300">
-                    <div className="text-lg font-bold">R$ 16.000</div>
-                    <div className="text-xs">60% a.a. • DD 25%</div>
+                    <div className="text-sm font-bold">R$ 500/mês</div>
+                    <div className="text-xs">20% a.a. • DD 25%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-yellow-300">
-                    <div className="text-lg font-bold">R$ 22.000</div>
-                    <div className="text-xs">120% a.a. • DD 15%</div>
+                    <div className="text-sm font-bold">R$ 1.000/mês</div>
+                    <div className="text-xs">40% a.a. • DD 15%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-green-300">
-                    <div className="text-lg font-bold">R$ 28.000</div>
-                    <div className="text-xs">180% a.a. • DD 10%</div>
+                    <div className="text-sm font-bold">R$ 2.400/mês</div>
+                    <div className="text-xs">60% a.a. • DD 10%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-blue-300">
-                    <div className="text-lg font-bold">R$ 11.050</div>
-                    <div className="text-xs">10,5% a.a.</div>
+                    <div className="text-sm font-bold">R$ 262,50/mês</div>
+                    <div className="text-xs">10,5% a.a. líquido</div>
                   </td>
                 </tr>
-                <tr className="border-b border-slate-600 hover:bg-slate-700/30">
+                <tr className="border-b border-slate-600 hover:bg-slate-700/40 transition-colors">
                   <td className="py-4 px-4 font-medium text-purple-300">
                     <div className="flex items-center">
-                      <Calculator className="h-5 w-5 text-purple-400 mr-2" />
+                      <Zap className="h-5 w-5 text-purple-400 mr-2" />
                       <div>
-                        <div className="text-sm font-bold text-purple-300">3x</div>
+                        <div className="font-bold">Ganho de Capital (3x)</div>
                         <div className="text-xs text-purple-400">R$ 10.000</div>
-                        <div className="text-xs text-red-300 font-bold mb-1">😰 Pessimista: Perda total • DD 25%</div>
-                        <div className="text-xs text-yellow-300 font-bold mb-1">😐 Moderado (80% a.a.) - DD 25%</div>
-                        <div className="text-xs text-green-300 font-bold mb-1">🚀 Otimista (172.8% a.a.) - DD 25%</div>
+                        <div className="text-xs text-red-400 font-medium">DD máx: 25% a.m.</div>
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-4 text-center text-red-300">
-                    <div className="text-lg font-bold">R$ 0</div>
+                    <div className="text-sm font-bold">R$ 2.000/mês</div>
                     <div className="text-xs">Perda total • DD 25%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-yellow-300">
-                    <div className="text-lg font-bold">R$ 18.000</div>
-                    <div className="text-xs">80% a.a. • DD 15%</div>
+                    <div className="text-sm font-bold">R$ 2.500/mês</div>
+                    <div className="text-xs">120% a.a. • DD 15%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-green-300">
-                    <div className="text-lg font-bold">R$ 27.280</div>
-                    <div className="text-xs">172.8% a.a. • DD 10%</div>
+                    <div className="text-sm font-bold">R$ 3.000/mês</div>
+                    <div className="text-xs">180% a.a. • DD 10%</div>
                   </td>
                   <td className="py-4 px-4 text-center text-blue-300">
-                    <div className="text-lg font-bold">R$ 11.050</div>
-                    <div className="text-xs">10,5% a.a.</div>
+                    <div className="text-sm font-bold">R$ 87,50/mês</div>
+                    <div className="text-xs">10,5% a.a. líquido</div>
                   </td>
                 </tr>
               </tbody>
@@ -549,7 +604,7 @@ const InvestmentComparisonChart: React.FC = () => {
         </div>
 
         {/* Key Insights */}
-        <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 rounded-2xl p-8 text-white mb-12 border border-slate-600">
+        <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-purple-900 rounded-2xl p-8 text-white mb-12 border border-slate-600">
           <h3 className="text-2xl font-bold text-white mb-6 text-center">
             Por que Portfólios de IA são a Melhor Alternativa?
           </h3>
@@ -566,8 +621,8 @@ const InvestmentComparisonChart: React.FC = () => {
             </div>
             
             <div className="text-center">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+                <Shield className="h-8 w-8 text-red-400" />
               </div>
               <h4 className="font-bold mb-2 text-red-300">Drawdown Controlado</h4>
               <p className="text-sm text-red-200">
@@ -587,15 +642,15 @@ const InvestmentComparisonChart: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-8 bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-500/30 rounded-xl p-6 backdrop-blur-sm">
+        {/* Aviso de Risco */}
+        <div className="mt-8 bg-gradient-to-r from-red-900/30 to-orange-900/30 border border-red-500/40 rounded-xl p-6 backdrop-blur-sm">
           <div className="flex items-start">
-            <AlertTriangle className="h-6 w-6 text-yellow-400 mr-3 mt-1" />
+            <AlertTriangle className="h-6 w-6 text-red-400 mr-3 mt-1" />
             <div>
-              <h4 className="font-bold text-red-300 mb-3 text-lg">⚠️ DRAWDOWN MÁXIMO: 25% MENSAL</h4>
-              <p className="text-sm text-yellow-200 leading-relaxed">
-                <strong className="text-red-300 text-base">TODAS as estratégias têm drawdown máximo de 25% mensal.</strong> 
-                Isso significa que em meses ruins, você pode ter perdas de até 25% do capital, mas nossa IA controla 
-                automaticamente os riscos. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
+              <h4 className="font-semibold text-red-300 mb-2">⚠️ Aviso Importante sobre Riscos</h4>
+              <p className="text-sm text-red-200 leading-relaxed">
+                <strong className="text-red-400 bg-red-900/30 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
+                Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
           </div>
