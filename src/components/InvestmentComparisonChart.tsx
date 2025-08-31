@@ -397,7 +397,7 @@ const InvestmentComparisonChart: React.FC = () => {
             Estratégias de Alavancagem: Portfólio de IA Quant Broker
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Estratégia Renda Mensal - 1x Alavancagem */}
             <div className="bg-white rounded-xl p-6 border border-green-200">
               <div className="flex items-center mb-4">
@@ -410,8 +410,9 @@ const InvestmentComparisonChart: React.FC = () => {
                   <h5 className="font-semibold text-green-900 mb-3">🛡️ Alavancagem 1x - Foco em Renda Mensal</h5>
                   <div className="text-sm text-green-800 space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Renda mensal estimada:</strong> R$ 800 (8% a.m. líquido)</p>
+                    <p><strong>• Meta mensal:</strong> 8% líquido (após custos e mensalidade)</p>
                     <p><strong>• Meta anual:</strong> 60% líquido (após custos e mensalidade)</p>
+                    <p><strong>• Renda mensal:</strong> R$ 800 (8% sobre R$ 10.000)</p>
                     <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 10.000)</p>
                     <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
                     <p><strong>• Drawdown máximo:</strong> 25% mensal</p>
@@ -423,10 +424,43 @@ const InvestmentComparisonChart: React.FC = () => {
                   <h5 className="font-semibold text-blue-900 mb-3">📊 Exemplo Prático</h5>
                   <div className="text-sm text-blue-800 space-y-2">
                     <p><strong>Capital:</strong> R$ 10.000</p>
-                    <p><strong>Renda Mensal:</strong> R$ 800 (8% a.m. líquido)</p>
+                    <p><strong>Renda Mensal:</strong> R$ 800 (8% líquido)</p>
                     <p><strong>Renda Anual:</strong> R$ 9.600</p>
                     <p><strong>Valor Final (1 ano):</strong> R$ 16.000</p>
                     <p><strong>Segurança:</strong> Perda máxima R$ 10.000</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Estratégia Alavancagem Saudável - 3x com R$ 30.000 */}
+            <div className="bg-white rounded-xl p-6 border border-blue-200">
+              <div className="flex items-center mb-4">
+                <Shield className="h-6 w-6 text-blue-600 mr-3" />
+                <h4 className="text-xl font-bold text-blue-900">Estratégia: Alavancagem Saudável</h4>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h5 className="font-semibold text-blue-900 mb-3">⚖️ Alavancagem 3x com R$ 30.000 - RECOMENDADO</h5>
+                  <div className="text-sm text-blue-800 space-y-2">
+                    <p><strong>• Capital:</strong> R$ 30.000 (R$ 10.000 a cada 1x)</p>
+                    <p><strong>• Alavancagem:</strong> 3x (equilibrio ideal)</p>
+                    <p><strong>• Meta mensal:</strong> 8% líquido (após custos)</p>
+                    <p><strong>• Meta anual:</strong> 60% líquido</p>
+                    <p><strong>• Renda mensal:</strong> R$ 2.400 (8% sobre R$ 30.000)</p>
+                    <p><strong>• Risco:</strong> Limitado ao capital (máx R$ 30.000)</p>
+                    <p><strong>• Perfil:</strong> Equilibrado, crescimento saudável</p>
+                  </div>
+                </div>
+                
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h5 className="font-semibold text-green-900 mb-3">✅ Vantagens da Estratégia</h5>
+                  <div className="text-sm text-green-800 space-y-2">
+                    <p><strong>• Equilibrio:</strong> Risco x Retorno ideal</p>
+                    <p><strong>• Diversificação:</strong> Capital distribuído</p>
+                    <p><strong>• Sustentabilidade:</strong> Crescimento consistente</p>
+                    <p><strong>• Recomendação:</strong> Estratégia mais indicada</p>
                   </div>
                 </div>
               </div>
@@ -436,28 +470,29 @@ const InvestmentComparisonChart: React.FC = () => {
             <div className="bg-white rounded-xl p-6 border border-purple-200">
               <div className="flex items-center mb-4">
                 <TrendingUp className="h-6 w-6 text-purple-600 mr-3" />
-                <h4 className="text-xl font-bold text-purple-900">Estratégia: Ganho de Capital</h4>
+                <h4 className="text-xl font-bold text-purple-900">Estratégia: Ganho Explosivo</h4>
               </div>
               
               <div className="space-y-4">
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem 2x a 5x - Ganhos Explosivos</h5>
+                  <h5 className="font-semibold text-purple-900 mb-3">🚀 Alavancagem 2x a 3x - Ganhos Explosivos</h5>
                   <div className="text-sm text-purple-800 space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
-                    <p><strong>• Meta anual:</strong> 60% líquido</p>
-                    <p><strong>• Potencial com alavancagem:</strong> até 300% a.a.</p>
-                    <p><strong>• Alto poder de alavancagem</strong></p>
+                    <p><strong>• Alavancagem:</strong> 2x a 3x sobre R$ 10.000</p>
+                    <p><strong>• Ganhos explosivos:</strong> R$ 2.000 a R$ 3.000/mês</p>
+                    <p><strong>• Potencial:</strong> 240% a 360% a.a.</p>
+                    <p><strong>• Risco:</strong> Perda total possível (R$ 10.000)</p>
                     <p><strong>• Gestão:</strong> IA controla risco automaticamente</p>
-                    <p><strong>• Drawdown controlado:</strong> máx 25%</p>
+                    <p><strong>• Perfil:</strong> Arrojado, busca ganhos explosivos</p>
                   </div>
                 </div>
                 
                 <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                   <h5 className="font-semibold text-orange-900 mb-3">⚡ Cenário Explosivo</h5>
                   <div className="text-sm text-orange-800 space-y-2">
-                    <p><strong>Alavancagem 3x:</strong></p>
-                    <p>• Ganho mensal: R$ 2.400 (24% sobre capital)</p>
-                    <p>• Potencial anual: R$ 28.800 (288% a.a.)</p>
+                    <p><strong>Alavancagem 2x:</strong> R$ 2.000/mês</p>
+                    <p><strong>Alavancagem 3x:</strong> R$ 3.000/mês</p>
+                    <p><strong>Potencial anual:</strong> R$ 24.000 a R$ 36.000</p>
                     <p><strong>⚠️ Risco:</strong> Perda total R$ 10.000</p>
                     <p><strong>🎯 Recompensa:</strong> Ganhos explosivos</p>
                   </div>
