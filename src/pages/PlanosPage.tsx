@@ -45,6 +45,7 @@ const PlanosPage: React.FC = () => {
         recommendedPlan={recommendedPlan}
       />
       <InvestmentComparison />
+      <InvestmentComparisonChart />
       <BenefitsSection />
     </Layout>
   );

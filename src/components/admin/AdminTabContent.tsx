@@ -7,7 +7,7 @@ import AdminSuppliersPanel from './AdminSuppliersPanel';
 import AdminLeadsPanel from './AdminLeadsPanel';
 
 interface AdminTabContentProps {
-  activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers' | 'leads';
+  activeTab: 'financial' | 'contracts' | 'users' | 'waitlist' | 'suppliers' | 'leads' | 'plans';
 }
 
 const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
@@ -25,6 +25,8 @@ const AdminTabContent: React.FC<AdminTabContentProps> = ({ activeTab }) => {
         return <AdminSuppliersPanel />;
       case 'leads':
         return <AdminLeadsPanel />;
+      case 'plans':
+        return <AdminPlansPanel />;
       default:
         return <AdminFinancialPanel />;
     }
