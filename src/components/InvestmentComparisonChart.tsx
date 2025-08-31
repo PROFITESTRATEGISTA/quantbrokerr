@@ -13,19 +13,44 @@ const InvestmentComparisonChart: React.FC = () => {
     const data = [];
 
     for (let i = 0; i <= months; i++) {
-      // CDI 8% a.a. líquido (após impostos e taxas)
-      const cdiMonthlyRate = 0.08 / 12; // 8% anual dividido por 12 meses
+      // CDI 10.5% a.a. líquido (após impostos e taxas)
+      const cdiMonthlyRate = 0.105 / 12; // 10.5% anual dividido por 12 meses
       const cdiValue = initialCapital * Math.pow(1 + cdiMonthlyRate, i);
 
       // Imóvel: 0.5% a.m. líquido (6% a.a. após impostos, IPTU, manutenção)
       const realEstateMonthlyRate = 0.005;
       const realEstateValue = initialCapital * Math.pow(1 + realEstateMonthlyRate, i);
 
-      // Portfólio IA: 5% a.m. médio (60% a.a.) com volatilidade
-      const aiMonthlyRate = 0.05;
-      // Adicionar volatilidade realista (alguns meses negativos)
-      const volatilityFactor = i % 6 === 0 ? 0.7 : i % 8 === 0 ? 0.85 : 1; // Alguns meses com performance menor
-      const aiValue = initialCapital * Math.pow(1 + (aiMonthlyRate * volatilityFactor), i);
+      // Portfólio IA: Meta 60% a.a. (4.8% a.m. médio) com drawdowns realistas
+      let aiValue = initialCapital;
+      
+      // Simular performance mensal realista com drawdowns
+      if (i > 0) {
+        const baseMonthlyRate = 0.048; // 4.8% mensal para atingir 60% anual
+        
+        // Padrão de performance realista com meses negativos
+        let monthlyPerformance;
+        if (i % 7 === 0) {
+          // Mês de drawdown severo (-15% a -25%)
+          monthlyPerformance = -0.15 - (Math.random() * 0.10); // -15% a -25%
+        } else if (i % 4 === 0) {
+          // Mês de perda moderada (-5% a -10%)
+          monthlyPerformance = -0.05 - (Math.random() * 0.05); // -5% a -10%
+        } else if (i % 3 === 0) {
+          // Mês de performance baixa (0% a 3%)
+          monthlyPerformance = Math.random() * 0.03; // 0% a 3%
+        } else {
+          // Meses positivos (5% a 15%)
+          monthlyPerformance = 0.05 + (Math.random() * 0.10); // 5% a 15%
+        }
+        
+        // Aplicar performance ao valor anterior
+        const previousValue = data[i - 1]?.portfolioIA || initialCapital;
+        aiValue = previousValue * (1 + monthlyPerformance);
+        
+        // Garantir que não fique negativo (proteção de capital)
+        aiValue = Math.max(aiValue, initialCapital * 0.1); // Máximo 90% de perda
+      }
 
       data.push({
         month: i,
@@ -52,29 +77,33 @@ const InvestmentComparisonChart: React.FC = () => {
       color: '#22c55e',
       finalValue: finalData.portfolioIA,
       finalReturn: finalData.portfolioIAReturn,
-      monthlyReturn: 5.0,
+      monthlyReturn: 4.8,
       annualReturn: 60.0,
       risk: 'Limitado ao capital investido',
       liquidity: 'Alta (D+0)',
       advantages: [
-        'Alto poder de alavancagem',
+        'Alto poder de alavancagem (até 5x)',
         'Gestão automatizada 24/7',
         'Diversificação automática',
-        'Liquidez imediata'
+        'Liquidez imediata',
+        'Meta: 60% a.a. líquido',
+        'Drawdown máximo: 25% mensal'
       ],
       considerations: [
         'Volatilidade de mercado',
-        'Risco limitado ao capital'
+        'Risco limitado ao capital',
+        'Meses de drawdown esperados',
+        'Performance varia mensalmente'
       ]
     },
     {
-      name: 'CDI (8% a.a.)',
+      name: 'CDI (10,5% a.a.)',
       icon: Shield,
       color: '#3b82f6',
       finalValue: finalData.cdi,
       finalReturn: finalData.cdiReturn,
-      monthlyReturn: 0.67,
-      annualReturn: 8.0,
+      monthlyReturn: 0.875,
+      annualReturn: 10.5,
       risk: 'Baixo (FGC até R$ 250k)',
       liquidity: 'Média (D+1 a D+30)',
       advantages: [
@@ -188,6 +217,14 @@ const InvestmentComparisonChart: React.FC = () => {
                   {option.label}
                 </button>
               ))}
+              {/* Show monthly performance for AI Portfolio */}
+              {activeChart === 'monthly' && payload.some((p: any) => p.dataKey === 'portfolioIA') && (
+                <div className="mt-2 pt-2 border-t border-gray-200">
+                  <p className="text-xs text-gray-600">
+                    Meta Quant Broker: 60% a.a. | Drawdown máx: 25%
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -273,11 +310,11 @@ const InvestmentComparisonChart: React.FC = () => {
           <div className="flex flex-wrap justify-center gap-6">
             <div className="flex items-center">
               <div className="w-4 h-4 bg-green-500 rounded mr-2"></div>
-              <span className="text-sm font-medium text-gray-700">Portfólio IA (60% a.a.)</span>
+              <span className="text-sm font-medium text-gray-700">Portfólio IA (Meta: 60% a.a.)</span>
             </div>
             <div className="flex items-center">
               <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-              <span className="text-sm font-medium text-gray-700">CDI (8% a.a. líquido)</span>
+              <span className="text-sm font-medium text-gray-700">CDI (10,5% a.a. líquido)</span>
             </div>
             <div className="flex items-center">
               <div className="w-4 h-4 bg-gray-500 rounded mr-2"></div>
@@ -400,20 +437,21 @@ const InvestmentComparisonChart: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-blue-900 mb-2">Portfólio IA (Alavancagem 1x)</h5>
+                  <h5 className="font-semibold text-blue-900 mb-2">Portfólio IA (Meta: 60% a.a.)</h5>
                   <div className="text-sm text-blue-800 space-y-1">
                     <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Renda mensal estimada: R$ {(initialCapital * 0.05).toLocaleString('pt-BR')}</p>
+                    <p>• Renda mensal estimada: R$ {(initialCapital * 0.048).toLocaleString('pt-BR')}</p>
                     <p>• Risco limitado ao capital investido</p>
                     <p>• Liquidez imediata (D+0)</p>
+                    <p>• Drawdown máximo: 25% mensal</p>
                   </div>
                 </div>
                 
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-gray-900 mb-2">CDI (8% a.a.)</h5>
+                  <h5 className="font-semibold text-gray-900 mb-2">CDI (10,5% a.a.)</h5>
                   <div className="text-sm text-gray-700 space-y-1">
                     <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Renda mensal: R$ {(initialCapital * 0.0067).toLocaleString('pt-BR')}</p>
+                    <p>• Renda mensal: R$ {(initialCapital * 0.00875).toLocaleString('pt-BR')}</p>
                     <p>• Segurança FGC</p>
                     <p>• Liquidez D+1</p>
                   </div>
@@ -430,12 +468,14 @@ const InvestmentComparisonChart: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h5 className="font-semibold text-green-900 mb-2">Portfólio IA (Alavancagem 2x-5x)</h5>
+                  <h5 className="font-semibold text-green-900 mb-2">Portfólio IA (Meta: 60% a.a. + Alavancagem)</h5>
                   <div className="text-sm text-green-800 space-y-1">
                     <p>• Capital: R$ {initialCapital.toLocaleString('pt-BR')}</p>
-                    <p>• Potencial em 3 anos: R$ {(finalData.portfolioIA * 2).toLocaleString('pt-BR')}</p>
+                    <p>• Meta anual: 60% líquido</p>
+                    <p>• Potencial com alavancagem: até 300% a.a.</p>
                     <p>• Alto poder de alavancagem</p>
                     <p>• Gestão automatizada de risco</p>
+                    <p>• Drawdown controlado: máx 25%</p>
                   </div>
                 </div>
                 
@@ -466,7 +506,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2">Alto Retorno</h4>
               <p className="text-sm text-green-100">
-                Potencial de 60% a.a. vs 8% do CDI
+                Meta: 60% a.a. vs 10,5% do CDI
               </p>
             </div>
             
@@ -476,7 +516,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2">Risco Controlado</h4>
               <p className="text-sm text-blue-100">
-                Limitado ao capital investido
+                DD máx: 25% | Capital protegido
               </p>
             </div>
             
@@ -496,7 +536,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2">Alavancagem</h4>
               <p className="text-sm text-yellow-100">
-                Multiplique seus resultados
+                Até 5x para maximizar ganhos
               </p>
             </div>
           </div>
@@ -511,10 +551,10 @@ const InvestmentComparisonChart: React.FC = () => {
               <p className="text-sm text-yellow-800 leading-relaxed">
                 <strong>Renda Variável:</strong> Os investimentos em Portfólios de IA estão sujeitos a riscos e podem resultar em perdas patrimoniais. 
                 Rentabilidades passadas não garantem resultados futuros. Os percentuais apresentados são estimativas baseadas em backtests 
-                e resultados históricos. É recomendável a leitura cuidadosa do regulamento antes de investir.
+                e resultados históricos. <strong>Drawdown máximo esperado: 25% mensal.</strong> Meta da Quant Broker: 60% a.a. líquido.
                 <br /><br />
                 <strong>Comparação Educativa:</strong> Esta comparação tem fins educativos. CDI e imóveis têm características de risco diferentes. 
-                Diversifique sempre seus investimentos e consulte um assessor qualificado.
+                Diversifique sempre seus investimentos e consulte um assessor qualificado. <strong>Analista Responsável:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
           </div>
