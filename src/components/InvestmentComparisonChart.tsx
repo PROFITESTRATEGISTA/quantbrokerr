@@ -217,14 +217,6 @@ const InvestmentComparisonChart: React.FC = () => {
                   {option.label}
                 </button>
               ))}
-              {/* Show monthly performance for AI Portfolio */}
-              {activeChart === 'monthly' && payload.some((p: any) => p.dataKey === 'portfolioIA') && (
-                <div className="mt-2 pt-2 border-t border-gray-200">
-                  <p className="text-xs text-gray-600">
-                    Meta Quant Broker: 60% a.a. | Drawdown máx: 25%
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
