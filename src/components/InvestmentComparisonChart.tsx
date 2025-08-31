@@ -678,13 +678,13 @@ const InvestmentComparisonChart: React.FC = () => {
         {/* Aviso de Risco */}
         <div className="mt-6 sm:mt-8 bg-gradient-to-r from-yellow-600 to-orange-500 border border-yellow-500 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
           <div className="flex items-start">
-            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-900 mr-2 sm:mr-3 mt-1 flex-shrink-0" />
+            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-white mr-2 sm:mr-3 mt-1 flex-shrink-0" />
             <div>
-              <h4 className="font-semibold text-yellow-900 mb-2 text-sm sm:text-base">
+              <h4 className="font-semibold text-white mb-2 text-sm sm:text-base">
                 <span className="hidden sm:inline">⚠️ Aviso Importante sobre Riscos</span>
                 <span className="sm:hidden">⚠️ Aviso de Riscos</span>
               </h4>
-              <p className="text-xs sm:text-sm text-yellow-900 leading-relaxed">
+              <p className="text-xs sm:text-sm text-white leading-relaxed">
                 <strong className="text-yellow-900 bg-yellow-200 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
                 <span className="hidden sm:inline"> Cenários baseados em performance mensal variável.</span> <strong>Analista:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
