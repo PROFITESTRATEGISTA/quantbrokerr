@@ -630,7 +630,7 @@ const InvestmentComparisonChart: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-red-300">
-                    <div className="text-xs sm:text-sm font-bold">-R$ 7.500</div>
+                    <div className="text-xs sm:text-sm font-bold">-R$ 6.000</div>
                     <div className="text-xs">-20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-yellow-300">
