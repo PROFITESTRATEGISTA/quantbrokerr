@@ -441,7 +441,6 @@ const InvestmentComparisonChart: React.FC = () => {
                   <div className="text-xs sm:text-sm text-green-200 space-y-1 sm:space-y-2">
                     <p><strong>• Capital:</strong> R$ 10.000</p>
                     <p><strong>• Renda mensal:</strong> R$ 800 (8% a.m.)</p>
-                    <p><strong>• Meta anual:</strong> 60% líquido</p>
                     <p><strong>• Risco:</strong> Máx R$ 10.000</p>
                     <p><strong>• Liquidez:</strong> Imediata (D+0)</p>
                     <p><strong>• DD máx:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-1 sm:px-2 py-1 rounded text-xs">25%</span></p>
@@ -483,7 +482,6 @@ const InvestmentComparisonChart: React.FC = () => {
                     <p><strong>• Capital:</strong> R$ 30.000 (R$ 10.000 a cada 1x)</p>
                     <p><strong>• Alavancagem:</strong> 3x</p>
                     <p><strong>• Renda mensal:</strong> R$ 2.400</p>
-                    <p><strong>• Meta anual:</strong> 60% líquido</p>
                     <p><strong>• Risco:</strong> Máx R$ 30.000</p>
                     <p><strong>• DD máx:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-1 sm:px-2 py-1 rounded text-xs">25%</span></p>
                     <p><strong>• Perfil:</strong> Moderado</p>
@@ -516,7 +514,6 @@ const InvestmentComparisonChart: React.FC = () => {
                     <p><strong>• Capital:</strong> R$ 10.000</p>
                     <p><strong>• Alavancagem:</strong> 3x limitado</p>
                     <p><strong>• Ganhos:</strong> R$ 2-3k/mês</p>
-                    <p><strong>• Potencial:</strong> até 180% a.a.</p>
                     <p><strong>• Gestão:</strong> IA automática</p>
                     <p><strong>• DD máx:</strong> <span className="text-red-400 font-bold bg-red-900/30 px-1 sm:px-2 py-1 rounded text-xs">25%</span></p>
                     <p><strong>• Perfil:</strong> Arrojado</p>
@@ -571,20 +568,20 @@ const InvestmentComparisonChart: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-red-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 167</div>
-                    <div className="text-xs">20% • 25%</div>
+                    <div className="text-xs sm:text-sm font-bold">-R$ 2.000</div>
+                    <div className="text-xs">-20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-yellow-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 333</div>
-                    <div className="text-xs">40% • 15%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 800</div>
+                    <div className="text-xs">8% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-green-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 800</div>
-                    <div className="text-xs">60% • 10%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 2.000</div>
+                    <div className="text-xs">20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
                     <div className="text-xs sm:text-sm font-bold">R$ 87</div>
-                    <div className="text-xs">10,5%</div>
+                    <div className="text-xs">0,87% a.m.</div>
                   </td>
                 </tr>
                 <tr className="border-b border-slate-600 hover:bg-slate-700/40 bg-blue-900/30 transition-colors">
@@ -602,20 +599,20 @@ const InvestmentComparisonChart: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-red-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 500</div>
-                    <div className="text-xs">20% • 25%</div>
+                    <div className="text-xs sm:text-sm font-bold">-R$ 6.000</div>
+                    <div className="text-xs">-20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-yellow-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 1.000</div>
-                    <div className="text-xs">40% • 15%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 2.400</div>
+                    <div className="text-xs">8% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-green-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 2.400</div>
-                    <div className="text-xs">60% • 10%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 6.000</div>
+                    <div className="text-xs">20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
                     <div className="text-xs sm:text-sm font-bold">R$ 262</div>
-                    <div className="text-xs">10,5%</div>
+                    <div className="text-xs">0,87% a.m.</div>
                   </td>
                 </tr>
                 <tr className="border-b border-slate-600 hover:bg-slate-700/40 transition-colors">
@@ -633,20 +630,20 @@ const InvestmentComparisonChart: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-red-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 2k</div>
-                    <div className="text-xs">Perda • 25%</div>
+                    <div className="text-xs sm:text-sm font-bold">-R$ 2.000</div>
+                    <div className="text-xs">-20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-yellow-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 2,5k</div>
-                    <div className="text-xs">120% • 15%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 800</div>
+                    <div className="text-xs">8% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-green-300">
-                    <div className="text-xs sm:text-sm font-bold">R$ 3k</div>
-                    <div className="text-xs">180% • 10%</div>
+                    <div className="text-xs sm:text-sm font-bold">R$ 2.000</div>
+                    <div className="text-xs">20% a.m.</div>
                   </td>
                   <td className="py-2 sm:py-4 px-2 sm:px-4 text-center text-blue-300">
                     <div className="text-xs sm:text-sm font-bold">R$ 87</div>
-                    <div className="text-xs">10,5%</div>
+                    <div className="text-xs">0,87% a.m.</div>
                   </td>
                 </tr>
               </tbody>
@@ -668,7 +665,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2 text-green-300 text-sm sm:text-base">Alto Retorno</h4>
               <p className="text-xs sm:text-sm text-green-200">
-                Meta de 60% a.a. líquido vs 10,5% do CDI
+                Cenário otimista: 20% a.m. vs 0,87% a.m. do CDI
               </p>
             </div>
             
@@ -688,7 +685,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </div>
               <h4 className="font-bold mb-2 text-purple-300 text-sm sm:text-base">Alavancagem Inteligente</h4>
               <p className="text-xs sm:text-sm text-purple-200">
-                Até 5x para maximizar ganhos
+                Até 3x para maximizar ganhos mensais
               </p>
             </div>
           </div>
@@ -705,7 +702,7 @@ const InvestmentComparisonChart: React.FC = () => {
               </h4>
               <p className="text-xs sm:text-sm text-white leading-relaxed">
                 <strong className="text-red-300 bg-red-900/30 px-2 py-1 rounded">Drawdown máximo: 25% mensal em todas as estratégias.</strong> A análise inclui meses de perda para mostrar cenário realista.
-                <span className="hidden sm:inline"> Diversifique sempre seus investimentos e consulte um assessor qualificado.</span> <strong>Analista:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
+                <span className="hidden sm:inline"> Cenários baseados em performance mensal variável.</span> <strong>Analista:</strong> Yallon Mazuti de Carvalho - CNPI-T 8964.
               </p>
             </div>
           </div>
