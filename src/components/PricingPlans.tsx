@@ -570,9 +570,9 @@ const PricingPlans: React.FC<PricingPlansProps> = ({
                 <div className="bg-white rounded-lg p-4 border border-yellow-200">
                   <h5 className="font-semibold text-yellow-900 mb-2">Custos Fixos Mensais</h5>
                   <ul className="text-yellow-800 space-y-1 text-left">
-                    <li>• Mensalidade Portfólio de IA: R$ 300 a R$ 750</li>
+                    <li>• Mensalidade Portfólio de IA: R$ 400 a R$ 750</li>
                     <li>• Custo Plataforma BTG: R$ 100,00</li>
-                    <li>• <strong>Total Fixo:</strong> R$ 400 a R$ 850/mês</li>
+                    <li>• <strong>Total Fixo:</strong> R$ 500 a R$ 850/mês</li>
                   </ul>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-yellow-200">
