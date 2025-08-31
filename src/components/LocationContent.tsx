@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, TrendingUp, Users, Award } from 'lucide-react';
+import InvestmentComparisonChart from './InvestmentComparisonChart';
 
 const LocationContent: React.FC = () => {
   const locations = [
@@ -35,38 +36,41 @@ const LocationContent: React.FC = () => {
   ];
 
   return (
-    <div className="bg-gray-50 py-16">
+    <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Investment Comparison Chart */}
+        <InvestmentComparisonChart />
+        
         {/* Local SEO Content */}
-        <div className="mt-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="mt-12 bg-gradient-to-r from-slate-800/50 to-blue-900/50 rounded-xl p-8 border border-slate-600/50 backdrop-blur-sm">
+          <h3 className="text-2xl font-bold text-white mb-4">
             Por que Escolher Nossos Portfólios de IA no Brasil?
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Presença Nacional</h4>
-              <p className="text-gray-700 text-sm">
+              <h4 className="font-semibold text-cyan-300 mb-2">Presença Nacional</h4>
+              <p className="text-slate-300 text-sm">
                 Atendemos clientes em São Paulo, Rio de Janeiro, Belo Horizonte, Brasília, 
                 Porto Alegre e todas as principais cidades brasileiras com suporte local.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Parceria BTG Pactual</h4>
-              <p className="text-gray-700 text-sm">
+              <h4 className="font-semibold text-cyan-300 mb-2">Parceria BTG Pactual</h4>
+              <p className="text-slate-300 text-sm">
                 Operamos exclusivamente via Mosaico BTG, garantindo segurança e 
                 confiabilidade para investidores em todo território nacional.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Suporte Regional</h4>
-              <p className="text-gray-700 text-sm">
+              <h4 className="font-semibold text-cyan-300 mb-2">Suporte Regional</h4>
+              <p className="text-slate-300 text-sm">
                 Equipe especializada conhece as particularidades de cada região, 
                 oferecendo atendimento personalizado para cada localidade.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Tecnologia Nacional</h4>
-              <p className="text-gray-700 text-sm">
+              <h4 className="font-semibold text-cyan-300 mb-2">Tecnologia Nacional</h4>
+              <p className="text-slate-300 text-sm">
                 Algoritmos desenvolvidos no Brasil, adaptados ao mercado local 
                 e regulamentações da CVM e Banco Central.
               </p>
