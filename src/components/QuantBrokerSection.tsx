@@ -85,25 +85,6 @@ const QuantBrokerSection: React.FC = () => {
           </h3>
         </div>
 
-        {/* Technology Showcase */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {technologies.map((tech, index) => (
-            <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <img 
-                src={tech.image} 
-                alt={tech.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
-                  <tech.icon className="h-6 w-6 text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">{tech.title}</h4>
-                <p className="text-gray-600 leading-relaxed">{tech.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
 
         {/* Call-to-Action Section */}
